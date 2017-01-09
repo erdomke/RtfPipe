@@ -1,0 +1,198 @@
+History
+
+1st August, 2013 - v1.7.0.0
+-------------------------------------------------------------------------------
+- RtfHtmlConverter: Replaced align attributes with style attributes
+
+20th January, 2013 - v1.6.0.0
+-------------------------------------------------------------------------------
+- RtfHtmlConverter: Added support for HTML tags superscript and subscript
+- RtfImageBuilder.VisitTag: Fixed negative image dimensions by enforcing the absolute value
+- RtfFontTableBuilder: Added option to ignore duplicated fonts
+- RtfInterpreter: Added option to ignore unknown fonts
+- RtfInterpreterSettings: New class to customize the interpreter
+- RtfInterpreter/RtfInterpreterTool: Added support fo the interpreter settings
+- Rtf2Xml/Rtf2Raw/Rtf2Html: New command line argument /IDF to ignore duplicated fonts
+- Rtf2Xml/Rtf2Raw/Rtf2Html: New command line argument /IUF to ignore unknown fonts
+- Rtf2Raw/Rtf2Html: New command line argument /UI to enforce unscaled images
+
+12th September, 2012 - v1.5.0.0
+-------------------------------------------------------------------------------
+- ToggleArgument: Fixed parsing of the off-toggle
+- RtfInterpreter: Allowed font with zero size
+- RtfEmptyHtmlStyleConverter: New class with empty style converter
+- Rtf2Html: New command line argument /IS to suppress inline styles using RtfEmptyHtmlStyleConverter
+
+3rd March, 2012 - v1.4.0.0
+-------------------------------------------------------------------------------
+- RtfTextFormat: Fixed reset of super script in DeriveWithSuperScript
+
+26th April, 2011 - v1.3.0.0
+-------------------------------------------------------------------------------
+- RtfVisualImageAdapter: Relaxed handling for non-hex image data
+
+8th April, 2011 - v1.2.0.0
+-------------------------------------------------------------------------------
+- RtfFontBuilder: Relaxed handling for missing font names, generating font name 'UnnamedFont_{fond-id}'
+
+14th February, 2011
+-------------------------------------------------------------------------------
+- Replaced RtfHmltCpecialCharConverter with RtfHtmlSpecialCharCollection
+- RtfHtmlConverter: New property SpecialCharacters
+
+25th January, 2011
+-------------------------------------------------------------------------------
+- Rtf Interpreter: Fixed retroactive paragraph changes
+
+1th December, 2010
+-------------------------------------------------------------------------------
+- RtfHtmlSpecialCharConverter: New class to handle special character conversion
+- RtfHtmlConverterSettings: New property SpecialCharsRepresentation
+- RtfHtmlConverter: Added support for special character conversion
+- Rtf2Html: New command line argument /SC to control the special character conversion
+- Removed projects and solutions for Visual Studio 2005
+- Added projects and solutions for Visual Studio 2010
+
+20th August, 2009
+-------------------------------------------------------------------------------
+- RtfHtmlConverterSettings: New property UseNonBreakingSpaces
+- Rtf2Html: New command line argument /NBS to replace spaces with non-breaking spaces (default=off)
+
+18th August, 2009
+-------------------------------------------------------------------------------
+- signed assemblies
+- RtfImageConverterSettings: New property BackgroundColor
+- Rtf2Raw, Rtf2Html: New command line argument /BC for the image background color
+
+3rd August, 2009
+-------------------------------------------------------------------------------
+- RtfHtmlConverter: Replacing text spaces with non-breaking-spaces
+- RtfImageConverter: Fixed missing converted image info in case of undefined target format
+
+20th May, 2009
+-------------------------------------------------------------------------------
+- RtfHtmlConverter: Added support for Justify alignment
+- RtfHtmlConverter: Fixed missing closing tag </ul> for bulleted lists, in case when ConvertScope is set to Content
+
+5th May, 2009
+-------------------------------------------------------------------------------
+- RtfSpec: New tag highlight for highlighted text
+- RtfInterpreter: Added support for text highlighting
+- Rtf2Raw, Rtf2Xml, Rtf2Html: Enumeration ProgramExitCode contains all program exit codes
+
+20th February, 2009
+-------------------------------------------------------------------------------
+- RtfParser: Various new specialized exceptions based on RtfParserException
+- RtfInterpreter: Various new specialized exceptions based on RtfInterpreterException
+- Projects Sys, Parser and Interpreter: Extracted localizable strings to Strings.cs and Strings.resx
+- Rtf2Html: New command line argument /DS to control the conversion scope
+
+18th February, 2009
+-------------------------------------------------------------------------------
+- RtfSpec: New tag 'nonshppict' for alternative images
+- RtfInterpreter: Ignoring alternative images
+- RtfInterpreterTest: New unit-test for alternative images
+
+16th February, 2009
+-------------------------------------------------------------------------------
+- RtfImageConvertSettings: New properties ScaleOffset and ScaleExtension to control image scaling
+- Rtf2Raw and Rtf2Html: New command line argument /XS to fix the BorderBug
+- Changed binaries from debug to release (slightly better performance)
+
+5th February, 2009
+-------------------------------------------------------------------------------
+- RtfInterpreter: Extended group handling to recognize state transition from header to document in case no other mechanism detects it and the content starts with a group with such a 'destination'
+
+3rd February, 2009
+-------------------------------------------------------------------------------
+- Rtf2Html: Added support to convert visual hyperlinks
+  - New command line argument /CH to convert visual hyperlinks (default is off)
+  - New command line argument /HP:pattern with the regular expression pattern to recognize visual hyperlinks (optional)
+  - Programmatical control with RtfHtmlConvertSettings.ConvertVisualHyperlinks and RtfHtmlConvertSettings.VisualHyperlinkPattern
+  - Only visible hyperlinks will be converted. Does not support hyperlinks which are represented by a display text and the actual hyperlink stored in a (hidden) field content.
+- Refactored code - or rather 'ReSharped' :)
+
+22th October, 2008 
+-------------------------------------------------------------------------------
+- RtfParser: Fixed to properly handle skipping of unicode alternative representation in case these are written in hex-encoded form 
+- RtfHtmlConverter: New property DocumentImages which provides information about the converted images using IRtfConvertedImageInfo 
+- added ChangeHistory.txt (this file)
+
+15th October, 2008 
+-------------------------------------------------------------------------------
+- Added support for tags 
+   \sub: changes font size to 2/3 of the current font size and moves 'down' by half the current font size. 
+   \super: changes font size to 2/3 of the current font size and moves 'up' by half the current font size. 
+   \nosupersub: resets the 'up'/'down' baseline alignment to zero.
+     ATTENTION: this leaves the font size unchanged as it is not known by the current implementation, what the 'previous' font size was.
+     Hence, depending on the rtf-writer, this might lead to content that is displayed with a smaller font size than intended. 
+   \v*: toggles the new IsHidden property of the IRtfTextFormat.
+   \v and \v1 turn it on while \v0 turns it off (according to the behavior or 'boolean tags'). 
+   \viewkind: triggers the transition from interpreter state InHeader to InDocument (but only if the font table is already defined).
+     This supports documents without color table and prevents formatting or content at the beginning from being ignored. 
+- Extended/fixed support for tags 
+    \dn and \up: will use the specified default value of '6' if none is given in the RTF (instead of resetting to zero). 
+- RtfTextConverterSettings/RtfXmlConverterSettings/RtfHtmlConverterSettings: have a new flag IsShowHiddenText which defaults to false. 
+- RtfTextConverter/RtfXmlConverter/RtfHtmlConverter: will only append found text to the plain text buffer if it is not marked hidden in its text format or if the new setting IsShowHiddenText is explicitly set to true. 
+- Rtf2Raw/Rtf2Xml/Rtf2Html: New commandline argument /HT to convert hidden text 
+- RtfWinForms/RtfWindows: Conversion is considering the text selection 
+- Added projects and solutions for Visual Studio 2005 
+- Download now contains the binaries 
+
+13th October, 2008 
+-------------------------------------------------------------------------------
+- RtfImageConverter: New property ConvertedImages which provides information about the converted images using IRtfConvertedImageInfo 
+
+3rd October, 2008 
+-------------------------------------------------------------------------------
+- RtfHtmlConverter: Fixed encoding of image file names 
+
+-------------------------------------------------------------------------------
+26th September, 2008 
+- Added support for \pict tags wrapped in a \*\shppict group 
+- RtfGroup: Extended debugging visualization 
+
+23rd September, 2008 
+-------------------------------------------------------------------------------
+- RtfParser: Fixed local group fonts 
+
+18th September, 2008 
+-------------------------------------------------------------------------------
+- RtfSpec: New tag constants for the theme fonts and stylesheet 
+- RtfParser: Added support for dealing with theme fonts during decoding (ugly but necessary when such fonts are used for hex encoded content) 
+- RtfFontBuilder: Added support for theme fonts 
+- RtfFontBuilder: Added support for font names with an alternative representation 
+- RtfFontTableBuilder: Added support for theme fonts 
+- RtfInterpeter: Added special support for stylesheets by ignoring their contents (to prevent the style names from appearing in the document content) 
+- Added the test document (in two variants) as unit test input 
+
+31st July, 2008 
+-------------------------------------------------------------------------------
+- New Windows Forms sample application which demonstrates a simple conversion from RTF to Text/XML/HTML 
+- New WPF sample application which demonstrates a simple conversion from RTF to Text/XML/HTML 
+- IRtfInterpreterContext: Replaced int DefaultFontIndex by string DefaultFontId to support WPF RichTextBox font indexing 
+
+14th July, 2008 
+-------------------------------------------------------------------------------
+- RtfHtmlConveter: New class IRtfHtmlStyleConverter which provides external style conversion 
+- RtfHtmlConveter: Changed default image type from GIF to JPEG 
+- RtfHtmlConveter: Fixed align of images 
+
+11th July, 2008 
+-------------------------------------------------------------------------------
+- Support for character set decoding per font 
+- Support for decoding multi-byte hex-encoded characters (this handles East Asian fonts commonly encoded in this way instead of using Unicode) 
+- Special treatment for the Windows legacy pseudo codepage 42 (mapped to the ANSI codepage) 
+- All command line applications: new command line parameter /CE for specifying the output encoding (such as UTF-8 or UTF-16 a.k.a. Unicode) 
+- Rtf2Html: Fixed HTML-encoded string 
+- Command line application Rtf2Html: New command line parameter /CS for the HTML character set 
+- RtfParserTest and RtfInterpreterTest: New unit-tests for multi-byte character set decoding 
+- Minor bug fixes 
+
+3rd July, 2008 
+-------------------------------------------------------------------------------
+- Command line applications: Fixed exception in case when log parser is not used 
+
+1st July, 2008 
+-------------------------------------------------------------------------------
+- Initial public release 

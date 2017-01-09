@@ -1,0 +1,16 @@
+bullet list:
+·	item one
+·	lirum
+·	larum
+·	löffelstiel
+·	item two
+·	item three
+
+numbered list:
+1.	first item
+1.	lirum
+2.	larum
+3.	löffelstiel
+2.	second item
+3.	third item
+

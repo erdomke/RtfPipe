@@ -1,0 +1,6 @@
+TEST BIG SMALL AGAIN          BROWN BLUE AND ANOTHER fONT.
+
+
+This is a left-aligned paragraph
+right-aligned one
+centered one

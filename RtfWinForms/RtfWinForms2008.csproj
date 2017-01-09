@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5F5150F5-90A0-4B7A-B989-90A77EA3D354}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Itenso.Solutions.Community.RtfConverter.RtfWinForms</RootNamespace>
+    <AssemblyName>RtfWinForms</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\VersionInfo.cs" />
+    <Compile Include="RtfForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RtfForm.Designer.cs">
+      <DependentUpon>RtfForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="RtfForm.resx">
+      <DependentUpon>RtfForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DefaultText.rtf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Converter\Html\ConverterHtml2008.csproj">
+      <Project>{0F106257-E070-4510-BFA7-87CC6EDC5BA1}</Project>
+      <Name>ConverterHtml2008</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Converter\Xml\ConverterXml2008.csproj">
+      <Project>{6B91D397-B9E1-4A1F-9656-3FDDC013EE96}</Project>
+      <Name>ConverterXml2008</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Interpreter\Interpreter2008.csproj">
+      <Project>{3F1B94DC-2EE6-4674-A2DE-E60FFC63A1D9}</Project>
+      <Name>Interpreter2008</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Parser\Parser2008.csproj">
+      <Project>{210DBD13-A7B0-430A-AEB4-7E558CA61A46}</Project>
+      <Name>Parser2008</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sys\Sys2008.csproj">
+      <Project>{1A9A64A4-3BDD-467D-ADB3-58BEDBBDEB4E}</Project>
+      <Name>Sys2008</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
