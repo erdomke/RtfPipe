@@ -15,10 +15,10 @@ using System.Security.Permissions;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle( "Rtf2Html - Rtf to Html Converter" )]
-[assembly: AssemblyDescription( "Itenso RTF to Html Converter" )]
+[assembly: AssemblyDescription( "RtfPipe RTF to Html Converter" )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "Jani Giannoudis" )]
-[assembly: AssemblyProduct( "Itenso RTF to Html Converter" )]
+[assembly: AssemblyProduct( "RtfPipe RTF to Html Converter" )]
 [assembly: AssemblyCopyright( "Copyright © Jani Giannoudis 2004-2013" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]

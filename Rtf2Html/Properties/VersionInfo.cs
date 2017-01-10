@@ -18,7 +18,7 @@ using System.Reflection;
 [assembly: AssemblyVersion( "1.7.0.0" )]
 
 // ReSharper disable CheckNamespace
-namespace Itenso.Solutions.Community.Rtf2Html
+namespace RtfPipe.Solutions.Community.Rtf2Html
 // ReSharper restore CheckNamespace
 {
 
@@ -31,5 +31,5 @@ namespace Itenso.Solutions.Community.Rtf2Html
 
 	} // class VersionInfo
 
-} // namespace Itenso.Solutions.Community.Rtf2Html
+} // namespace RtfPipe.Solutions.Community.Rtf2Html
 // -- EOF -------------------------------------------------------------------

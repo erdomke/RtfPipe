@@ -6,9 +6,9 @@
 // environment: .NET 2.0
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
-using Itenso.Sys.Test;
+using RtfPipe.Sys.Test;
 
-namespace Itenso.Rtf.InterpreterTests
+namespace RtfPipe.InterpreterTests
 {
 
 	// ------------------------------------------------------------------------
@@ -23,5 +23,5 @@ namespace Itenso.Rtf.InterpreterTests
 
 	} // class Program
 
-} // namespace Itenso.Rtf.InterpreterTests
+} // namespace RtfPipe.InterpreterTests
 // -- EOF -------------------------------------------------------------------

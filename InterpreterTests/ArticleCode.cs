@@ -7,11 +7,11 @@
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
 using System;
-using Itenso.Rtf.Model;
-using Itenso.Rtf.Support;
-using Itenso.Rtf.Interpreter;
+using RtfPipe.Model;
+using RtfPipe.Support;
+using RtfPipe.Interpreter;
 
-namespace Itenso.Rtf.Parser
+namespace RtfPipe.Parser
 {
 
 	// ------------------------------------------------------------------------
@@ -117,5 +117,5 @@ namespace Itenso.Rtf.Parser
 
 	} // class RtfParser
 
-} // namespace Itenso.Rtf.Parser
+} // namespace RtfPipe.Parser
 // -- EOF -------------------------------------------------------------------

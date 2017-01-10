@@ -7,9 +7,9 @@
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
 using System.Resources;
-using Itenso.Sys;
+using RtfPipe.Sys;
 
-namespace Itenso.Rtf.InterpreterTests
+namespace RtfPipe.InterpreterTests
 {
 
 	// ------------------------------------------------------------------------
@@ -35,5 +35,5 @@ namespace Itenso.Rtf.InterpreterTests
 
 	} // class CodeResources
 
-} // namespace Itenso.Rtf.InterpreterTests
+} // namespace RtfPipe.InterpreterTests
 // -- EOF -------------------------------------------------------------------

@@ -14,11 +14,11 @@ using System.Security.Permissions;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle( "Itenso RTF Interpreter Tests" )]
-[assembly: AssemblyDescription( "Itenso RTF Interpreter Tests" )]
+[assembly: AssemblyTitle( "RtfPipe RTF Interpreter Tests" )]
+[assembly: AssemblyDescription( "RtfPipe RTF Interpreter Tests" )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "Jani Giannoudis" )]
-[assembly: AssemblyProduct( "Itenso RTF Interpreter Tests" )]
+[assembly: AssemblyProduct( "RtfPipe RTF Interpreter Tests" )]
 [assembly: AssemblyCopyright( "Copyright © Jani Giannoudis 2004-2013" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]

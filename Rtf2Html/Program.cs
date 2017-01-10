@@ -9,15 +9,16 @@
 using System;
 using System.IO;
 using System.Diagnostics;
-using Itenso.Sys.Application;
-using Itenso.Rtf;
-using Itenso.Rtf.Support;
-using Itenso.Rtf.Parser;
-using Itenso.Rtf.Interpreter;
-using Itenso.Rtf.Converter.Image;
-using Itenso.Rtf.Converter.Html;
+using RtfPipe.Sys.Application;
+using RtfPipe;
+using RtfPipe.Support;
+using RtfPipe.Parser;
+using RtfPipe.Interpreter;
+using RtfPipe.Converter.Image;
+using RtfPipe.Converter.Html;
+using RtfPipe;
 
-namespace Itenso.Solutions.Community.Rtf2Html
+namespace RtfPipe.Solutions.Community.Rtf2Html
 {
 
 	// ------------------------------------------------------------------------
@@ -90,7 +91,7 @@ namespace Itenso.Solutions.Community.Rtf2Html
 			}
 
 			// convert to hmtl
-			string html = ConvertHmtl( rtfDocument, imageAdapter );
+			string html = ConvertHtml( rtfDocument, new DataUriImageVisitor() );
 			if ( ExitCode != ProgramExitCode.Successfully )
 			{
 				return;
@@ -264,7 +265,7 @@ namespace Itenso.Solutions.Community.Rtf2Html
 		} // InterpretRtf
 
 		// ----------------------------------------------------------------------
-		private string ConvertHmtl( IRtfDocument rtfDocument, IRtfVisualImageAdapter imageAdapter )
+		private string ConvertHtml( IRtfDocument rtfDocument, IImageVisitor imageAdapter )
 		{
 			string html;
 
@@ -276,7 +277,6 @@ namespace Itenso.Solutions.Community.Rtf2Html
 					htmlConvertSettings.CharacterSet = settings.CharacterSet;
 				}
 				htmlConvertSettings.Title = settings.SourceFileNameWithoutExtension;
-				htmlConvertSettings.ImagesPath = settings.ImagesPath;
 				htmlConvertSettings.IsShowHiddenText = settings.ShowHiddenText;
 				htmlConvertSettings.UseNonBreakingSpaces = settings.UseNonBreakingSpaces;
 				if ( settings.ConvertScope != RtfHtmlConvertScope.None )
@@ -293,8 +293,7 @@ namespace Itenso.Solutions.Community.Rtf2Html
 				{
 					htmlConvertSettings.VisualHyperlinkPattern = settings.VisualHyperlinkPattern;
 				}
-				htmlConvertSettings.SpecialCharsRepresentation = settings.SpecialCharsRepresentation;
-
+				
 				RtfHtmlConverter htmlConverter = new RtfHtmlConverter( rtfDocument, htmlConvertSettings );
 				if ( !settings.UseInlineStyles )
 				{
@@ -427,5 +426,5 @@ namespace Itenso.Solutions.Community.Rtf2Html
 
 	} // class Program
 
-} // namespace Itenso.Solutions.Community.Rtf2Html
+} // namespace RtfPipe.Solutions.Community.Rtf2Html
 // -- EOF -------------------------------------------------------------------

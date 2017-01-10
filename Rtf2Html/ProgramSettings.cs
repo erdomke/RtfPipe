@@ -10,10 +10,10 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Drawing.Imaging;
-using Itenso.Rtf.Converter.Html;
-using Itenso.Sys.Application;
+using RtfPipe.Converter.Html;
+using RtfPipe.Sys.Application;
 
-namespace Itenso.Solutions.Community.Rtf2Html
+namespace RtfPipe.Solutions.Community.Rtf2Html
 {
 
 	// ------------------------------------------------------------------------
@@ -461,5 +461,5 @@ namespace Itenso.Solutions.Community.Rtf2Html
 
 	} // class ProgramSettings
 
-} // namespace Itenso.Solutions.Community.Rtf2Html
+} // namespace RtfPipe.Solutions.Community.Rtf2Html
 // -- EOF -------------------------------------------------------------------

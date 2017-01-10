@@ -18,7 +18,7 @@ using System.Reflection;
 [assembly: AssemblyVersion("1.7.0.0")]
 
 // ReSharper disable CheckNamespace
-namespace Itenso.Rtf.InterpreterTests
+namespace RtfPipe.InterpreterTests
 // ReSharper restore CheckNamespace
 {
 
@@ -31,5 +31,5 @@ namespace Itenso.Rtf.InterpreterTests
 
 	} // class VersionInfo
 
-} // namespace Itenso.Rtf.InterpreterTests
+} // namespace RtfPipe.InterpreterTests
 // -- EOF -------------------------------------------------------------------
