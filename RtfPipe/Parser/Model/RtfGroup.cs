@@ -9,6 +9,7 @@
 using System;
 using System.Text;
 using RtfPipe.Sys;
+using System.Collections.Generic;
 
 namespace RtfPipe.Model
 {
@@ -24,16 +25,10 @@ namespace RtfPipe.Model
 		} // RtfGroup
 
 		// ----------------------------------------------------------------------
-		public IRtfElementCollection Contents
+		public IList<IRtfElement> Contents
 		{
 			get { return contents; }
 		} // Contents
-
-		// ----------------------------------------------------------------------
-		public RtfElementCollection WritableContents
-		{
-			get { return contents; }
-		} // WritableContents
 
 		// ----------------------------------------------------------------------
 		public string Destination
@@ -161,7 +156,7 @@ namespace RtfPipe.Model
 
 		// ----------------------------------------------------------------------
 		// members
-		private readonly RtfElementCollection contents = new RtfElementCollection();
+		private readonly List<IRtfElement> contents = new List<IRtfElement>();
 
 	} // class RtfGroup
 

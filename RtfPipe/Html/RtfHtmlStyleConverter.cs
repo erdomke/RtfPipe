@@ -7,52 +7,55 @@
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
 using System;
-using System.Drawing;
 
 namespace RtfPipe.Converter.Html
 {
 
-	// ------------------------------------------------------------------------
-	public class RtfHtmlStyleConverter : IRtfHtmlStyleConverter
-	{
+  // ------------------------------------------------------------------------
+  public class RtfHtmlStyleConverter : IRtfHtmlStyleConverter
+  {
 
-		// ----------------------------------------------------------------------
-		public virtual IRtfHtmlStyle TextToHtml( IRtfVisualText visualText )
-		{
-			if ( visualText == null )
-			{
-				throw new ArgumentNullException( "visualText" );
-			}
+    // ----------------------------------------------------------------------
+    public virtual IRtfHtmlStyle TextToHtml( IRtfVisualText visualText )
+    {
+      if ( visualText == null )
+      {
+        throw new ArgumentNullException( "visualText" );
+      }
 
-			RtfHtmlStyle htmlStyle = new RtfHtmlStyle();
+      RtfHtmlStyle htmlStyle = new RtfHtmlStyle();
 
-			IRtfTextFormat textFormat = visualText.Format;
+      IRtfTextFormat textFormat = visualText.Format;
 
-			// background color
-			Color backgroundColor = textFormat.BackgroundColor.AsDrawingColor;
-			if ( backgroundColor.R != 255 || backgroundColor.G != 255 || backgroundColor.B != 255 )
-			{
-				htmlStyle.BackgroundColor = ColorTranslator.ToHtml( backgroundColor );
-			}
+      // background color
+      var color = textFormat.BackgroundColor;
+      if (color.Red != 255 || color.Green != 255 || color.Blue != 255 )
+      {
+        htmlStyle.BackgroundColor = ToHtmlColor(color);
+      }
 
-			// foreground color
-			Color foregroundColor = textFormat.ForegroundColor.AsDrawingColor;
-			if ( foregroundColor.R != 0 || foregroundColor.G != 0 || foregroundColor.B != 0 )
-			{
-				htmlStyle.ForegroundColor = ColorTranslator.ToHtml( foregroundColor );
-			}
+      // foreground color
+      color = textFormat.ForegroundColor;
+      if (color.Red != 0 || color.Green != 0 || color.Blue != 0 )
+      {
+        htmlStyle.ForegroundColor = ToHtmlColor(color);
+      }
 
-			// font
-			htmlStyle.FontFamily = textFormat.Font.Name;
-			if ( textFormat.FontSize > 0 )
-			{
-				htmlStyle.FontSize = (textFormat.FontSize /2) + "pt";
-			}
+      // font
+      htmlStyle.FontFamily = textFormat.Font.Name;
+      if ( textFormat.FontSize > 0 )
+      {
+        htmlStyle.FontSize = (textFormat.FontSize /2) + "pt";
+      }
 
-			return htmlStyle;
-		} // TextToHtml
+      return htmlStyle;
+    } // TextToHtml
 
-	} // class RtfHtmlStyleConverter
+    private string ToHtmlColor(IRtfColor color)
+    {
+      return string.Format("#{0:x2}{1:x2}{2:x2}", color.Red, color.Green, color.Blue);
+    }
+  } // class RtfHtmlStyleConverter
 
 } // namespace RtfPipe.Converter.Html
 // -- EOF -------------------------------------------------------------------

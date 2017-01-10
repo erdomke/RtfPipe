@@ -40,7 +40,7 @@ namespace RtfPipe.Sys.Logging
 		// ----------------------------------------------------------------------
 		public static string PossibleValues()
 		{
-			return CollectionTool.EnumValuesToString( typeof( LoggerLevel ) );
+			return "[]";
 		} // PossibleValues
 
 	} // class LoggerLevelEnumHelper

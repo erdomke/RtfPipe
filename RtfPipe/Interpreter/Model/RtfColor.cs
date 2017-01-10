@@ -6,7 +6,6 @@
 // environment: .NET 2.0
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
-using System.Drawing;
 using RtfPipe.Sys;
 
 namespace RtfPipe.Model
@@ -38,7 +37,6 @@ namespace RtfPipe.Model
 			this.red = red;
 			this.green = green;
 			this.blue = blue;
-			drawingColor = Color.FromArgb( red, green, blue );
 		} // RtfColor
 
 		// ----------------------------------------------------------------------
@@ -58,12 +56,6 @@ namespace RtfPipe.Model
 		{
 			get { return blue; }
 		} // Blue
-
-		// ----------------------------------------------------------------------
-		public Color AsDrawingColor
-		{
-			get { return drawingColor; }
-		} // AsDrawingColor
 
 		// ----------------------------------------------------------------------
 		public override bool Equals( object obj )
@@ -116,7 +108,6 @@ namespace RtfPipe.Model
 		private readonly int red;
 		private readonly int green;
 		private readonly int blue;
-		private readonly Color drawingColor;
 
 	} // class RtfColor
 

@@ -426,7 +426,7 @@ namespace RtfPipe.Solutions.Community.Rtf2Html
 			applicationArguments.Arguments.Add( ignoreDuplicatedFontsArgument );
 			applicationArguments.Arguments.Add( ignoreUnknownFontsArgument );
 
-			applicationArguments.Load();
+			applicationArguments.Load(System.Environment.GetCommandLineArgs());
 		} // LoadApplicationArguments
 
 		// ----------------------------------------------------------------------

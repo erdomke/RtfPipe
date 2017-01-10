@@ -46,13 +46,13 @@ namespace RtfPipe.Sys.Application
 		// ----------------------------------------------------------------------
 		protected override bool OnLoad( string commandLineArg )
 		{
-			if ( !commandLineArg.StartsWith( Name, StringComparison.InvariantCultureIgnoreCase ) )
+			if ( !commandLineArg.StartsWith( Name, StringComparison.OrdinalIgnoreCase) )
 			{
 				return false;
 			}
 
 			// format: /name
-			if ( commandLineArg.Equals( Name, StringComparison.InvariantCultureIgnoreCase ) )
+			if ( commandLineArg.Equals( Name, StringComparison.OrdinalIgnoreCase) )
 			{
 				base.Value = true;
 				return true;
@@ -60,7 +60,7 @@ namespace RtfPipe.Sys.Application
 
 			// format: /name+
 			string onName = Name + "+";
-			if ( commandLineArg.Equals( onName, StringComparison.InvariantCultureIgnoreCase ) )
+			if ( commandLineArg.Equals( onName, StringComparison.OrdinalIgnoreCase) )
 			{
 				base.Value = true;
 				return true;
@@ -68,7 +68,7 @@ namespace RtfPipe.Sys.Application
 
 			// format: /name-
 			string offName = Name + "-";
-			if ( commandLineArg.Equals( offName, StringComparison.InvariantCultureIgnoreCase ) )
+			if ( commandLineArg.Equals( offName, StringComparison.OrdinalIgnoreCase ) )
 			{
 				base.Value = false;
 				return true;

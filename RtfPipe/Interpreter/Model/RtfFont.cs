@@ -86,7 +86,7 @@ namespace RtfPipe.Model
 		// ----------------------------------------------------------------------
 		public Encoding GetEncoding()
 		{
-			return Encoding.GetEncoding( CodePage );
+			return Encoding.GetEncoding( Parser.RtfParser._codePages[CodePage] );
 		} // GetEncoding
 
 		// ----------------------------------------------------------------------

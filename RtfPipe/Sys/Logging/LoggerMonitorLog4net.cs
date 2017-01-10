@@ -8,111 +8,111 @@
 // --------------------------------------------------------------------------
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace RtfPipe.Sys.Logging
 {
 
-	// ------------------------------------------------------------------------
+  // ------------------------------------------------------------------------
 // ReSharper disable InconsistentNaming
-	public sealed class LoggerMonitorLog4net : ILoggerMonitor
+  public sealed class LoggerMonitorLog4net : ILoggerMonitor
 // ReSharper restore InconsistentNaming
-	{
+  {
 
-		// ----------------------------------------------------------------------
-		public void Register( ILoggerListener loggerListener, string context )
-		{
-			if ( loggerListener == null )
-			{
-				throw new ArgumentNullException( "loggerListener" );
-			}
-			string checkedContext = ArgumentCheck.NonemptyTrimmedString( context, "context" );
-			lock ( listenerListsByContext )
-			{
-				ArrayList contextListeners = listenerListsByContext[ checkedContext ] as ArrayList;
-				if ( contextListeners == null )
-				{
-					contextListeners = new ArrayList( 5 );
-					listenerListsByContext.Add( checkedContext, contextListeners );
-				}
-				lock ( contextListeners )
-				{
-					contextListeners.Add( loggerListener );
-				}
-			}
-		} // Register
+    // ----------------------------------------------------------------------
+    public void Register( ILoggerListener loggerListener, string context )
+    {
+      if ( loggerListener == null )
+      {
+        throw new ArgumentNullException( "loggerListener" );
+      }
+      string checkedContext = ArgumentCheck.NonemptyTrimmedString( context, "context" );
+      lock ( listenerListsByContext )
+      {
+        List<ILoggerListener> contextListeners;
+        if (!listenerListsByContext.TryGetValue(checkedContext, out contextListeners))
+        {
+          contextListeners = new List<ILoggerListener>(5);
+          listenerListsByContext.Add( checkedContext, contextListeners );
+        }
+        lock ( contextListeners )
+        {
+          contextListeners.Add( loggerListener );
+        }
+      }
+    } // Register
 
-		// ----------------------------------------------------------------------
-		public void Unregister( ILoggerListener loggerListener, string context )
-		{
-			if ( loggerListener == null )
-			{
-				throw new ArgumentNullException( "loggerListener" );
-			}
-			string checkedContext = ArgumentCheck.NonemptyTrimmedString( context, "context" );
-			lock ( listenerListsByContext )
-			{
-				ArrayList contextListeners = listenerListsByContext[ checkedContext ] as ArrayList;
-				if ( contextListeners != null )
-				{
-					lock ( contextListeners )
-					{
-						contextListeners.Remove( loggerListener );
-					}
-					if ( contextListeners.Count == 0 )
-					{
-						listenerListsByContext.Remove( checkedContext );
-					}
-				}
-			}
-		} // Unregister
+    // ----------------------------------------------------------------------
+    public void Unregister( ILoggerListener loggerListener, string context )
+    {
+      if ( loggerListener == null )
+      {
+        throw new ArgumentNullException( "loggerListener" );
+      }
+      string checkedContext = ArgumentCheck.NonemptyTrimmedString( context, "context" );
+      lock ( listenerListsByContext )
+      {
+        List<ILoggerListener> contextListeners;
+        if (listenerListsByContext.TryGetValue(checkedContext, out contextListeners))
+        {
+          lock ( contextListeners )
+          {
+            contextListeners.Remove( loggerListener );
+          }
+          if ( contextListeners.Count == 0 )
+          {
+            listenerListsByContext.Remove( checkedContext );
+          }
+        }
+      }
+    } // Unregister
 
-		// ----------------------------------------------------------------------
-		internal void Handle( ILoggerEvent loggerEvent )
-		{
-			if ( loggerEvent == null )
-			{
-				throw new ArgumentNullException( "loggerEvent" );
-			}
+    // ----------------------------------------------------------------------
+    internal void Handle( ILoggerEvent loggerEvent )
+    {
+      if ( loggerEvent == null )
+      {
+        throw new ArgumentNullException( "loggerEvent" );
+      }
 
-			string eventContext = loggerEvent.Context;
+      string eventContext = loggerEvent.Context;
 
-			ArrayList contextListeners = null;
-			if ( listenerListsByContext.Count > 0 )
-			{
-				lock ( listenerListsByContext )
-				{
-					contextListeners = listenerListsByContext[ eventContext ] as ArrayList;
-					if ( contextListeners == null )
-					{
-						foreach ( string rootContext in listenerListsByContext.Keys )
-						{
-							if ( eventContext.StartsWith( rootContext ) )
-							{
-								contextListeners = listenerListsByContext[ rootContext ] as ArrayList;
-								break;
-							}
-						}
-					}
-				}
-			}
+      List<ILoggerListener> contextListeners = null;
+      if ( listenerListsByContext.Count > 0 )
+      {
+        lock ( listenerListsByContext )
+        {
+          if (!listenerListsByContext.TryGetValue(eventContext, out contextListeners))
+          {
+            foreach ( var rootContext in listenerListsByContext.Keys )
+            {
+              if ( eventContext.StartsWith( rootContext ) )
+              {
+                contextListeners = listenerListsByContext[ rootContext ];
+                break;
+              }
+            }
+          }
+        }
+      }
 
-			if ( contextListeners != null && contextListeners.Count > 0 )
-			{
-				lock ( contextListeners )
-				{
-					foreach ( ILoggerListener loggerListener in contextListeners )
-					{
-						loggerListener.Handle( loggerEvent );
-					}
-				}
-			}
-		} // Handle
+      if ( contextListeners != null && contextListeners.Count > 0 )
+      {
+        lock ( contextListeners )
+        {
+          foreach ( var loggerListener in contextListeners )
+          {
+            loggerListener.Handle( loggerEvent );
+          }
+        }
+      }
+    } // Handle
 
-		// ----------------------------------------------------------------------
-		// members
-		private readonly Hashtable listenerListsByContext = new Hashtable();
+    // ----------------------------------------------------------------------
+    // members
+    private readonly Dictionary<string, List<ILoggerListener>> listenerListsByContext = new Dictionary<string, List<ILoggerListener>>();
 
-	} // class LoggerMonitorLog4net
+  } // class LoggerMonitorLog4net
 
 } // namespace RtfPipe.Sys.Logging
 // -- EOF -------------------------------------------------------------------

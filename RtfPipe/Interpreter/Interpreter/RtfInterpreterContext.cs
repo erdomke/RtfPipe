@@ -9,6 +9,7 @@
 using System;
 using System.Collections;
 using RtfPipe.Model;
+using System.Collections.Generic;
 
 namespace RtfPipe.Interpreter
 {
@@ -54,28 +55,17 @@ namespace RtfPipe.Interpreter
 		} // DefaultFont
 
 		// ----------------------------------------------------------------------
-		public IRtfFontCollection FontTable
+		public RtfFontCollection FontTable
 		{
 			get { return fontTable; }
 		} // FontTable
 
-		// ----------------------------------------------------------------------
-		public RtfFontCollection WritableFontTable
-		{
-			get { return fontTable; }
-		} // WritableFontTable
 
 		// ----------------------------------------------------------------------
-		public IRtfColorCollection ColorTable
+		public IList<IRtfColor> ColorTable
 		{
 			get { return colorTable; }
 		} // ColorTable
-
-		// ----------------------------------------------------------------------
-		public RtfColorCollection WritableColorTable
-		{
-			get { return colorTable; }
-		} // WritableColorTable
 
 		// ----------------------------------------------------------------------
 		public string Generator
@@ -85,7 +75,7 @@ namespace RtfPipe.Interpreter
 		} // Generator
 
 		// ----------------------------------------------------------------------
-		public IRtfTextFormatCollection UniqueTextFormats
+		public IList<IRtfTextFormat> UniqueTextFormats
 		{
 			get { return uniqueTextFormats; }
 		} // UniqueTextFormats
@@ -156,16 +146,10 @@ namespace RtfPipe.Interpreter
 		} // WritableDocumentInfo
 
 		// ----------------------------------------------------------------------
-		public IRtfDocumentPropertyCollection UserProperties
+		public IList<IRtfDocumentProperty> UserProperties
 		{
 			get { return userProperties; }
 		} // UserProperties
-
-		// ----------------------------------------------------------------------
-		public RtfDocumentPropertyCollection WritableUserProperties
-		{
-			get { return userProperties; }
-		} // WritableUserProperties
 
 		// ----------------------------------------------------------------------
 		public void PushCurrentTextFormat()
@@ -205,13 +189,13 @@ namespace RtfPipe.Interpreter
 		private int rtfVersion;
 		private string defaultFontId;
 		private readonly RtfFontCollection fontTable = new RtfFontCollection();
-		private readonly RtfColorCollection colorTable = new RtfColorCollection();
+		private readonly IList<IRtfColor> colorTable = new List<IRtfColor>();
 		private string generator;
-		private readonly RtfTextFormatCollection uniqueTextFormats = new RtfTextFormatCollection();
-		private readonly Stack textFormatStack = new Stack();
+		private readonly IList<IRtfTextFormat> uniqueTextFormats = new List<IRtfTextFormat>();
+		private readonly Stack<RtfTextFormat> textFormatStack = new Stack<RtfTextFormat>();
 		private RtfTextFormat currentTextFormat;
 		private readonly RtfDocumentInfo documentInfo = new RtfDocumentInfo();
-		private readonly RtfDocumentPropertyCollection userProperties = new RtfDocumentPropertyCollection();
+		private readonly IList<IRtfDocumentProperty> userProperties = new List<IRtfDocumentProperty>();
 
 	} // class RtfInterpreterContext
 

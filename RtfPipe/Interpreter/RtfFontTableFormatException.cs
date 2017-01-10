@@ -12,9 +12,11 @@ using System.Runtime.Serialization;
 namespace RtfPipe
 {
 
-	// ------------------------------------------------------------------------
-	/// <summary>Thrown upon RTF specific error conditions.</summary>
+  // ------------------------------------------------------------------------
+  /// <summary>Thrown upon RTF specific error conditions.</summary>
+#if SERIALIZATION
 	[Serializable]
+#endif
 	public class RtfFontTableFormatException : RtfInterpreterException
 	{
 
@@ -41,6 +43,7 @@ namespace RtfPipe
 		{
 		} // RtfFontTableFormatException
 
+#if SERIALIZATION
 		// ----------------------------------------------------------------------
 		/// <summary>Serialization support.</summary>
 		/// <param name="info">the info to use for serialization</param>
@@ -49,6 +52,7 @@ namespace RtfPipe
 			base( info, context )
 		{
 		} // RtfFontTableFormatException
+#endif
 
 	} // class RtfFontTableFormatException
 

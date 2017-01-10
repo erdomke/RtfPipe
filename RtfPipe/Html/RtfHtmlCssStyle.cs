@@ -7,6 +7,7 @@
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 
 namespace RtfPipe.Converter.Html
@@ -27,7 +28,7 @@ namespace RtfPipe.Converter.Html
 		} // RtfHtmlCssStyle
 
 		// ----------------------------------------------------------------------
-		public NameValueCollection Properties
+		public IDictionary<string, string> Properties
 		{
 			get { return properties; }
 		} // Properties
@@ -40,7 +41,7 @@ namespace RtfPipe.Converter.Html
 
 		// ----------------------------------------------------------------------
 		// members
-		private readonly NameValueCollection properties = new NameValueCollection();
+		private readonly IDictionary<string, string> properties = new Dictionary<string, string>();
 		private readonly string selectorName;
 
 	} // class RtfHtmlCssStyle

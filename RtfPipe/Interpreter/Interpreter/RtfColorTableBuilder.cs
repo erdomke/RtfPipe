@@ -9,6 +9,7 @@
 using System;
 using RtfPipe.Model;
 using RtfPipe.Support;
+using System.Collections.Generic;
 
 namespace RtfPipe.Interpreter
 {
@@ -18,7 +19,7 @@ namespace RtfPipe.Interpreter
 	{
 
 		// ----------------------------------------------------------------------
-		public RtfColorTableBuilder( RtfColorCollection colorTable ) :
+		public RtfColorTableBuilder( IList<IRtfColor> colorTable ) :
 			base( RtfElementVisitorOrder.NonRecursive )
 		{
 			// we iterate over our children ourselves -> hence non-recursive
@@ -82,7 +83,7 @@ namespace RtfPipe.Interpreter
 
 		// ----------------------------------------------------------------------
 		// members
-		private readonly RtfColorCollection colorTable;
+		private readonly IList<IRtfColor> colorTable;
 
 		private int curRed;
 		private int curGreen;

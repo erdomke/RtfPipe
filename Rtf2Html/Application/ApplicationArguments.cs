@@ -7,6 +7,7 @@
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
 using System;
+using System.Collections.Generic;
 
 namespace RtfPipe.Sys.Application
 {
@@ -16,7 +17,7 @@ namespace RtfPipe.Sys.Application
 	{
 
 		// ----------------------------------------------------------------------
-		public ArgumentCollection Arguments
+		public IList<IArgument> Arguments
 		{
 			get { return arguments; }
 		} // Arguments
@@ -24,7 +25,17 @@ namespace RtfPipe.Sys.Application
 		// ----------------------------------------------------------------------
 		public bool IsValid
 		{
-			get { return arguments.IsValid; }
+			get
+      {
+        foreach (var argument in arguments)
+        {
+          if (!argument.IsValid)
+          {
+            return false;
+          }
+        }
+        return true;
+      }
 		} // IsValid
 
 		// ----------------------------------------------------------------------
@@ -44,10 +55,8 @@ namespace RtfPipe.Sys.Application
 		} // IsHelpMode
 
 		// ----------------------------------------------------------------------
-		public void Load()
+		public void Load(string[] commandLineArgs)
 		{
-			string[] commandLineArgs = Environment.GetCommandLineArgs();
-
 			// skip zeron index which contians the program name
 			for ( int i = 1; i < commandLineArgs.Length; i++ )
 			{
@@ -69,7 +78,7 @@ namespace RtfPipe.Sys.Application
 
 		// ----------------------------------------------------------------------
 		// members
-		private readonly ArgumentCollection arguments = new ArgumentCollection();
+		private readonly List<IArgument> arguments = new List<IArgument>();
 
 	} // class ApplicationArguments
 

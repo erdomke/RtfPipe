@@ -8,56 +8,72 @@
 // --------------------------------------------------------------------------
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace RtfPipe.Converter.Html
 {
 
-	// ------------------------------------------------------------------------
-	public sealed class RtfHtmlCssStyleCollection : ReadOnlyCollectionBase, IRtfHtmlCssStyleCollection
-	{
+  // ------------------------------------------------------------------------
+  public sealed class RtfHtmlCssStyleCollection : IRtfHtmlCssStyleCollection
+  {
+    private List<IRtfHtmlCssStyle> _innerList = new List<IRtfHtmlCssStyle>();
 
-		// ----------------------------------------------------------------------
-		public IRtfHtmlCssStyle this[ int index ]
-		{
-			get { return InnerList[ index ] as RtfHtmlCssStyle; }
-		} // this[ int ]
+    public int Count
+    {
+      get { return _innerList.Count; }
+    }
 
-		// ----------------------------------------------------------------------
-		public bool Contains( string selectorName )
-		{
-			foreach ( IRtfHtmlCssStyle cssStyle in InnerList )
-			{
-				if ( cssStyle.SelectorName.Equals( selectorName ) )
-				{
-					return true;
-				}
-			}
-			return false;
-		} // Contains
+    // ----------------------------------------------------------------------
+    public IRtfHtmlCssStyle this[ int index ]
+    {
+      get { return _innerList[ index ] as RtfHtmlCssStyle; }
+    } // this[ int ]
 
-		// ----------------------------------------------------------------------
-		public void CopyTo( IRtfHtmlCssStyle[] array, int index )
-		{
-			InnerList.CopyTo( array, index );
-		} // CopyTo
+    // ----------------------------------------------------------------------
+    public bool Contains( string selectorName )
+    {
+      foreach ( var cssStyle in _innerList )
+      {
+        if ( cssStyle.SelectorName.Equals( selectorName ) )
+        {
+          return true;
+        }
+      }
+      return false;
+    } // Contains
 
-		// ----------------------------------------------------------------------
-		public void Add( IRtfHtmlCssStyle item )
-		{
-			if ( item == null )
-			{
-				throw new ArgumentNullException( "item" );
-			}
-			InnerList.Add( item );
-		} // Add
+    // ----------------------------------------------------------------------
+    public void CopyTo( IRtfHtmlCssStyle[] array, int index )
+    {
+      _innerList.CopyTo( array, index );
+    } // CopyTo
 
-		// ----------------------------------------------------------------------
-		public void Clear()
-		{
-			InnerList.Clear();
-		} // Clear
+    // ----------------------------------------------------------------------
+    public void Add( IRtfHtmlCssStyle item )
+    {
+      if ( item == null )
+      {
+        throw new ArgumentNullException( "item" );
+      }
+      _innerList.Add( item );
+    } // Add
 
-	} // class RtfHtmlCssStyleCollection
+    // ----------------------------------------------------------------------
+    public void Clear()
+    {
+      _innerList.Clear();
+    } // Clear
+
+    public IEnumerator<IRtfHtmlCssStyle> GetEnumerator()
+    {
+      return _innerList.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+  } // class RtfHtmlCssStyleCollection
 
 } // namespace RtfPipe.Converter.Html
 // -- EOF -------------------------------------------------------------------

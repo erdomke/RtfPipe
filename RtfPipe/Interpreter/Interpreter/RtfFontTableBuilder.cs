@@ -102,7 +102,7 @@ namespace RtfPipe.Interpreter
 		// ----------------------------------------------------------------------
 		private void AddCurrentFont()
 		{
-			if ( !fontTable.ContainsFontWithId( fontBuilder.FontId ) )
+			if ( !fontTable.ContainsKey( fontBuilder.FontId ) )
 			{
 				fontTable.Add( fontBuilder.CreateFont() );
 			}

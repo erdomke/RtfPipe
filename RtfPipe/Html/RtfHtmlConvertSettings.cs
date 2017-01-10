@@ -8,8 +8,8 @@
 // --------------------------------------------------------------------------
 using System;
 using System.Collections.Specialized;
-using RtfPipe.Converter.Image;
 using RtfPipe;
+using System.Collections.Generic;
 
 namespace RtfPipe.Converter.Html
 {
@@ -79,9 +79,9 @@ namespace RtfPipe.Converter.Html
 		} // HasStyleSheetLinks
 
 		// ----------------------------------------------------------------------
-		public StringCollection StyleSheetLinks
+		public List<string> StyleSheetLinks
 		{
-			get { return styleSheetLinks ?? ( styleSheetLinks = new StringCollection() ); }
+			get { return styleSheetLinks ?? ( styleSheetLinks = new List<string>() ); }
 		} // StyleSheetLinks
 
 		// ----------------------------------------------------------------------
@@ -110,7 +110,7 @@ namespace RtfPipe.Converter.Html
 		// members
 		private readonly IImageVisitor imageVisitor;
 		private RtfHtmlCssStyleCollection styles;
-		private StringCollection styleSheetLinks;
+		private List<string> styleSheetLinks;
 		private string characterSet = DefaultDocumentCharacterSet;
 	} // class RtfHtmlConvertSettings
 

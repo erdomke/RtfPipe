@@ -44,9 +44,6 @@ namespace RtfPipe
 		// ----------------------------------------------------------------------
 		byte[] ImageDataBinary { get; }
 
-		// ----------------------------------------------------------------------
-		System.Drawing.Image ImageForDrawing { get; }
-
 	} // interface IRtfVisualImage
 
 } // namespace RtfPipe

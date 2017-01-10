@@ -8,6 +8,7 @@
 // --------------------------------------------------------------------------
 using System.Collections;
 using RtfPipe.Model;
+using System.Collections.Generic;
 
 namespace RtfPipe.Parser
 {
@@ -37,7 +38,7 @@ namespace RtfPipe.Parser
 			if ( curGroup != null )
 			{
 				openGroupStack.Push( curGroup );
-				curGroup.WritableContents.Add( newGroup );
+				curGroup.Contents.Add( newGroup );
 			}
 			curGroup = newGroup;
 		} // DoGroupBegin
@@ -49,7 +50,7 @@ namespace RtfPipe.Parser
 			{
 				throw new RtfStructureException( Strings.MissingGroupForNewTag );
 			}
-			curGroup.WritableContents.Add( tag );
+			curGroup.Contents.Add( tag );
 		} // DoTagFound
 
 		// ----------------------------------------------------------------------
@@ -59,7 +60,7 @@ namespace RtfPipe.Parser
 			{
 				throw new RtfStructureException( Strings.MissingGroupForNewText );
 			}
-			curGroup.WritableContents.Add( text );
+			curGroup.Contents.Add( text );
 		} // DoTextFound
 
 		// ----------------------------------------------------------------------
@@ -67,7 +68,7 @@ namespace RtfPipe.Parser
 		{
 			if ( openGroupStack.Count > 0 )
 			{
-				curGroup = (RtfGroup)openGroupStack.Pop();
+				curGroup = openGroupStack.Pop();
 			}
 			else
 			{
@@ -91,7 +92,7 @@ namespace RtfPipe.Parser
 
 		// ----------------------------------------------------------------------
 		// members
-		private readonly Stack openGroupStack = new Stack();
+		private readonly Stack<RtfGroup> openGroupStack = new Stack<RtfGroup>();
 		private RtfGroup curGroup;
 		private RtfGroup structureRoot;
 

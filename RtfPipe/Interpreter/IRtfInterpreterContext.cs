@@ -7,53 +7,56 @@
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
 
+using RtfPipe.Model;
+using System.Collections.Generic;
+
 namespace RtfPipe
 {
 
-	// ------------------------------------------------------------------------
-	public interface IRtfInterpreterContext
-	{
+  // ------------------------------------------------------------------------
+  public interface IRtfInterpreterContext
+  {
 
-		// ----------------------------------------------------------------------
-		RtfInterpreterState State { get; }
+    // ----------------------------------------------------------------------
+    RtfInterpreterState State { get; }
 
-		// ----------------------------------------------------------------------
-		int RtfVersion { get; }
+    // ----------------------------------------------------------------------
+    int RtfVersion { get; }
 
-		// ----------------------------------------------------------------------
-		string DefaultFontId { get; }
+    // ----------------------------------------------------------------------
+    string DefaultFontId { get; }
 
-		// ----------------------------------------------------------------------
-		IRtfFont DefaultFont { get; }
+    // ----------------------------------------------------------------------
+    IRtfFont DefaultFont { get; }
 
-		// ----------------------------------------------------------------------
-		IRtfFontCollection FontTable { get; }
+    // ----------------------------------------------------------------------
+    RtfFontCollection FontTable { get; }
 
-		// ----------------------------------------------------------------------
-		IRtfColorCollection ColorTable { get; }
+    // ----------------------------------------------------------------------
+    IList<IRtfColor> ColorTable { get; }
 
-		// ----------------------------------------------------------------------
-		string Generator { get; }
+    // ----------------------------------------------------------------------
+    string Generator { get; }
 
-		// ----------------------------------------------------------------------
-		IRtfTextFormatCollection UniqueTextFormats { get; }
+    // ----------------------------------------------------------------------
+    IList<IRtfTextFormat> UniqueTextFormats { get; }
 
-		// ----------------------------------------------------------------------
-		IRtfTextFormat CurrentTextFormat { get; }
+    // ----------------------------------------------------------------------
+    IRtfTextFormat CurrentTextFormat { get; }
 
-		// ----------------------------------------------------------------------
-		IRtfTextFormat GetSafeCurrentTextFormat();
+    // ----------------------------------------------------------------------
+    IRtfTextFormat GetSafeCurrentTextFormat();
 
-		// ----------------------------------------------------------------------
-		IRtfTextFormat GetUniqueTextFormatInstance( IRtfTextFormat templateFormat );
+    // ----------------------------------------------------------------------
+    IRtfTextFormat GetUniqueTextFormatInstance( IRtfTextFormat templateFormat );
 
-		// ----------------------------------------------------------------------
-		IRtfDocumentInfo DocumentInfo { get; }
+    // ----------------------------------------------------------------------
+    IRtfDocumentInfo DocumentInfo { get; }
 
-		// ----------------------------------------------------------------------
-		IRtfDocumentPropertyCollection UserProperties { get; }
+    // ----------------------------------------------------------------------
+    IList<IRtfDocumentProperty> UserProperties { get; }
 
-	} // interface IRtfInterpreterContext
+  } // interface IRtfInterpreterContext
 
 } // namespace RtfPipe
 // -- EOF -------------------------------------------------------------------

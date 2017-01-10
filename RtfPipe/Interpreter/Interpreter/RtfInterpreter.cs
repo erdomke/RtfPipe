@@ -25,10 +25,10 @@ namespace RtfPipe.Interpreter
 		public RtfInterpreter( IRtfInterpreterSettings settings, params IRtfInterpreterListener[] listeners ) :
 			base( settings, listeners )
 		{
-			fontTableBuilder = new RtfFontTableBuilder( Context.WritableFontTable, settings.IgnoreDuplicatedFonts );
-			colorTableBuilder = new RtfColorTableBuilder( Context.WritableColorTable );
+			fontTableBuilder = new RtfFontTableBuilder( Context.FontTable, settings.IgnoreDuplicatedFonts );
+			colorTableBuilder = new RtfColorTableBuilder( Context.ColorTable );
 			documentInfoBuilder = new RtfDocumentInfoBuilder( Context.WritableDocumentInfo );
-			userPropertyBuilder = new RtfUserPropertyBuilder( Context.WritableUserProperties );
+			userPropertyBuilder = new RtfUserPropertyBuilder( Context.UserProperties );
 			imageBuilder = new RtfImageBuilder();
 		} // RtfInterpreter
 
@@ -203,7 +203,7 @@ namespace RtfPipe.Interpreter
 							break;
 						case RtfSpec.TagFont:
 							string fontId = tag.FullName;
-							if ( Context.FontTable.ContainsFontWithId( fontId ) )
+							if ( Context.FontTable.ContainsKey( fontId ) )
 							{
 								Context.WritableCurrentTextFormat =
 									Context.WritableCurrentTextFormat.DeriveWithFont(

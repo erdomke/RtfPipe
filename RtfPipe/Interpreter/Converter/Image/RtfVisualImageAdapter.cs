@@ -8,7 +8,9 @@
 // --------------------------------------------------------------------------
 using System;
 using System.Globalization;
+#if DRAWING
 using System.Drawing.Imaging;
+#endif
 
 namespace RtfPipe.Converter.Image
 {
@@ -21,18 +23,26 @@ namespace RtfPipe.Converter.Image
 
 		// ----------------------------------------------------------------------
 		public RtfVisualImageAdapter() :
-			this( defaultFileNamePattern, null )
+			this( defaultFileNamePattern )
 		{
 		} // RtfVisualImageAdapter
 
 		// ----------------------------------------------------------------------
-		public RtfVisualImageAdapter( string fileNamePattern ) :
-			this( fileNamePattern, null )
+		public RtfVisualImageAdapter( string fileNamePattern )
 		{
-		} // RtfVisualImageAdapter
+      if (fileNamePattern == null)
+      {
+        throw new ArgumentNullException("fileNamePattern");
+      }
 
-		// ----------------------------------------------------------------------
-		public RtfVisualImageAdapter( ImageFormat targetFormat ) :
+      this.fileNamePattern = fileNamePattern;
+      this.dpiX = DefaultDpi;
+      this.dpiY = DefaultDpi;
+    } // RtfVisualImageAdapter
+
+#if DRAWING
+    // ----------------------------------------------------------------------
+    public RtfVisualImageAdapter( ImageFormat targetFormat ) :
 			this( defaultFileNamePattern, targetFormat )
 		{
 		} // RtfVisualImageAdapter
@@ -41,13 +51,6 @@ namespace RtfPipe.Converter.Image
 		public RtfVisualImageAdapter( string fileNamePattern, ImageFormat targetFormat ) :
 			this( fileNamePattern, targetFormat, DefaultDpi, DefaultDpi )
 		{
-			if ( fileNamePattern == null )
-			{
-				throw new ArgumentNullException( "fileNamePattern" );
-			}
-
-			this.fileNamePattern = fileNamePattern;
-			this.targetFormat = targetFormat;
 		} // RtfVisualImageAdapter
 
 		// ----------------------------------------------------------------------
@@ -63,6 +66,7 @@ namespace RtfPipe.Converter.Image
 			this.dpiX = dpiX;
 			this.dpiY = dpiY;
 		} // RtfVisualImageAdapter
+#endif
 
 		// ----------------------------------------------------------------------
 		public string FileNamePattern
@@ -70,11 +74,13 @@ namespace RtfPipe.Converter.Image
 			get { return fileNamePattern; }
 		} // FileNamePattern
 
+#if DRAWING
 		// ----------------------------------------------------------------------
 		public ImageFormat TargetFormat
 		{
 			get { return targetFormat; }
 		} // TargetFormat
+#endif
 
 		// ----------------------------------------------------------------------
 		public double DpiX
@@ -88,8 +94,9 @@ namespace RtfPipe.Converter.Image
 			get { return dpiY; }
 		} // DpiY
 
-		// ----------------------------------------------------------------------
-		public ImageFormat GetImageFormat( RtfVisualImageFormat rtfVisualImageFormat )
+#if DRAWING
+    // ----------------------------------------------------------------------
+    public ImageFormat GetImageFormat( RtfVisualImageFormat rtfVisualImageFormat )
 		{
 			ImageFormat imageFormat = null;
 
@@ -114,18 +121,27 @@ namespace RtfPipe.Converter.Image
 
 			return imageFormat;
 		} // GetImageFormat
+#endif
 
 		// ----------------------------------------------------------------------
 		public string ResolveFileName( int index, RtfVisualImageFormat rtfVisualImageFormat )
 		{
-			ImageFormat imageFormat = targetFormat ?? GetImageFormat( rtfVisualImageFormat );
+#if DRAWING
+      ImageFormat imageFormat = targetFormat ?? GetImageFormat( rtfVisualImageFormat );
 
 			return string.Format(
 				CultureInfo.InvariantCulture,
 				fileNamePattern,
 				index,
 				GetFileImageExtension( imageFormat ) );
-		} // ResolveFileName
+#else
+      return string.Format(
+        CultureInfo.InvariantCulture,
+        fileNamePattern,
+        index,
+        rtfVisualImageFormat);
+#endif
+    } // ResolveFileName
 
 		// ----------------------------------------------------------------------
 		public int CalcImageWidth( RtfVisualImageFormat format, int width,
@@ -143,8 +159,9 @@ namespace RtfPipe.Converter.Image
 			return (int)Math.Round( (double)desiredHeight * imgScaleY / twipsPerInch * dpiY );
 		} // CalcImageHeight
 
-		// ----------------------------------------------------------------------
-		private static string GetFileImageExtension( ImageFormat imageFormat )
+#if DRAWING
+    // ----------------------------------------------------------------------
+    private static string GetFileImageExtension( ImageFormat imageFormat )
 		{
 			string imageExtension = null;
 
@@ -187,11 +204,12 @@ namespace RtfPipe.Converter.Image
 
 			return imageExtension;
 		} // GetFileImageExtension
-
-		// ----------------------------------------------------------------------
-		// members
-		private readonly string fileNamePattern;
 		private readonly ImageFormat targetFormat;
+#endif
+
+    // ----------------------------------------------------------------------
+    // members
+    private readonly string fileNamePattern;
 		private readonly double dpiX;
 		private readonly double dpiY;
 

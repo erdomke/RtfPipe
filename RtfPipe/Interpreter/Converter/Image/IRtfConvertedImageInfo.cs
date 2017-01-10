@@ -6,26 +6,26 @@
 // environment: .NET 2.0
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
-using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace RtfPipe.Converter.Image
 {
 
-	// ------------------------------------------------------------------------
-	public interface IRtfConvertedImageInfo
-	{
+  // ------------------------------------------------------------------------
+  public interface IRtfConvertedImageInfo
+  {
 
-		// ----------------------------------------------------------------------
-		string FileName { get; }
+    // ----------------------------------------------------------------------
+    string FileName { get; }
 
-		// ----------------------------------------------------------------------
-		ImageFormat Format { get; }
+#if DRAWING
+    // ----------------------------------------------------------------------
+    System.Drawing.Imaging.ImageFormat Format { get; }
 
-		// ----------------------------------------------------------------------
-		Size Size { get; }
+    // ----------------------------------------------------------------------
+    System.Drawing.Size Size { get; }
+#endif
 
-	} // interface IRtfConvertedImageInfo
+  } // interface IRtfConvertedImageInfo
 
 } // namespace RtfPipe.Converter.Image
 // -- EOF -------------------------------------------------------------------

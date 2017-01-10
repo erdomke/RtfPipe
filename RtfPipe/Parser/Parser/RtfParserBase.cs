@@ -8,6 +8,7 @@
 // --------------------------------------------------------------------------
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace RtfPipe.Parser
 {
@@ -45,7 +46,7 @@ namespace RtfPipe.Parser
 			}
 			if ( listeners == null )
 			{
-				listeners = new ArrayList();
+				listeners = new List<IRtfParserListener>();
 			}
 			if ( !listeners.Contains( listener ) )
 			{
@@ -184,7 +185,7 @@ namespace RtfPipe.Parser
 
 		// ----------------------------------------------------------------------
 		// members
-		private ArrayList listeners;
+		private List<IRtfParserListener> listeners;
 
 	} // class RtfParserBase
 

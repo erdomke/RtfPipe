@@ -6,6 +6,7 @@
 // environment: .NET 2.0
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
+using System.Collections.Generic;
 using System.Collections.Specialized;
 
 namespace RtfPipe.Converter.Html
@@ -16,7 +17,7 @@ namespace RtfPipe.Converter.Html
 	{
 
 		// ----------------------------------------------------------------------
-		NameValueCollection Properties { get; }
+		IDictionary<string, string> Properties { get; }
 
 		// ----------------------------------------------------------------------
 		string SelectorName { get; }

@@ -9,6 +9,7 @@
 using System;
 using RtfPipe.Model;
 using RtfPipe.Support;
+using System.Collections.Generic;
 
 namespace RtfPipe.Interpreter
 {
@@ -18,7 +19,7 @@ namespace RtfPipe.Interpreter
 	{
 
 		// ----------------------------------------------------------------------
-		public RtfUserPropertyBuilder( RtfDocumentPropertyCollection collectedProperties ) :
+		public RtfUserPropertyBuilder( IList<IRtfDocumentProperty> collectedProperties ) :
 			base( RtfElementVisitorOrder.NonRecursive )
 		{
 			// we iterate over our children ourselves -> hence non-recursive
@@ -88,7 +89,7 @@ namespace RtfPipe.Interpreter
 
 		// ----------------------------------------------------------------------
 		// members
-		private readonly RtfDocumentPropertyCollection collectedProperties;
+		private readonly IList<IRtfDocumentProperty> collectedProperties;
 		private readonly RtfTextBuilder textBuilder = new RtfTextBuilder();
 		private int propertyTypeCode;
 		private string propertyName;

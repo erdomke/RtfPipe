@@ -9,11 +9,9 @@
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Drawing;
 using System.Globalization;
 using RtfPipe.Sys.Logging;
 using RtfPipe.Support;
-using RtfPipe.Converter.Image;
 using System.Xml;
 using System.Collections.Generic;
 
@@ -377,13 +375,13 @@ namespace RtfPipe.Converter.Html
         Writer.WriteString( cssStyle.SelectorName );
         Writer.WriteWhitespace("\r\n");
         Writer.WriteString( "{\r\n" );
-        for ( int i = 0; i < cssStyle.Properties.Count; i++ )
+        foreach (var kvp in cssStyle.Properties)
         {
-          Writer.WriteString( string.Format(
+          Writer.WriteString(string.Format(
             CultureInfo.InvariantCulture,
             "  {0}: {1};",
-            cssStyle.Properties.Keys[ i ],
-            cssStyle.Properties[ i ] ) );
+            kvp.Key,
+            kvp.Value));
           Writer.WriteWhitespace("\r\n");
         }
         Writer.WriteString( "}" );

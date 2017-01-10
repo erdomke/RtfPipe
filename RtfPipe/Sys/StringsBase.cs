@@ -39,26 +39,6 @@ namespace RtfPipe.Sys
 			return StringTool.FormatSafeInvariant( format, args );
 		} // Format
 
-		// ----------------------------------------------------------------------
-		/// <summary>
-		/// Creates a <c>ResourceManager</c> instance for the given type, loading its resources
-		/// from the type's full name, suffixed with '<c>.resx</c>'.
-		/// </summary>
-		/// <param name="singletonType">the type of the singleton</param>
-		/// <returns>a <c>ResourceManager</c> for loading the given type's resources</returns>
-		protected static ResourceManager NewInst( Type singletonType )
-		{
-			if ( singletonType == null )
-			{
-				throw new ArgumentNullException( "singletonType" );
-			}
-			if ( String.IsNullOrEmpty( singletonType.FullName ) )
-			{
-				throw new ArgumentException( "singletonType" );
-			}
-			return new ResourceManager( singletonType.FullName, singletonType.Assembly );
-		} // NewInst
-
 	} // class StringsBase
 
 } // namespace RtfPipe.Sys

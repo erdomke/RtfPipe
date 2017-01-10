@@ -50,7 +50,7 @@ namespace RtfPipe.Sys.Application
 		{
 			// format: /name:value
 			string valueName = Name + ":";
-			if ( !commandLineArg.StartsWith( valueName, StringComparison.InvariantCultureIgnoreCase ) )
+			if ( !commandLineArg.StartsWith( valueName, StringComparison.OrdinalIgnoreCase ) )
 			{
 				return false;
 			}

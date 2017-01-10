@@ -1,0 +1,41 @@
+{
+  "supports": {},
+  "frameworks": {
+    "net20": {
+      "buildOptions": {
+        "define": [
+          "SERIALIZATION",
+          "ENVIRONMENT",
+          "DRAWING",
+          "READERCLOSE"
+        ]
+      },
+      "frameworkAssemblies": {
+        "System.Drawing": "",
+        "System.Xml": ""
+      }
+    },
+    "net40": {
+      "buildOptions": {
+        "define": [
+          "SERIALIZATION",
+          "ENVIRONMENT",
+          "DRAWING",
+          "READERCLOSE"
+        ]
+      },
+      "frameworkAssemblies": {
+        "System.Core": "",
+        "System.Drawing": "",
+        "System.Xml": ""
+      }
+    },
+    "netstandard1.0": 
+    {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "Microsoft.NETCore.Portable.Compatibility": "1.0.1"
+      }
+    }
+  }
+}

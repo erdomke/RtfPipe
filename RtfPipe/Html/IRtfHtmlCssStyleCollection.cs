@@ -7,12 +7,13 @@
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
 using System.Collections;
+using System.Collections.Generic;
 
 namespace RtfPipe.Converter.Html
 {
 
 	// ------------------------------------------------------------------------
-	public interface IRtfHtmlCssStyleCollection : IEnumerable
+	public interface IRtfHtmlCssStyleCollection : IEnumerable<IRtfHtmlCssStyle>
 	{
 
 		// ----------------------------------------------------------------------

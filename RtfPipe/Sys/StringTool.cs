@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Text;
 using RtfPipe.Sys.Logging;
 using RtfPipe.Sys.Collection;
+using System.Collections.Generic;
 
 namespace RtfPipe.Sys
 {
@@ -79,7 +80,7 @@ namespace RtfPipe.Sys
 				throw new ArgumentException( Strings.StringToolSeparatorIncludesQuoteOrEscapeChar, "separator" );
 			}
 
-			StringCollection sections = new StringCollection();
+			var sections = new List<string>();
 
 			StringBuilder section = null;
 			int length = toSplit.Length;

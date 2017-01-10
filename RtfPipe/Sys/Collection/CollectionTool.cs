@@ -184,40 +184,6 @@ namespace RtfPipe.Sys.Collection
 		} // ToString
 
 		// ----------------------------------------------------------------------
-		public static string EnumValuesToString( Type enumType )
-		{
-			return EnumValuesToString( enumType, "[", "]", "|" );
-		} // EnumValuesToString
-
-		// ----------------------------------------------------------------------
-		public static string EnumValuesToString( Type enumType, string delimiterText )
-		{
-			return EnumValuesToString( enumType, string.Empty, string.Empty, delimiterText );
-		} // EnumValuesToString
-
-		// ----------------------------------------------------------------------
-		public static string EnumValuesToString( Type enumType, string startText, string endText, string delimiterText )
-		{
-			if ( enumType == null )
-			{
-				throw new ArgumentNullException( "enumType" );
-			}
-			StringBuilder str = new StringBuilder( startText );
-			FieldInfo[] fields = enumType.GetFields( BindingFlags.Public | BindingFlags.Static );
-			for ( int i = 0; i < fields.Length; i++ )
-			{
-				if ( i > 0 )
-				{
-					str.Append( delimiterText );
-				}
-				str.Append( fields[ i ].Name );
-			}
-			str.Append( endText );
-
-			return str.ToString();
-		} // EnumValuesToString
-
-		// ----------------------------------------------------------------------
 		public static int ParseEnumValue( Type enumType, string value, bool ignoreCase )
 		{
 			if ( enumType == null )
@@ -233,7 +199,7 @@ namespace RtfPipe.Sys.Collection
 				try
 				{
 					throw new ArgumentException( 
-						Strings.CollectionToolInvalidEnum( value, enumType.Name, EnumValuesToString( enumType ) ) );
+						Strings.CollectionToolInvalidEnum( value, enumType.Name, "" ) );
 				}
 				catch ( FormatException )
 				{

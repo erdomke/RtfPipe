@@ -7,6 +7,7 @@
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
 using System;
+using System.Collections.Generic;
 
 namespace RtfPipe
 {
@@ -16,7 +17,7 @@ namespace RtfPipe
 	{
 
 		// ----------------------------------------------------------------------
-		IRtfElementCollection Contents { get; }
+		IList<IRtfElement> Contents { get; }
 
 		// ----------------------------------------------------------------------
 		/// <summary>

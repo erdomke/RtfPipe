@@ -1,68 +1,87 @@
-﻿// -- FILE ------------------------------------------------------------------
-// name       : RtfFontCollection.cs
-// project    : RTF Framelet
-// created    : Leon Poyyayil - 2008.05.20
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
-using System;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace RtfPipe.Model
 {
+  public class RtfFontCollection : IList<IRtfFont>
+  {
+    private List<IRtfFont> _list = new List<IRtfFont>();
+    private Dictionary<string, IRtfFont> _dict = new Dictionary<string, IRtfFont>();
 
-	// ------------------------------------------------------------------------
-	public sealed class RtfFontCollection : ReadOnlyBaseCollection, IRtfFontCollection
-	{
+    public IRtfFont this[string id]
+    {
+      get { return _dict[id]; }
+    }
+    public IRtfFont this[int index]
+    {
+      get { return _list[index]; }
+      set
+      {
+        _dict.Remove(_list[index].Id);
+        _dict.Add(value.Id, value);
+        _list[index] = value;
+      }
+    }
 
-		// ----------------------------------------------------------------------
-		public bool ContainsFontWithId( string fontId )
-		{
-			return fontByIdMap.ContainsKey( fontId );
-		} // ContainsFontWithId
+    public int Count { get { return _list.Count; } }
+    public bool IsReadOnly { get { return false; } }
 
-		// ----------------------------------------------------------------------
-		public IRtfFont this[ int index ]
-		{
-			get { return InnerList[ index ] as IRtfFont; }
-		} // this[ int ]
+    public void Add(IRtfFont item)
+    {
+      _dict.Add(item.Id, item);
+      _list.Add(item);
+    }
 
-		// ----------------------------------------------------------------------
-		public IRtfFont this[ string id ]
-		{
-			get { return fontByIdMap[ id ] as IRtfFont; }
-		} // this[ string ]
+    public void Clear()
+    {
+      _dict.Clear();
+      _list.Clear();
+    }
 
-		// ----------------------------------------------------------------------
-		public void CopyTo( IRtfFont[] array, int index )
-		{
-			InnerList.CopyTo( array, index );
-		} // CopyTo
+    public bool ContainsKey(string id)
+    {
+      return _dict.ContainsKey(id);
+    }
+    public bool Contains(IRtfFont item)
+    {
+      return _dict.ContainsKey(item.Id);
+    }
 
-		// ----------------------------------------------------------------------
-		public void Add( IRtfFont item )
-		{
-			if ( item == null )
-			{
-				throw new ArgumentNullException( "item" );
-			}
-			InnerList.Add( item );
-			fontByIdMap.Add( item.Id, item );
-		} // Add
+    public void CopyTo(IRtfFont[] array, int arrayIndex)
+    {
+      _list.CopyTo(array, arrayIndex);
+    }
 
-		// ----------------------------------------------------------------------
-		public void Clear()
-		{
-			InnerList.Clear();
-			fontByIdMap.Clear();
-		} // Clear
+    public IEnumerator<IRtfFont> GetEnumerator()
+    {
+      return _list.GetEnumerator();
+    }
 
-		// ----------------------------------------------------------------------
-		// members
-		private readonly Hashtable fontByIdMap = new Hashtable();
+    public int IndexOf(IRtfFont item)
+    {
+      return _list.IndexOf(item);
+    }
 
-	} // class RtfFontCollection
+    public void Insert(int index, IRtfFont item)
+    {
+      _dict.Add(item.Id, item);
+      _list.Insert(index, item);
+    }
 
-} // namespace RtfPipe.Model
-// -- EOF -------------------------------------------------------------------
+    public bool Remove(IRtfFont item)
+    {
+      return _dict.Remove(item.Id) && _list.Remove(item);
+    }
+
+    public void RemoveAt(int index)
+    {
+      _dict.Remove(_list[index].Id);
+      _list.RemoveAt(index);
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+  }
+}

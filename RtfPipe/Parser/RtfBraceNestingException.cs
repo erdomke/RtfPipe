@@ -12,9 +12,11 @@ using System.Runtime.Serialization;
 namespace RtfPipe
 {
 
-	// ------------------------------------------------------------------------
-	/// <summary>Thrown upon RTF specific error conditions.</summary>
+  // ------------------------------------------------------------------------
+  /// <summary>Thrown upon RTF specific error conditions.</summary>
+#if SERIALIZATION
 	[Serializable]
+#endif
 	public class RtfBraceNestingException : RtfStructureException
 	{
 
@@ -41,6 +43,7 @@ namespace RtfPipe
 		{
 		} // RtfBraceNestingException
 
+#if SERIALIZATION
 		// ----------------------------------------------------------------------
 		/// <summary>Serialization support.</summary>
 		/// <param name="info">the info to use for serialization</param>
@@ -49,6 +52,7 @@ namespace RtfPipe
 			base( info, context )
 		{
 		} // RtfBraceNestingException
+#endif
 
 	} // class RtfBraceNestingException
 

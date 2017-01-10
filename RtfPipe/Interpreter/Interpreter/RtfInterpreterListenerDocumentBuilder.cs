@@ -8,6 +8,7 @@
 // --------------------------------------------------------------------------
 using System.Text;
 using RtfPipe.Model;
+using System.Collections.Generic;
 
 namespace RtfPipe.Interpreter
 {
@@ -33,7 +34,7 @@ namespace RtfPipe.Interpreter
 		protected override void DoBeginDocument( IRtfInterpreterContext context )
 		{
 			document = null;
-			visualDocumentContent = new RtfVisualCollection();
+			visualDocumentContent = new List<IRtfVisual>();
 		} // DoBeginDocument
 
 		// ----------------------------------------------------------------------
@@ -155,8 +156,8 @@ namespace RtfPipe.Interpreter
 		private bool combineTextWithSameFormat = true;
 
 		private RtfDocument document;
-		private RtfVisualCollection visualDocumentContent;
-		private readonly RtfVisualCollection pendingParagraphContent = new RtfVisualCollection();
+		private IList<IRtfVisual> visualDocumentContent;
+		private readonly IList<IRtfVisual> pendingParagraphContent = new List<IRtfVisual>();
 
 		private IRtfTextFormat pendingTextFormat;
 		private readonly StringBuilder pendingText = new StringBuilder();
