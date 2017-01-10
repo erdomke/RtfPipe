@@ -117,6 +117,45 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ArgumentMayNotBeEmpty" xml:space="preserve">
+    <value>argument string may not be empty</value>
+  </data>
+  <data name="CollectionToolInvalidEnum" xml:space="preserve">
+    <value>'{0}' is not a valid value for {1}. must be one of {2}.</value>
+  </data>
+  <data name="LoggerFactoryConfigError" xml:space="preserve">
+    <value>config error: none of the logger factories can be created</value>
+  </data>
+  <data name="LoggerLogFileNotSupportedByType" xml:space="preserve">
+    <value>adding log files not supported by {0}</value>
+  </data>
+  <data name="LoggerLoggingLevelRepository" xml:space="preserve">
+    <value>cannot set new logging-level as the repository is not configurable</value>
+  </data>
+  <data name="LoggerLoggingLevelXmlError" xml:space="preserve">
+    <value>cannot set new logging-level due to an XmlException</value>
+  </data>
+  <data name="LoggerNameMayNotBeEmpty" xml:space="preserve">
+    <value>logger name may not be empty</value>
+  </data>
+  <data name="ProgramPressAnyKeyToQuit" xml:space="preserve">
+    <value>press any key to quit ...</value>
+  </data>
+  <data name="StringToolContainsInvalidHexChar" xml:space="preserve">
+    <value>encountered invalid hex char in escape sequence</value>
+  </data>
+  <data name="StringToolMissingEscapedChar" xml:space="preserve">
+    <value>missing escaped character</value>
+  </data>
+  <data name="StringToolMissingEscapedHexCode" xml:space="preserve">
+    <value>missing escaped hex code</value>
+  </data>
+  <data name="StringToolSeparatorIncludesQuoteOrEscapeChar" xml:space="preserve">
+    <value>separators may not include quote or escape character</value>
+  </data>
+  <data name="StringToolUnbalancedQuotes" xml:space="preserve">
+    <value>unbalanced quotes</value>
+  </data>
   <data name="ColorTableUnsupportedText" xml:space="preserve">
     <value>unsupported text in color table: '{0}'</value>
   </data>
@@ -218,80 +257,5 @@
   </data>
   <data name="UnsupportedRtfVersion" xml:space="preserve">
     <value>unsupported RTF version: {0}</value>
-  </data>
-  <data name="EndOfFileInvalidCharacter" xml:space="preserve">
-    <value>unexpected end of file while examining next character</value>
-  </data>
-  <data name="InvalidFirstHexDigit" xml:space="preserve">
-    <value>invalid first hex digit after \\{0}</value>
-  </data>
-  <data name="InvalidMultiByteEncoding" xml:space="preserve">
-    <value>could not decode bytes 0x{0} to character with encoding {1} (from codepage {2})</value>
-  </data>
-  <data name="InvalidSecondHexDigit" xml:space="preserve">
-    <value>invalid second hex digit after \\{0}</value>
-  </data>
-  <data name="InvalidUnicodeSkipCount" xml:space="preserve">
-    <value>invalid unicode skip count: {0}</value>
-  </data>
-  <data name="LogGroupBegin" xml:space="preserve">
-    <value>GroupBegin</value>
-  </data>
-  <data name="LogGroupEnd" xml:space="preserve">
-    <value>GroupEnd</value>
-  </data>
-  <data name="LogOverflowText" xml:space="preserve">
-    <value>...</value>
-  </data>
-  <data name="LogParseBegin" xml:space="preserve">
-    <value>ParseBegin</value>
-  </data>
-  <data name="LogParseEnd" xml:space="preserve">
-    <value>ParseEnd</value>
-  </data>
-  <data name="LogParseFail" xml:space="preserve">
-    <value>ParseFail: {0}</value>
-  </data>
-  <data name="LogParseFailUnknown" xml:space="preserve">
-    <value>ParseFail: unknown reason</value>
-  </data>
-  <data name="LogParseSuccess" xml:space="preserve">
-    <value>ParseSuccess</value>
-  </data>
-  <data name="LogTag" xml:space="preserve">
-    <value>Tag: {0}</value>
-  </data>
-  <data name="LogText" xml:space="preserve">
-    <value>Text: {0}</value>
-  </data>
-  <data name="MissingGroupForNewTag" xml:space="preserve">
-    <value>invalid state: no group available yet for adding a tag</value>
-  </data>
-  <data name="MissingGroupForNewText" xml:space="preserve">
-    <value>invalid state: no group available yet for adding a text</value>
-  </data>
-  <data name="MultipleRootLevelGroups" xml:space="preserve">
-    <value>invalid state: multiple root level groups</value>
-  </data>
-  <data name="NoRtfContent" xml:space="preserve">
-    <value>no rtf content</value>
-  </data>
-  <data name="TagOnRootLevel" xml:space="preserve">
-    <value>a tag cannot appear on root level, must be child of a group: {0}</value>
-  </data>
-  <data name="TextOnRootLevel" xml:space="preserve">
-    <value>a text cannot appear on root level, must be child of a group: '{0}'</value>
-  </data>
-  <data name="ToFewBraces" xml:space="preserve">
-    <value>improper nesting of braces: too few</value>
-  </data>
-  <data name="ToManyBraces" xml:space="preserve">
-    <value>improper nesting of braces: too many</value>
-  </data>
-  <data name="UnclosedGroups" xml:space="preserve">
-    <value>invalid state: unclosed groups</value>
-  </data>
-  <data name="UnexpectedEndOfFile" xml:space="preserve">
-    <value>unexpected end of file</value>
   </data>
 </root>
