@@ -234,7 +234,7 @@ namespace RtfPipe.Solutions.Community.Rtf2Html
     } // InterpretRtf
 
     // ----------------------------------------------------------------------
-    private string ConvertHtml( IRtfDocument rtfDocument, IImageVisitor imageAdapter )
+    private string ConvertHtml( IRtfDocument rtfDocument, IObjectVisitor imageAdapter )
     {
       string html;
 

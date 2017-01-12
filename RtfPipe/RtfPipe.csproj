@@ -54,7 +54,7 @@
     <Compile Include="Html\RtfHtmlSpecialCharCollection.cs" />
     <Compile Include="Html\RtfHtmlStyle.cs" />
     <Compile Include="Html\RtfHtmlStyleConverter.cs" />
-    <Compile Include="IImageVisitor.cs" />
+    <Compile Include="IObjectVisitor.cs" />
     <Compile Include="Interpreter\Converter\Image\IRtfConvertedImageInfo.cs" />
     <Compile Include="Interpreter\Converter\Image\IRtfVisualImageAdapter.cs" />
     <Compile Include="Interpreter\Converter\Image\RtfConvertedImageInfo.cs" />

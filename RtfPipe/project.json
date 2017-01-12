@@ -1,4 +1,17 @@
 {
+  "version": "0.7.0-*",
+  "title": "RtfPipe",
+  "description": "RtfPipe is a .NET library for parsing Rich Text Format (RTF) streams and converting them to HTML",
+  "language": "en-US",
+  "authors": [ "Eric Domke" ],
+  "packOptions": {
+    "projectUrl": "https://github.com/erdomke/RtfPipe",
+    "tags": [ "html", "rtf", "rich text" ],
+    "repository": {
+      "type": "git",
+      "url": "git://github.com/erdomke/RtfPipe"
+    }
+  },
   "supports": {},
   "frameworks": {
     "net20": {

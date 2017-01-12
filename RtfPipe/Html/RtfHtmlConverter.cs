@@ -118,6 +118,7 @@ namespace RtfPipe.Converter.Html
 
     public void Convert(XmlWriter writer)
     {
+      _attachmentIndex = 0;
       _writer = writer;
       RenderDocumentSection();
       RenderHtmlSection();
@@ -645,9 +646,9 @@ namespace RtfPipe.Converter.Html
         }
       }
 
-      string fileName = _settings.ImageVisitor.GetUri(visualImage);
-      int width = _settings.ImageVisitor.CalcImageWidth(visualImage);
-      int height = _settings.ImageVisitor.CalcImageHeight(visualImage);
+      string fileName = _settings.ObjectVisitor.GetUri(visualImage);
+      int width = _settings.ObjectVisitor.CalcImageWidth(visualImage);
+      int height = _settings.ObjectVisitor.CalcImageHeight(visualImage);
 
       RenderImgTag();
       Writer.WriteAttributeString( "width", width.ToString( CultureInfo.InvariantCulture ) );
@@ -722,6 +723,9 @@ namespace RtfPipe.Converter.Html
           break;
         case RtfVisualSpecialCharKind.RightSingleQuote:
           Writer.WriteEntityRef("rsquo");
+          break;
+        case RtfVisualSpecialCharKind.ObjectAttachPoint:
+          _settings.ObjectVisitor.RenderObject(_attachmentIndex++, Writer);
           break;
       }
       
@@ -940,6 +944,7 @@ namespace RtfPipe.Converter.Html
     private XmlWriter _writer;
     private IRtfVisual _lastVisual;
     private bool _isInParagraphNumber;
+    private int _attachmentIndex = 0;
 
     private readonly Dictionary<string, bool> unsortedListValues = new Dictionary<string, bool>()
     {

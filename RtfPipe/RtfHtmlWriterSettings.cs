@@ -6,6 +6,6 @@ namespace RtfPipe
 {
   public class RtfHtmlWriterSettings
   {
-    public IImageVisitor ImageVisitor { get; set; }
+    public IObjectVisitor ObjectVisitor { get; set; }
   }
 }

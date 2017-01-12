@@ -1,28 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml;
 using RtfPipe;
 
 namespace RtfPipe
 {
-  public class DataUriImageVisitor : IImageVisitor
+  public class DataUriImageVisitor : IObjectVisitor
   {
     private const int twipsPerInch = 1440;
     private const double DefaultDpi = 96.0;
 
-    public int CalcImageHeight(IRtfVisualImage image)
+    public virtual int CalcImageHeight(IRtfVisualImage image)
     {
       float imgScaleX = image.ScaleWidthPercent / 100.0f;
       return (int)Math.Round((double)image.DesiredWidth * imgScaleX / twipsPerInch * DefaultDpi);
     }
 
-    public int CalcImageWidth(IRtfVisualImage image)
+    public virtual int CalcImageWidth(IRtfVisualImage image)
     {
       float imgScaleY = image.ScaleHeightPercent / 100.0f;
       return (int)Math.Round((double)image.DesiredHeight * imgScaleY / twipsPerInch * DefaultDpi);
     }
 
-    public string GetUri(IRtfVisualImage image)
+    public virtual string GetUri(IRtfVisualImage image)
     {
       var result = "data:";
       switch (image.Format)
@@ -41,6 +42,11 @@ namespace RtfPipe
           break;
       }
       return result + Convert.ToBase64String(image.ImageDataBinary);
+    }
+
+    public virtual void RenderObject(int index, XmlWriter writer)
+    {
+      // Do nothing
     }
   }
 }

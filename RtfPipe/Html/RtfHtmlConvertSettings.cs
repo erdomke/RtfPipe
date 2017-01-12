@@ -38,23 +38,23 @@ namespace RtfPipe.Converter.Html
 		} // RtfHtmlConvertSettings
 
 		// ----------------------------------------------------------------------
-		public RtfHtmlConvertSettings( IImageVisitor imageVisitor ) :
-			this( imageVisitor, RtfHtmlConvertScope.All )
+		public RtfHtmlConvertSettings( IObjectVisitor objectVisitor ) :
+			this( objectVisitor, RtfHtmlConvertScope.All )
 		{
 		} // RtfHtmlConvertSettings
 
 		// ----------------------------------------------------------------------
-		public RtfHtmlConvertSettings(IImageVisitor imageVisitor, RtfHtmlConvertScope convertScope )
+		public RtfHtmlConvertSettings(IObjectVisitor objectVisitor, RtfHtmlConvertScope convertScope )
 		{
-			this.imageVisitor = imageVisitor ?? new DataUriImageVisitor();
+			this.objectVisitor = objectVisitor ?? new DataUriImageVisitor();
 			ConvertScope = convertScope;
 			VisualHyperlinkPattern = DefaultVisualHyperlinkPattern;
 		} // RtfHtmlConvertSettings
 
 		// ----------------------------------------------------------------------
-		public IImageVisitor ImageVisitor
+		public IObjectVisitor ObjectVisitor
 		{
-			get { return imageVisitor; }
+			get { return objectVisitor; }
 		} // ImageAdapter
 
 		// ----------------------------------------------------------------------
@@ -108,7 +108,7 @@ namespace RtfPipe.Converter.Html
 
 		// ----------------------------------------------------------------------
 		// members
-		private readonly IImageVisitor imageVisitor;
+		private readonly IObjectVisitor objectVisitor;
 		private RtfHtmlCssStyleCollection styles;
 		private List<string> styleSheetLinks;
 		private string characterSet = DefaultDocumentCharacterSet;

@@ -457,7 +457,7 @@ namespace RtfPipe.Parser
     // ----------------------------------------------------------------------
     private void UpdateEncoding( int codePage )
     {
-      if ( encoding == null || codePage != _encodings[encoding.WebName] )
+      if ( encoding == null || (codePage > 0 && codePage != _encodings[encoding.WebName] ))
       {
         switch ( codePage )
         {

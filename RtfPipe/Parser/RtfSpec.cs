@@ -202,6 +202,9 @@ namespace RtfPipe
     public const string TagParagraphNumberText = "pntext";
     public const string TagListNumberText = "listtext";
 
+    // --- Outlook ---
+    public const string TagObjAttPh = "objattph";
+
     // ----------------------------------------------------------------------
     public static int GetCodePage( int charSet )
     {

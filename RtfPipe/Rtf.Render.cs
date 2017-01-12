@@ -33,7 +33,7 @@ namespace RtfPipe
       {
         var intSettings = new RtfInterpreterSettings() { IgnoreDuplicatedFonts = true, IgnoreUnknownFonts = true };
         var rtfDocument = RtfInterpreterTool.BuildDoc(content, intSettings);
-        var htmlConvertSettings = new RtfHtmlConvertSettings(settings.ImageVisitor);
+        var htmlConvertSettings = new RtfHtmlConvertSettings(settings.ObjectVisitor);
         htmlConvertSettings.IsShowHiddenText = false;
         htmlConvertSettings.UseNonBreakingSpaces = false;
         htmlConvertSettings.ConvertScope = RtfHtmlConvertScope.All;
