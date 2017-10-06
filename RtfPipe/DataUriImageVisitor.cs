@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
@@ -11,13 +11,13 @@ namespace RtfPipe
     private const int twipsPerInch = 1440;
     private const double DefaultDpi = 96.0;
 
-    public virtual int CalcImageHeight(IRtfVisualImage image)
+    public virtual int CalcImageWidth(IRtfVisualImage image)
     {
       float imgScaleX = image.ScaleWidthPercent / 100.0f;
       return (int)Math.Round((double)image.DesiredWidth * imgScaleX / twipsPerInch * DefaultDpi);
     }
 
-    public virtual int CalcImageWidth(IRtfVisualImage image)
+    public virtual int CalcImageHeight(IRtfVisualImage image)
     {
       float imgScaleY = image.ScaleHeightPercent / 100.0f;
       return (int)Math.Round((double)image.DesiredHeight * imgScaleY / twipsPerInch * DefaultDpi);

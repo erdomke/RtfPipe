@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RtfPipe;
 using System.Xml;
@@ -56,6 +56,68 @@ something to ignore: {\*\unsupportedtag {\b should not appear}{\i this neither}}
 \par }{\pard\plain \ltrpar\ql \li0\ri0\widctlpar\wrapdefault\aspalpha\aspnum\faauto\adjustright\rin0\lin0\itap0\pararsid16650015 \rtlch\fcs1 \af31507\afs22\alang1025 \ltrch\fcs0 \f31506\fs22\lang1033\langfe1033\cgrid\langnp1033\langfenp1033\insrsid16650015 {{\objattph  {\rtlch\fcs1 \af31507 \ltrch\fcs0 \cf0\insrsid16650015 }}}}\sectd \ltrsect\linex0\endnhere\sectdefaultcl\sftnbj {\rtlch\fcs1 \af31507 \ltrch\fcs0 \cf0\insrsid16650015\charrsid16650015 
 \par }}";
       const string html = "<!DOCTYPE html ><html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" /></head><body><p><span style=\"font-family:Calibri;font-size:11pt\">Testing with an inline image</span></p><p>&nbsp;</p><p><div data-index=\"0\" /><span style=\"font-family:Calibri;font-size:11pt\"> </span></p><p>&nbsp;</p><p><span style=\"font-family:Calibri;font-size:11pt\">And a file</span></p><p>&nbsp;</p><p><div data-index=\"1\" /><span style=\"font-family:Calibri;font-size:11pt\"> </span></p></body></html>";
+
+      var settings = new RtfHtmlWriterSettings();
+      settings.ObjectVisitor = new Visitor();
+      var output = Rtf.ToHtml(rtf, settings);
+
+      Assert.AreEqual(html, output);
+    }
+
+    [TestMethod]
+    public void Conversion_ImageSize()
+    {
+      const string rtf = @"{\rtf1\ansi\ansicpg1251\deff0\nouicompat\deflang1049{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.14393}\viewkind4\uc1 
+\pard\sa200\sl240\slmult1\f0\fs22\lang9{\pict{\*\picprop}\wmetafile8\picw1323\pich265\picwgoal750\pichgoal150 
+010009000003f60000000000cd00000000000400000003010800050000000b0200000000050000
+000c020a003200030000001e0004000000070104000400000007010400cd000000410b2000cc00
+0a003200000000000a0032000000000028000000320000000a0000000100040000000000000000
+000000000000000000000000000000000000000000ffffff003300ff000033ff00000000000000
+000000000000000000000000000000000000000000000000000000000000000000000000000000
+000000222222222222222222222222222222222222222222222222220202022222222222222222
+222222222222222222222222222222222202020222222222222222222222222222222222222222
+222222222222020202222222222222222222222222222222222222222222222222220202022222
+222222222222222222222222222222222222222222222202020222222222222222222222222222
+222222222222222222222222020202222222222222222222222222222222222222222222222222
+220202022222222222222222222222222222222222222222222222222202020222222222222222
+222222222222222222222222222222222222020202222222222222222222222222222222222222
+22222222222232020202040000002701ffff030000000000
+}\par
+\par
+\par
+{\pict{\*\picprop}\wmetafile8\picw1323\pich265\picwgoal750\pichgoal150 
+0100090000037600000000004d00000000000400000003010800050000000b0200000000050000
+000c020a003200030000001e00040000000701040004000000070104004d000000410b2000cc00
+0a003200000000000a0032000000000028000000320000000a0000000100010000000000000000
+000000000000000000000000000000000000000000ffffff00ffffffffffffc001ffffffffffff
+c001ffffffffffffc001ffffffffffffc001ffffffffffffc001ffffffffffffc001ffffffffff
+ffc001ffffffffffffc001ffffffffffffc001ffffffffffffc001040000002701ffff03000000
+0000
+}\par
+
+\pard\sa200\sl276\slmult1\par
+}";
+      const string html = "<!DOCTYPE html ><html><head><meta http-equiv=\"co" +
+        "ntent-type\" content=\"text/html; charset=UTF-8\" /></head><body><p" +
+        "><img width=\"50\" height=\"10\" src=\"data:windows/metafile;base64" +
+        ",AQAJAAAD9gAAAAAAzQAAAAAABAAAAAMBCAAFAAAACwIAAAAABQAAAAwCCgAyAAMAAA" +
+        "AeAAQAAAAHAQQABAAAAAcBBADNAAAAQQsgAMwACgAyAAAAAAAKADIAAAAAACgAAAAyA" +
+        "AAACgAAAAEABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////ADMA/wAAM/8A" +
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIiI" +
+        "iIiIiIiIiIiIiIiIiIiIiIiIiIiIiIgICAiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIi" +
+        "ICAgIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiAgICIiIiIiIiIiIiIiIiIiIiIiIiI" +
+        "iIiIiIiIgICAiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiICAgIiIiIiIiIiIiIiIiIi" +
+        "IiIiIiIiIiIiIiIiAgICIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIgICAiIiIiIiIiI" +
+        "iIiIiIiIiIiIiIiIiIiIiIiICAgIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiAgICIi" +
+        "IiIiIiIiIiIiIiIiIiIiIiIiIiIiIiMgICAgQAAAAnAf//AwAAAAAA\" /></p><p>&" +
+        "nbsp;</p><p>&nbsp;</p><p><img width=\"50\" height=\"10\" src=\"data" +
+        ":windows/metafile;base64,AQAJAAADdgAAAAAATQAAAAAABAAAAAMBCAAFAAAACw" +
+        "IAAAAABQAAAAwCCgAyAAMAAAAeAAQAAAAHAQQABAAAAAcBBABNAAAAQQsgAMwACgAyA" +
+        "AAAAAAKADIAAAAAACgAAAAyAAAACgAAAAEAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+        "AAAAAAAA////AP///////8AB////////wAH////////AAf///////8AB////////wAH" +
+        "////////AAf///////8AB////////wAH////////AAf///////8ABBAAAACcB//8DAA" +
+        "AAAAA=\" /></p><p>&nbsp;</p></body></html>";
 
       var settings = new RtfHtmlWriterSettings();
       settings.ObjectVisitor = new Visitor();
