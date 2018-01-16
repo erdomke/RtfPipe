@@ -661,7 +661,7 @@ namespace RtfPipe.Parser
       {1201, "utf-16BE"},
       {1250, "windows-1250"},
       {1251, "windows-1251"},
-      {1252, "Windows-1252"},
+      {1252, "windows-1252"},
       {1253, "windows-1253"},
       {1254, "windows-1254"},
       {1255, "windows-1255"},
