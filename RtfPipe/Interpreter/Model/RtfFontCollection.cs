@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace RtfPipe.Model
@@ -10,7 +10,13 @@ namespace RtfPipe.Model
 
     public IRtfFont this[string id]
     {
-      get { return _dict[id]; }
+      get
+      {
+        IRtfFont result;
+        if (_dict.TryGetValue(id, out result))
+          return result;
+        return default(IRtfFont);
+      }
     }
     public IRtfFont this[int index]
     {

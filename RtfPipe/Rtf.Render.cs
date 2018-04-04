@@ -86,20 +86,12 @@ namespace RtfPipe
     private static IRtfGroup ParseRtf(RtfSource source)
     {
       IRtfGroup rtfStructure;
-      try
-      {
-        // parse the rtf structure
-        RtfParserListenerStructureBuilder structureBuilder = new RtfParserListenerStructureBuilder();
-        RtfParser parser = new RtfParser(structureBuilder);
-        parser.IgnoreContentAfterRootGroup = true; // support WordPad documents
-        parser.Parse(source);
-        rtfStructure = structureBuilder.StructureRoot;
-      }
-      catch
-      {
-        return null;
-      }
-
+      // parse the rtf structure
+      RtfParserListenerStructureBuilder structureBuilder = new RtfParserListenerStructureBuilder();
+      RtfParser parser = new RtfParser(structureBuilder);
+      parser.IgnoreContentAfterRootGroup = true; // support WordPad documents
+      parser.Parse(source);
+      rtfStructure = structureBuilder.StructureRoot;
       return rtfStructure;
     } // ParseRtf
   }

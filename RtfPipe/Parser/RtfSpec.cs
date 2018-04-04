@@ -1,4 +1,4 @@
-﻿// -- FILE ------------------------------------------------------------------
+// -- FILE ------------------------------------------------------------------
 // name       : RtfSpec.cs
 // project    : RTF Framelet
 // created    : Leon Poyyayil - 2008.05.20
@@ -6,6 +6,7 @@
 // environment: .NET 2.0
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
+using System;
 using System.Text;
 
 namespace RtfPipe
@@ -30,8 +31,7 @@ namespace RtfPipe
     public const string TagEncodingAnsiCodePage = "ansicpg";
     public const int AnsiCodePage = 1252;
     public const int SymbolFakeCodePage = 42; // a windows legacy hack ...
-    public static readonly Encoding AnsiEncoding = Encoding.GetEncoding("Windows-1252");
-
+    public static readonly Encoding AnsiEncoding;
     public const string TagUnicodeSkipCount = "uc";
     public const string TagUnicodeCode = "u";
     public const string TagUnicodeAlternativeChoices = "upr";
@@ -205,10 +205,14 @@ namespace RtfPipe
     // --- Outlook ---
     public const string TagObjAttPh = "objattph";
 
-    // ----------------------------------------------------------------------
-    public static int GetCodePage( int charSet )
+    static RtfSpec()
     {
-      switch ( charSet )
+      AnsiEncoding = Encoding.GetEncoding("Windows-1252");
+    }
+    // ----------------------------------------------------------------------
+    public static int GetCodePage(int charSet)
+    {
+      switch (charSet)
       {
         case 0:
           return 1252; // ANSI

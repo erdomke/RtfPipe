@@ -1,0 +1,215 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{381C8A7F-E57A-4761-B89A-D6BFAA19641D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RtfPipe</RootNamespace>
+    <AssemblyName>RtfPipe</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;SERIALIZATION,ENVIRONMENT,DRAWING,READERCLOSE,ENCODING</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;SERIALIZATION,ENVIRONMENT,DRAWING,READERCLOSE,ENCODING</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>Signature.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release4|AnyCPU'">
+    <OutputPath>bin\Release4\</OutputPath>
+    <DefineConstants>TRACE;SERIALIZATION,ENVIRONMENT,DRAWING,READERCLOSE,ENCODING</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+    <None Include="Signature.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DataUriImageVisitor.cs" />
+    <Compile Include="Html\IRtfHtmlCssStyle.cs" />
+    <Compile Include="Html\IRtfHtmlCssStyleCollection.cs" />
+    <Compile Include="Html\IRtfHtmlStyle.cs" />
+    <Compile Include="Html\IRtfHtmlStyleConverter.cs" />
+    <Compile Include="Html\RtfEmptyHtmlStyleConverter.cs" />
+    <Compile Include="Html\RtfHtmlConverter.cs" />
+    <Compile Include="Html\RtfHtmlConvertScope.cs" />
+    <Compile Include="Html\RtfHtmlConvertSettings.cs" />
+    <Compile Include="Html\RtfHtmlCssStyle.cs" />
+    <Compile Include="Html\RtfHtmlCssStyleCollection.cs" />
+    <Compile Include="Html\RtfHtmlElementPath.cs" />
+    <Compile Include="Html\RtfHtmlSpecialCharCollection.cs" />
+    <Compile Include="Html\RtfHtmlStyle.cs" />
+    <Compile Include="Html\RtfHtmlStyleConverter.cs" />
+    <Compile Include="IObjectVisitor.cs" />
+    <Compile Include="Interpreter\Converter\Image\IRtfConvertedImageInfo.cs" />
+    <Compile Include="Interpreter\Converter\Image\IRtfVisualImageAdapter.cs" />
+    <Compile Include="Interpreter\Converter\Image\RtfConvertedImageInfo.cs" />
+    <Compile Include="Interpreter\Converter\Image\RtfImageConverter.cs" />
+    <Compile Include="Interpreter\Converter\Image\RtfImageConvertSettings.cs" />
+    <Compile Include="Interpreter\Converter\Image\RtfVisualImageAdapter.cs" />
+    <Compile Include="Interpreter\Converter\Text\RtfTextConverter.cs" />
+    <Compile Include="Interpreter\Converter\Text\RtfTextConvertSettings.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfColorTableBuilder.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfDocumentInfoBuilder.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfFontBuilder.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfFontTableBuilder.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfImageBuilder.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfInterpreter.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfInterpreterBase.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfInterpreterContext.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfInterpreterListenerBase.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfInterpreterListenerDocumentBuilder.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfInterpreterListenerLogger.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfInterpreterLoggerSettings.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfInterpreterSettings.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfTextBuilder.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfTimestampBuilder.cs" />
+    <Compile Include="Interpreter\Interpreter\RtfUserPropertyBuilder.cs" />
+    <Compile Include="Interpreter\IRtfColor.cs" />
+    <Compile Include="Interpreter\IRtfDocument.cs" />
+    <Compile Include="Interpreter\IRtfDocumentInfo.cs" />
+    <Compile Include="Interpreter\IRtfDocumentProperty.cs" />
+    <Compile Include="Interpreter\IRtfFont.cs" />
+    <Compile Include="Interpreter\IRtfInterpreter.cs" />
+    <Compile Include="Interpreter\IRtfInterpreterContext.cs" />
+    <Compile Include="Interpreter\IRtfInterpreterListener.cs" />
+    <Compile Include="Interpreter\IRtfInterpreterSettings.cs" />
+    <Compile Include="Interpreter\IRtfTextFormat.cs" />
+    <Compile Include="Interpreter\IRtfVisual.cs" />
+    <Compile Include="Interpreter\IRtfVisualBreak.cs" />
+    <Compile Include="Interpreter\IRtfVisualImage.cs" />
+    <Compile Include="Interpreter\IRtfVisualSpecialChar.cs" />
+    <Compile Include="Interpreter\IRtfVisualText.cs" />
+    <Compile Include="Interpreter\IRtfVisualVisitor.cs" />
+    <Compile Include="Interpreter\Model\RtfColor.cs" />
+    <Compile Include="Interpreter\Model\RtfDocument.cs" />
+    <Compile Include="Interpreter\Model\RtfDocumentInfo.cs" />
+    <Compile Include="Interpreter\Model\RtfDocumentProperty.cs" />
+    <Compile Include="Interpreter\Model\RtfFont.cs" />
+    <Compile Include="Interpreter\Model\RtfFontCollection.cs" />
+    <Compile Include="Interpreter\Model\RtfTextFormat.cs" />
+    <Compile Include="Interpreter\Model\RtfVisual.cs" />
+    <Compile Include="Interpreter\Model\RtfVisualBreak.cs" />
+    <Compile Include="Interpreter\Model\RtfVisualImage.cs" />
+    <Compile Include="Interpreter\Model\RtfVisualSpecialChar.cs" />
+    <Compile Include="Interpreter\Model\RtfVisualText.cs" />
+    <Compile Include="Interpreter\RtfColorException.cs" />
+    <Compile Include="Interpreter\RtfColorTableFormatException.cs" />
+    <Compile Include="Interpreter\RtfFontKind.cs" />
+    <Compile Include="Interpreter\RtfFontPitch.cs" />
+    <Compile Include="Interpreter\RtfFontTableFormatException.cs" />
+    <Compile Include="Interpreter\RtfInterpreterException.cs" />
+    <Compile Include="Interpreter\RtfInterpreterState.cs" />
+    <Compile Include="Interpreter\RtfInvalidDataException.cs" />
+    <Compile Include="Interpreter\RtfPropertyKind.cs" />
+    <Compile Include="Interpreter\RtfTextAlignment.cs" />
+    <Compile Include="Interpreter\RtfUndefinedColorException.cs" />
+    <Compile Include="Interpreter\RtfUndefinedFontException.cs" />
+    <Compile Include="Interpreter\RtfUnsupportedStructureException.cs" />
+    <Compile Include="Interpreter\RtfVisualBreakKind.cs" />
+    <Compile Include="Interpreter\RtfVisualImageFormat.cs" />
+    <Compile Include="Interpreter\RtfVisualKind.cs" />
+    <Compile Include="Interpreter\RtfVisualSpecialCharKind.cs" />
+    <Compile Include="Interpreter\Strings.cs" />
+    <Compile Include="Interpreter\Support\RtfElementVisitorBase.cs" />
+    <Compile Include="Interpreter\Support\RtfElementVisitorOrder.cs" />
+    <Compile Include="Interpreter\Support\RtfInterpreterTool.cs" />
+    <Compile Include="Interpreter\Support\RtfVisualVisitorBase.cs" />
+    <Compile Include="Parser\IRtfElement.cs" />
+    <Compile Include="Parser\IRtfElementVisitor.cs" />
+    <Compile Include="Parser\IRtfGroup.cs" />
+    <Compile Include="Parser\IRtfParser.cs" />
+    <Compile Include="Parser\IRtfParserListener.cs" />
+    <Compile Include="Parser\IRtfSource.cs" />
+    <Compile Include="Parser\IRtfTag.cs" />
+    <Compile Include="Parser\IRtfText.cs" />
+    <Compile Include="Parser\Model\RtfElement.cs" />
+    <Compile Include="Parser\Model\RtfGroup.cs" />
+    <Compile Include="Parser\Model\RtfTag.cs" />
+    <Compile Include="Parser\Model\RtfText.cs" />
+    <Compile Include="Parser\Parser\RtfParser.cs" />
+    <Compile Include="Parser\Parser\RtfParserBase.cs" />
+    <Compile Include="Parser\Parser\RtfParserListenerBase.cs" />
+    <Compile Include="Parser\Parser\RtfParserListenerLogger.cs" />
+    <Compile Include="Parser\Parser\RtfParserListenerStructureBuilder.cs" />
+    <Compile Include="Parser\Parser\RtfParserLoggerSettings.cs" />
+    <Compile Include="Parser\RtfBraceNestingException.cs" />
+    <Compile Include="Parser\RtfElementKind.cs" />
+    <Compile Include="Parser\RtfEmptyDocumentException.cs" />
+    <Compile Include="Parser\RtfEncodingException.cs" />
+    <Compile Include="Parser\RtfException.cs" />
+    <Compile Include="Parser\RtfHexEncodingException.cs" />
+    <Compile Include="Parser\RtfMissingCharacterException.cs" />
+    <Compile Include="Parser\RtfMultiByteEncodingException.cs" />
+    <Compile Include="Parser\RtfParserException.cs" />
+    <Compile Include="Parser\RtfSpec.cs" />
+    <Compile Include="Parser\RtfStructureException.cs" />
+    <Compile Include="Parser\RtfUnicodeEncodingException.cs" />
+    <Compile Include="Parser\Support\RtfParserTool.cs" />
+    <Compile Include="Parser\Support\RtfSource.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rtf.Render.cs" />
+    <Compile Include="RtfHtmlWriterSettings.cs" />
+    <Compile Include="Sys\ArgumentCheck.cs" />
+    <Compile Include="Sys\Collection\CollectionTool.cs" />
+    <Compile Include="Sys\CompareTool.cs" />
+    <Compile Include="Sys\HashTool.cs" />
+    <Compile Include="Sys\Logging\ILogger.cs" />
+    <Compile Include="Sys\Logging\ILoggerEvent.cs" />
+    <Compile Include="Sys\Logging\ILoggerListener.cs" />
+    <Compile Include="Sys\Logging\ILoggerMonitor.cs" />
+    <Compile Include="Sys\Logging\Logger.cs" />
+    <Compile Include="Sys\Logging\LoggerBase.cs" />
+    <Compile Include="Sys\Logging\LoggerContextDisposable.cs" />
+    <Compile Include="Sys\Logging\LoggerEvent.cs" />
+    <Compile Include="Sys\Logging\LoggerFactory.cs" />
+    <Compile Include="Sys\Logging\LoggerFactoryBuilder.cs" />
+    <Compile Include="Sys\Logging\LoggerFactoryNone.cs" />
+    <Compile Include="Sys\Logging\LoggerImplBase.cs" />
+    <Compile Include="Sys\Logging\LoggerLevel.cs" />
+    <Compile Include="Sys\Logging\LoggerMonitorLog4net.cs" />
+    <Compile Include="Sys\Logging\LoggerMonitorNone.cs" />
+    <Compile Include="Sys\Logging\LoggerNone.cs" />
+    <Compile Include="Sys\Logging\StringBuilderLogger.cs" />
+    <Compile Include="Sys\Strings.cs" />
+    <Compile Include="Sys\StringsBase.cs" />
+    <Compile Include="Sys\StringTool.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

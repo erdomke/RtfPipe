@@ -7,7 +7,9 @@
 // copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
 // --------------------------------------------------------------------------
 using System;
+#if SERIALIZATION
 using System.Runtime.Serialization;
+#endif
 
 namespace RtfPipe
 {

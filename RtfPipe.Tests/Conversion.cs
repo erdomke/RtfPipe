@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RtfPipe;
 using System.Xml;
@@ -123,6 +123,23 @@ ffc001ffffffffffffc001ffffffffffffc001ffffffffffffc001040000002701ffff03000000
       settings.ObjectVisitor = new Visitor();
       var output = Rtf.ToHtml(rtf, settings);
 
+      Assert.AreEqual(html, output);
+    }
+
+    public void Convertion_Tests02()
+    {
+      const string rtf = "{\\rtf1\\ansi\\ansicpg1252\\uc1\\htmautsp\\deff2{\\fonttbl{\\f0\\fcharset0 Times New Roman;}{\\f2\\fcharset0 GenericSansSerif;}}{\\colortbl\\red0\\green0\\blue0;\\red255\\green255\\blue255;}\\loch\\hich\\dbch\\pard\\plain\\ltrpar\\itap0{\\lang1033\\fs18\\f2\\cf0 \\cf0\\ql{\\f2 {\\ltrch Alyssa Mourning}\\li0\\ri0\\sa0\\sb0\\fi0\\ql\\par}\r\n}\r\n}";
+      const string html = @"<!DOCTYPE html ><html><head><meta http-equiv=""content-type"" content=""text/html; charset=UTF-8"" /></head><body><p><span style=""font-family:GenericSansSerif;font-size:9pt"">Alyssa Mourning</span></p></body></html>";
+      var output = Rtf.ToHtml(rtf);
+      Assert.AreEqual(html, output);
+    }
+
+    [TestMethod]
+    public void Conversion_Tests01()
+    {
+      const string rtf = "{\\rtf1\\ansi\\b Hello World\\b0 }";
+      const string html = @"<!DOCTYPE html ><html><head><meta http-equiv=""content-type"" content=""text/html; charset=UTF-8"" /></head><body><p><span style=""font-family:serif;font-size:12pt"">Hello World</span></p></body></html>";
+      var output = Rtf.ToHtml(rtf);
       Assert.AreEqual(html, output);
     }
 
