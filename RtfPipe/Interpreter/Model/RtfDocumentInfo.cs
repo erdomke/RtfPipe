@@ -1,198 +1,78 @@
-﻿using System;
+using System;
 
 namespace RtfPipe.Model
 {
+  public sealed class RtfDocumentInfo : IRtfDocumentInfo
+  {
+    public int? Id { get; set; }
 
-	public sealed class RtfDocumentInfo : IRtfDocumentInfo
-	{
+    public int? Version { get; set; }
 
-		public int? Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+    public int? Revision { get; set; }
 
-		public int? Version
-		{
-			get { return version; }
-			set { version = value; }
-		}
+    public string Title { get; set; }
 
-		public int? Revision
-		{
-			get { return revision; }
-			set { revision = value; }
-		}
+    public string Subject { get; set; }
 
-		public string Title
-		{
-			get { return title; }
-			set { title = value; }
-		}
+    public string Author { get; set; }
 
-		public string Subject
-		{
-			get { return subject; }
-			set { subject = value; }
-		}
+    public string Manager { get; set; }
 
-		public string Author
-		{
-			get { return author; }
-			set { author = value; }
-		}
+    public string Company { get; set; }
 
-		public string Manager
-		{
-			get { return manager; }
-			set { manager = value; }
-		}
+    public string Operator { get; set; }
 
-		public string Company
-		{
-			get { return company; }
-			set { company = value; }
-		}
+    public string Category { get; set; }
 
-		public string Operator
-		{
-			get { return operatorName; }
-			set { operatorName = value; }
-		}
+    public string Keywords { get; set; }
 
-		public string Category
-		{
-			get { return category; }
-			set { category = value; }
-		}
+    public string Comment { get; set; }
 
-		public string Keywords
-		{
-			get { return keywords; }
-			set { keywords = value; }
-		}
+    public string DocumentComment { get; set; }
 
-		public string Comment
-		{
-			get { return comment; }
-			set { comment = value; }
-		}
+    public string HyperLinkbase { get; set; }
 
-		public string DocumentComment
-		{
-			get { return documentComment; }
-			set { documentComment = value; }
-		}
+    public DateTime? CreationTime { get; set; }
 
-		public string HyperLinkbase
-		{
-			get { return hyperLinkbase; }
-			set { hyperLinkbase = value; }
-		}
+    public DateTime? RevisionTime { get; set; }
 
-		public DateTime? CreationTime
-		{
-			get { return creationTime; }
-			set { creationTime = value; }
-		}
+    public DateTime? PrintTime { get; set; }
 
-		public DateTime? RevisionTime
-		{
-			get { return revisionTime; }
-			set { revisionTime = value; }
-		}
+    public DateTime? BackupTime { get; set; }
 
-		public DateTime? PrintTime
-		{
-			get { return printTime; }
-			set { printTime = value; }
-		}
+    public int? NumberOfPages { get; set; }
 
-		public DateTime? BackupTime
-		{
-			get { return backupTime; }
-			set { backupTime = value; }
-		}
+    public int? NumberOfWords { get; set; }
 
-		public int? NumberOfPages
-		{
-			get { return numberOfPages; }
-			set { numberOfPages = value; }
-		}
+    public int? NumberOfCharacters { get; set; }
 
-		public int? NumberOfWords
-		{
-			get { return numberOfWords; }
-			set { numberOfWords = value; }
-		}
+    public int? EditingTimeInMinutes { get; set; }
 
-		public int? NumberOfCharacters
-		{
-			get { return numberOfCharacters; }
-			set { numberOfCharacters = value; }
-		}
-
-		public int? EditingTimeInMinutes
-		{
-			get { return editingTimeInMinutes; }
-			set { editingTimeInMinutes = value; }
-		}
-
-		public void Reset()
-		{
-			id = null;
-			version = null;
-			revision = null;
-			title = null;
-			subject = null;
-			author = null;
-			manager = null;
-			company = null;
-			operatorName = null;
-			category = null;
-			keywords = null;
-			comment = null;
-			documentComment = null;
-			hyperLinkbase = null;
-			creationTime = null;
-			revisionTime = null;
-			printTime = null;
-			backupTime = null;
-			numberOfPages = null;
-			numberOfWords = null;
-			numberOfCharacters = null;
-			editingTimeInMinutes = null;
-		}
-
-		public override string ToString()
-		{
-			return "RTFDocInfo";
-		}
-
-		private int? id;
-		private int? version;
-		private int? revision;
-		private string title;
-		private string subject;
-		private string author;
-		private string manager;
-		private string company;
-		private string operatorName;
-		private string category;
-		private string keywords;
-		private string comment;
-		private string documentComment;
-		private string hyperLinkbase;
-		private DateTime? creationTime;
-		private DateTime? revisionTime;
-		private DateTime? printTime;
-		private DateTime? backupTime;
-		private int? numberOfPages;
-		private int? numberOfWords;
-		private int? numberOfCharacters;
-		private int? editingTimeInMinutes;
-
-	}
-
+    public void Reset()
+    {
+      Id = null;
+      Version = null;
+      Revision = null;
+      Title = null;
+      Subject = null;
+      Author = null;
+      Manager = null;
+      Company = null;
+      Operator = null;
+      Category = null;
+      Keywords = null;
+      Comment = null;
+      DocumentComment = null;
+      HyperLinkbase = null;
+      CreationTime = null;
+      RevisionTime = null;
+      PrintTime = null;
+      BackupTime = null;
+      NumberOfPages = null;
+      NumberOfWords = null;
+      NumberOfCharacters = null;
+      EditingTimeInMinutes = null;
+    }
+  }
 }
 

@@ -18,6 +18,7 @@ namespace RtfPipe.Model
         return default(IRtfFont);
       }
     }
+
     public IRtfFont this[int index]
     {
       get { return _list[index]; }
