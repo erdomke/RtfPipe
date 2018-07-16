@@ -1,11 +1,3 @@
-// -- FILE ------------------------------------------------------------------
-// name       : RtfFont.cs
-// project    : RTF Framelet
-// created    : Leon Poyyayil - 2008.05.20
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 using System.Text;
 using RtfPipe.Sys;
@@ -13,11 +5,10 @@ using RtfPipe.Sys;
 namespace RtfPipe.Model
 {
 
-  // ------------------------------------------------------------------------
+
   public sealed class RtfFont : IRtfFont
   {
 
-    // ----------------------------------------------------------------------
     public RtfFont(string id, RtfFontKind kind, RtfFontPitch pitch, int charSet, int codePage, string name)
     {
       if (id == null)
@@ -42,33 +33,28 @@ namespace RtfPipe.Model
       this.charSet = charSet;
       this.codePage = codePage;
       this.name = name;
-    } // RtfFont
+    }
 
-    // ----------------------------------------------------------------------
     public string Id
     {
       get { return id; }
-    } // Id
+    }
 
-    // ----------------------------------------------------------------------
     public RtfFontKind Kind
     {
       get { return kind; }
-    } // Kind
+    }
 
-    // ----------------------------------------------------------------------
     public RtfFontPitch Pitch
     {
       get { return pitch; }
-    } // Pitch
+    }
 
-    // ----------------------------------------------------------------------
     public int CharSet
     {
       get { return charSet; }
-    } // CharSet
+    }
 
-    // ----------------------------------------------------------------------
     public int CodePage
     {
       get
@@ -81,21 +67,18 @@ namespace RtfPipe.Model
         }
         return codePage;
       }
-    } // CodePage
+    }
 
-    // ----------------------------------------------------------------------
     public Encoding GetEncoding()
     {
       return Encoding.GetEncoding(Parser.RtfParser._codePages[CodePage]);
-    } // GetEncoding
+    }
 
-    // ----------------------------------------------------------------------
     public string Name
     {
       get { return name; }
-    } // Name
+    }
 
-    // ----------------------------------------------------------------------
     public override bool Equals(object obj)
     {
       if (obj == this)
@@ -109,21 +92,18 @@ namespace RtfPipe.Model
       }
 
       return IsEqual(obj);
-    } // Equals
+    }
 
-    // ----------------------------------------------------------------------
     public override int GetHashCode()
     {
       return HashTool.AddHashCode(GetType().GetHashCode(), ComputeHashCode());
-    } // GetHashCode
+    }
 
-    // ----------------------------------------------------------------------
     public override string ToString()
     {
       return id + ":" + name;
-    } // ToString
+    }
 
-    // ----------------------------------------------------------------------
     private bool IsEqual(object obj)
     {
       RtfFont compare = obj as RtfFont; // guaranteed to be non-null
@@ -135,9 +115,8 @@ namespace RtfPipe.Model
         charSet == compare.charSet &&
         codePage == compare.codePage &&
         name.Equals(compare.name);
-    } // IsEqual
+    }
 
-    // ----------------------------------------------------------------------
     private int ComputeHashCode()
     {
       int hash = id.GetHashCode();
@@ -147,10 +126,8 @@ namespace RtfPipe.Model
       hash = HashTool.AddHashCode(hash, codePage);
       hash = HashTool.AddHashCode(hash, name);
       return hash;
-    } // ComputeHashCode
+    }
 
-    // ----------------------------------------------------------------------
-    // members
     private readonly string id;
     private readonly RtfFontKind kind;
     private readonly RtfFontPitch pitch;
@@ -158,7 +135,6 @@ namespace RtfPipe.Model
     private readonly int codePage;
     private readonly string name;
 
-  } // class RtfFont
+  }
 
-} // namespace RtfPipe
-// -- EOF -------------------------------------------------------------------
+}

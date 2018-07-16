@@ -62,6 +62,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Conversion.cs" />
+    <Compile Include="FileConversion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

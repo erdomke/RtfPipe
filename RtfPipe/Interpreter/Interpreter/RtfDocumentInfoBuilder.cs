@@ -1,23 +1,13 @@
-﻿// -- FILE ------------------------------------------------------------------
-// name       : RtfDocumentInfoBuilder.cs
-// project    : RTF Framelet
-// created    : Leon Poyyayil - 2008.05.23
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
-using System;
+﻿using System;
 using RtfPipe.Model;
 using RtfPipe.Support;
 
 namespace RtfPipe.Interpreter
 {
 
-	// ------------------------------------------------------------------------
 	public sealed class RtfDocumentInfoBuilder : RtfElementVisitorBase
 	{
 
-		// ----------------------------------------------------------------------
 		public RtfDocumentInfoBuilder( RtfDocumentInfo info ) :
 			base( RtfElementVisitorOrder.NonRecursive )
 		{
@@ -27,15 +17,13 @@ namespace RtfPipe.Interpreter
 				throw new ArgumentNullException( "info" );
 			}
 			this.info = info;
-		} // RtfDocumentInfoBuilder
+		}
 
-		// ----------------------------------------------------------------------
 		public void Reset()
 		{
 			info.Reset();
-		} // Reset
+		}
 
-		// ----------------------------------------------------------------------
 		protected override void DoVisitGroup( IRtfGroup group )
 		{
 			switch ( group.Destination )
@@ -89,9 +77,8 @@ namespace RtfPipe.Interpreter
 					info.BackupTime = ExtractTimestamp( group );
 					break;
 			}
-		} // DoVisitGroup
+		}
 
-		// ----------------------------------------------------------------------
 		protected override void DoVisitTag( IRtfTag tag )
 		{
 			switch ( tag.Name )
@@ -118,31 +105,27 @@ namespace RtfPipe.Interpreter
 					info.EditingTimeInMinutes = tag.ValueAsNumber;
 					break;
 			}
-		} // DoVisitTag
+		}
 
-		// ----------------------------------------------------------------------
 		private string ExtractGroupText( IRtfGroup group )
 		{
 			textBuilder.Reset();
 			textBuilder.VisitGroup( group );
 			return textBuilder.CombinedText;
-		} // ExtractGroupText
+		}
 
-		// ----------------------------------------------------------------------
 		private DateTime ExtractTimestamp( IRtfGroup group )
 		{
 			timestampBuilder.Reset();
 			timestampBuilder.VisitGroup( group );
 			return timestampBuilder.CreateTimestamp();
-		} // ExtractTimestamp
+		}
 
-		// ----------------------------------------------------------------------
-		// members
 		private readonly RtfDocumentInfo info;
 		private readonly RtfTextBuilder textBuilder = new RtfTextBuilder();
 		private readonly RtfTimestampBuilder timestampBuilder = new RtfTimestampBuilder();
 
-	} // class RtfDocumentInfoBuilder
+	}
 
-} // namespace RtfPipe.Interpreter
-// -- EOF -------------------------------------------------------------------
+}
+

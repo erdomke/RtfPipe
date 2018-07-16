@@ -1,11 +1,4 @@
-// -- FILE ------------------------------------------------------------------
-// name       : ArgumentCheck.cs
 // project    : System Framelet
-// created    : Leon Poyyayil - 2005.05.02
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 
 namespace RtfPipe.Sys
@@ -18,7 +11,6 @@ namespace RtfPipe.Sys
 	public static class ArgumentCheck
 	{
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Checks the given value and returns it.
 		/// </summary>
@@ -30,9 +22,8 @@ namespace RtfPipe.Sys
 		public static string NonemptyTrimmedString( string value, string name )
 		{
 			return NonemptyTrimmedString( value, Strings.ArgumentMayNotBeEmpty, name );
-		} // NonemptyTrimmedString
+		}
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Checks the given value and returns it.
 		/// </summary>
@@ -55,9 +46,9 @@ namespace RtfPipe.Sys
 				throw new ArgumentException( exceptionMessage, name );
 			}
 			return trimmed;
-		} // NonemptyTrimmedString
+		}
 
-	} // class ArgumentCheck
+	}
 
-} // namespace RtfPipe.Sys
-// -- EOF -------------------------------------------------------------------
+}
+

@@ -1,16 +1,6 @@
-﻿// -- FILE ------------------------------------------------------------------
-// name       : RtfFontKind.cs
-// project    : RTF Framelet
-// created    : Leon Poyyayil - 2008.05.19
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
-
-namespace RtfPipe
+﻿namespace RtfPipe
 {
 
-	// ------------------------------------------------------------------------
 	public enum RtfFontKind
 	{
 		Nil,
@@ -21,7 +11,7 @@ namespace RtfPipe
 		Decor,
 		Tech,
 		Bidi
-	} // enum RtfFontKind
+	}
 
-} // namespace RtfPipe
-// -- EOF -------------------------------------------------------------------
+}
+

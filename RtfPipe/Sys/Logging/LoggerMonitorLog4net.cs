@@ -1,11 +1,4 @@
-// -- FILE ------------------------------------------------------------------
-// name       : LoggerMonitorLog4net.cs
 // project    : System Framelet
-// created    : Leon Poyyayil - 2006.05.12
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,13 +6,12 @@ using System.Collections.Generic;
 namespace RtfPipe.Sys.Logging
 {
 
-  // ------------------------------------------------------------------------
+
 // ReSharper disable InconsistentNaming
   public sealed class LoggerMonitorLog4net : ILoggerMonitor
 // ReSharper restore InconsistentNaming
   {
 
-    // ----------------------------------------------------------------------
     public void Register( ILoggerListener loggerListener, string context )
     {
       if ( loggerListener == null )
@@ -40,9 +32,8 @@ namespace RtfPipe.Sys.Logging
           contextListeners.Add( loggerListener );
         }
       }
-    } // Register
+    }
 
-    // ----------------------------------------------------------------------
     public void Unregister( ILoggerListener loggerListener, string context )
     {
       if ( loggerListener == null )
@@ -65,9 +56,8 @@ namespace RtfPipe.Sys.Logging
           }
         }
       }
-    } // Unregister
+    }
 
-    // ----------------------------------------------------------------------
     internal void Handle( ILoggerEvent loggerEvent )
     {
       if ( loggerEvent == null )
@@ -106,13 +96,11 @@ namespace RtfPipe.Sys.Logging
           }
         }
       }
-    } // Handle
+    }
 
-    // ----------------------------------------------------------------------
-    // members
     private readonly Dictionary<string, List<ILoggerListener>> listenerListsByContext = new Dictionary<string, List<ILoggerListener>>();
 
-  } // class LoggerMonitorLog4net
+  }
 
-} // namespace RtfPipe.Sys.Logging
-// -- EOF -------------------------------------------------------------------
+}
+

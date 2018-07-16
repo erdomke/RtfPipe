@@ -1,12 +1,4 @@
-﻿// -- FILE ------------------------------------------------------------------
-// name       : RtfVisualImage.cs
-// project    : RTF Framelet
-// created    : Leon Poyyayil - 2008.05.23
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
-using System;
+﻿using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -15,11 +7,10 @@ using RtfPipe.Sys;
 namespace RtfPipe.Model
 {
 
-  // ------------------------------------------------------------------------
+
   public sealed class RtfVisualImage : RtfVisual, IRtfVisualImage
   {
 
-    // ----------------------------------------------------------------------
     public RtfVisualImage(
       RtfVisualImageFormat format,
       RtfTextAlignment alignment,
@@ -70,77 +61,65 @@ namespace RtfPipe.Model
       this.scaleWidthPercent = scaleWidthPercent;
       this.scaleHeightPercent = scaleHeightPercent;
       this.imageDataHex = imageDataHex;
-    } // RtfVisualImage
+    }
 
-    // ----------------------------------------------------------------------
     protected override void DoVisit( IRtfVisualVisitor visitor )
     {
       visitor.VisitImage( this );
-    } // DoVisit
+    }
 
-    // ----------------------------------------------------------------------
     public RtfVisualImageFormat Format
     {
       get { return format; }
-    } // Format
+    }
 
-    // ----------------------------------------------------------------------
     public RtfTextAlignment Alignment
     {
       get { return alignment; }
       set { alignment = value; }
-    } // Alignment
+    }
 
-    // ----------------------------------------------------------------------
     public int Width
     {
       get { return width; }
-    } // Width
+    }
 
-    // ----------------------------------------------------------------------
     public int Height
     {
       get { return height; }
-    } // Height
+    }
 
-    // ----------------------------------------------------------------------
     public int DesiredWidth
     {
       get { return desiredWidth; }
-    } // DesiredWidth
+    }
 
-    // ----------------------------------------------------------------------
     public int DesiredHeight
     {
       get { return desiredHeight; }
-    } // DesiredHeight
+    }
 
-    // ----------------------------------------------------------------------
     public int ScaleWidthPercent
     {
       get { return scaleWidthPercent; }
-    } // ScaleWidthPercent
+    }
 
-    // ----------------------------------------------------------------------
     public int ScaleHeightPercent
     {
       get { return scaleHeightPercent; }
-    } // ScaleHeightPercent
+    }
 
-    // ----------------------------------------------------------------------
     public string ImageDataHex
     {
       get { return imageDataHex; }
-    } // ImageDataHex
+    }
 
-    // ----------------------------------------------------------------------
     public byte[] ImageDataBinary
     {
       get { return imageDataBinary ?? ( imageDataBinary = ToBinary( imageDataHex ) ); }
-    } // ImageDataBinary
+    }
 
 #if DRAWING
-    // ----------------------------------------------------------------------
     public System.Drawing.Image ImageForDrawing
     {
       get
@@ -157,10 +136,9 @@ namespace RtfPipe.Model
         }
         return null;
       }
-    } // ImageForDrawing
+    }
 #endif
 
-    // ----------------------------------------------------------------------
     public static byte[] ToBinary( string imageDataHex )
     {
       if ( imageDataHex == null )
@@ -192,9 +170,8 @@ namespace RtfPipe.Model
       }
 
       return imageDataBinary;
-    } // ToBinary
+    }
 
-    // ----------------------------------------------------------------------
     protected override bool IsEqual( object obj )
     {
       RtfVisualImage compare = obj as RtfVisualImage; // guaranteed to be non-null
@@ -211,9 +188,8 @@ namespace RtfPipe.Model
         scaleHeightPercent == compare.scaleHeightPercent &&
         imageDataHex.Equals( compare.imageDataHex );
       //imageDataBinary.Equals( compare.imageDataBinary ); // cached info only
-    } // IsEqual
+    }
 
-    // ----------------------------------------------------------------------
     protected override int ComputeHashCode()
     {
       int hash = base.ComputeHashCode();
@@ -228,9 +204,8 @@ namespace RtfPipe.Model
       hash = HashTool.AddHashCode( hash, imageDataHex );
       //hash = HashTool.AddHashCode( hash, imageDataBinary ); // cached info only
       return hash;
-    } // ComputeHashCode
+    }
 
-    // ----------------------------------------------------------------------
     public override string ToString()
     {
       return "[" + format + ": " + alignment + ", " +
@@ -238,10 +213,8 @@ namespace RtfPipe.Model
         "(" + desiredWidth + " x " + desiredHeight + ") " +
         "{" + scaleWidthPercent + "% x " + scaleHeightPercent + "%} " +
         ":" + ( imageDataHex.Length / 2 ) + " bytes]";
-    } // ToString
+    }
 
-    // ----------------------------------------------------------------------
-    // members
     private readonly RtfVisualImageFormat format;
     private RtfTextAlignment alignment;
     private readonly int width;
@@ -253,7 +226,7 @@ namespace RtfPipe.Model
     private readonly string imageDataHex;
     private byte[] imageDataBinary; // cached info only
 
-  } // class RtfVisualImage
+  }
 
-} // namespace RtfPipe.Model
-// -- EOF -------------------------------------------------------------------
+}
+

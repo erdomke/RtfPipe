@@ -1,11 +1,3 @@
-// -- FILE ------------------------------------------------------------------
-// name       : RtfGroup.cs
-// project    : RTF Framelet
-// created    : Leon Poyyayil - 2008.05.19
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 using System.Text;
 using RtfPipe.Sys;
@@ -14,23 +6,19 @@ using System.Collections.Generic;
 namespace RtfPipe.Model
 {
 
-	// ------------------------------------------------------------------------
 	public sealed class RtfGroup : RtfElement, IRtfGroup
 	{
 
-		// ----------------------------------------------------------------------
 		public RtfGroup() :
 			base( RtfElementKind.Group )
 		{
-		} // RtfGroup
+		}
 
-		// ----------------------------------------------------------------------
 		public IList<IRtfElement> Contents
 		{
 			get { return contents; }
-		} // Contents
+		}
 
-		// ----------------------------------------------------------------------
 		public string Destination
 		{
 			get
@@ -58,9 +46,8 @@ namespace RtfPipe.Model
 				}
 				return null;
 			}
-		} // Destination
+		}
 
-		// ----------------------------------------------------------------------
 		public bool IsExtensionDestination
 		{
 			get
@@ -79,9 +66,8 @@ namespace RtfPipe.Model
 				}
 				return false;
 			}
-		} // IsExtensionDestination
+		}
 
-		// ----------------------------------------------------------------------
 		public IRtfGroup SelectChildGroupWithDestination( string destination )
 		{
 			if ( destination == null )
@@ -100,9 +86,8 @@ namespace RtfPipe.Model
 				}
 			}
 			return null;
-		} // SelectChildGroupWithDestination
+		}
 
-		// ----------------------------------------------------------------------
 		public override string ToString()
 		{
 			StringBuilder buf = new StringBuilder( "{" );
@@ -132,33 +117,28 @@ namespace RtfPipe.Model
 			}
 			buf.Append( "}" );
 			return buf.ToString();
-		} // ToString
+		}
 
-		// ----------------------------------------------------------------------
 		protected override void DoVisit( IRtfElementVisitor visitor )
 		{
 			visitor.VisitGroup( this );
-		} // DoVisit
+		}
 
-		// ----------------------------------------------------------------------
 		protected override bool IsEqual( object obj )
 		{
 			RtfGroup compare = obj as RtfGroup; // guaranteed to be non-null
 			return compare != null && base.IsEqual( obj ) &&
 				contents.Equals( compare.contents );
-		} // IsEqual
+		}
 
-		// ----------------------------------------------------------------------
 		protected override int ComputeHashCode()
 		{
 			return HashTool.AddHashCode( base.ComputeHashCode(), contents );
-		} // ComputeHashCode
+		}
 
-		// ----------------------------------------------------------------------
-		// members
 		private readonly List<IRtfElement> contents = new List<IRtfElement>();
 
-	} // class RtfGroup
+	}
 
-} // namespace RtfPipe.Model
-// -- EOF -------------------------------------------------------------------
+}
+

@@ -1,18 +1,11 @@
-// -- FILE ------------------------------------------------------------------
-// name       : StringsBase.cs
 // project    : System Framelet
-// created    : Jani Giannoudis - 2009.02.19
-// language   : c#
 // environment: .NET 3.5
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 using System.Resources;
 
 namespace RtfPipe.Sys
 {
 
-	// ------------------------------------------------------------------------
 	/// <summary>
 	/// Provides some helper functionality to keep resource handling in a
 	/// namespace as simple and uniform as possible.
@@ -26,7 +19,6 @@ namespace RtfPipe.Sys
 	public abstract class StringsBase
 	{
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Formats the given format-string with the invariant culture and the
 		/// given arguments.
@@ -37,9 +29,9 @@ namespace RtfPipe.Sys
 		protected static string Format( string format, params object[] args )
 		{
 			return StringTool.FormatSafeInvariant( format, args );
-		} // Format
+		}
 
-	} // class StringsBase
+	}
 
-} // namespace RtfPipe.Sys
-// -- EOF -------------------------------------------------------------------
+}
+

@@ -1,11 +1,4 @@
-// -- FILE ------------------------------------------------------------------
-// name       : StringTool.cs
 // project    : System Framelet
-// created    : Leon Poyyayil - 2005.11.28
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 using System.Globalization;
 using System.Text;
@@ -16,11 +9,9 @@ using System.Collections.Generic;
 namespace RtfPipe.Sys
 {
 
-	// ------------------------------------------------------------------------
 	public static class StringTool
 	{
 
-		// ----------------------------------------------------------------------
 		public static string FormatSafeInvariant( string format, params object[] args )
 		{
 			try
@@ -32,9 +23,8 @@ namespace RtfPipe.Sys
 				logger.Warn( "invalid format string '" + format + "'", e );
 				return format;
 			}
-		} // FormatSafeInvariant
+		}
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Splits a string in the same way as the System.String.Split() method but
 		/// with support for special treatment for escaped characters and for quoted
@@ -193,9 +183,8 @@ namespace RtfPipe.Sys
 			string[] sectionArray = new string[ sections.Count ];
 			sections.CopyTo( sectionArray, 0 );
 			return sectionArray;
-		} // SplitQuoted
+		}
 
-		// ----------------------------------------------------------------------
 		private static int GetHexValue( char c )
 		{
 			if ( c >= 'a' && c <= 'f' )
@@ -213,13 +202,11 @@ namespace RtfPipe.Sys
 				return c - '0';
 			}
 			throw new ArgumentException( Strings.StringToolContainsInvalidHexChar, "c" );
-		} // GetHexValue
+		}
 
-		// ----------------------------------------------------------------------
-		// members
 		private static readonly ILogger logger = Logger.GetLogger( typeof( StringTool ) );
 
-	} // class StringTool
+	}
 
-} // namespace RtfPipe.Sys
-// -- EOF -------------------------------------------------------------------
+}
+

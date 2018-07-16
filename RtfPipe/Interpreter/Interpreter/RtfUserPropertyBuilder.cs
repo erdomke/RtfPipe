@@ -1,12 +1,4 @@
-﻿// -- FILE ------------------------------------------------------------------
-// name       : RtfUserPropertyBuilder.cs
-// project    : RTF Framelet
-// created    : Leon Poyyayil - 2008.05.23
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
-using System;
+﻿using System;
 using RtfPipe.Model;
 using RtfPipe.Support;
 using System.Collections.Generic;
@@ -14,11 +6,9 @@ using System.Collections.Generic;
 namespace RtfPipe.Interpreter
 {
 
-	// ------------------------------------------------------------------------
 	public sealed class RtfUserPropertyBuilder : RtfElementVisitorBase
 	{
 
-		// ----------------------------------------------------------------------
 		public RtfUserPropertyBuilder( IList<IRtfDocumentProperty> collectedProperties ) :
 			base( RtfElementVisitorOrder.NonRecursive )
 		{
@@ -28,24 +18,21 @@ namespace RtfPipe.Interpreter
 				throw new ArgumentNullException( "collectedProperties" );
 			}
 			this.collectedProperties = collectedProperties;
-		} // RtfUserPropertyBuilder
+		}
 
-		// ----------------------------------------------------------------------
 		public IRtfDocumentProperty CreateProperty()
 		{
 			return new RtfDocumentProperty( propertyTypeCode, propertyName, staticValue, linkValue );
-		} // CreateProperty
+		}
 
-		// ----------------------------------------------------------------------
 		public void Reset()
 		{
 			propertyTypeCode = 0;
 			propertyName = null;
 			staticValue = null;
 			linkValue = null;
-		} // Reset
+		}
 
-		// ----------------------------------------------------------------------
 		protected override void DoVisitGroup( IRtfGroup group )
 		{
 			switch ( group.Destination )
@@ -74,9 +61,8 @@ namespace RtfPipe.Interpreter
 					linkValue = textBuilder.CombinedText;
 					break;
 			}
-		} // DoVisitGroup
+		}
 
-		// ----------------------------------------------------------------------
 		protected override void DoVisitTag( IRtfTag tag )
 		{
 			switch ( tag.Name )
@@ -85,10 +71,8 @@ namespace RtfPipe.Interpreter
 					propertyTypeCode = tag.ValueAsNumber;
 					break;
 			}
-		} // DoVisitTag
+		}
 
-		// ----------------------------------------------------------------------
-		// members
 		private readonly IList<IRtfDocumentProperty> collectedProperties;
 		private readonly RtfTextBuilder textBuilder = new RtfTextBuilder();
 		private int propertyTypeCode;
@@ -96,7 +80,7 @@ namespace RtfPipe.Interpreter
 		private string staticValue;
 		private string linkValue;
 
-	} // class RtfUserPropertyBuilder
+	}
 
-} // namespace RtfPipe.Interpreter
-// -- EOF -------------------------------------------------------------------
+}
+

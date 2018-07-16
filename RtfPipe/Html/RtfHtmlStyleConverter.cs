@@ -1,21 +1,12 @@
-// -- FILE ------------------------------------------------------------------
-// name       : RtfHtmlStyleConverter.cs
-// project    : RTF Framelet
-// created    : Jani Giannoudis - 2008.07.13
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 
 namespace RtfPipe.Converter.Html
 {
 
-  // ------------------------------------------------------------------------
+
   public class RtfHtmlStyleConverter : IRtfHtmlStyleConverter
   {
 
-    // ----------------------------------------------------------------------
     public virtual IRtfHtmlStyle TextToHtml( IRtfVisualText visualText )
     {
       if ( visualText == null )
@@ -49,13 +40,13 @@ namespace RtfPipe.Converter.Html
       }
 
       return htmlStyle;
-    } // TextToHtml
+    }
 
     private string ToHtmlColor(IRtfColor color)
     {
       return string.Format("#{0:x2}{1:x2}{2:x2}", color.Red, color.Green, color.Blue);
     }
-  } // class RtfHtmlStyleConverter
+  }
 
-} // namespace RtfPipe.Converter.Html
-// -- EOF -------------------------------------------------------------------
+}
+

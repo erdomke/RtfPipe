@@ -1,85 +1,65 @@
-﻿// -- FILE ------------------------------------------------------------------
-// name       : RtfElement.cs
-// project    : RTF Framelet
-// created    : Leon Poyyayil - 2008.05.19
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 using RtfPipe.Sys;
 
 namespace RtfPipe.Model
 {
 
-	// ------------------------------------------------------------------------
-	public abstract class RtfElement : IRtfElement
-	{
+  public abstract class RtfElement : IRtfElement
+  {
 
-		// ----------------------------------------------------------------------
-		protected RtfElement( RtfElementKind kind )
-		{
-			this.kind = kind;
-		} // RtfElement
+    protected RtfElement(RtfElementKind kind)
+    {
+      this.kind = kind;
+    }
 
-		// ----------------------------------------------------------------------
-		public RtfElementKind Kind
-		{
-			get { return kind; }
-		} // Kind
+    public RtfElementKind Kind
+    {
+      get { return kind; }
+    }
 
-		// ----------------------------------------------------------------------
-		public void Visit( IRtfElementVisitor visitor )
-		{
-			if ( visitor == null )
-			{
-				throw new ArgumentNullException( "visitor" );
-			}
-			DoVisit( visitor );
-		} // Visit
+    public void Visit(IRtfElementVisitor visitor)
+    {
+      if (visitor == null)
+      {
+        throw new ArgumentNullException("visitor");
+      }
+      DoVisit(visitor);
+    }
 
-		// ----------------------------------------------------------------------
-		public sealed override bool Equals( object obj )
-		{
-			if ( obj == this )
-			{
-				return true;
-			}
-			
-			if ( obj == null || GetType() != obj.GetType() )
-			{
-				return false;
-			}
-			
-			return IsEqual( obj );
-		} // Equals
+    public sealed override bool Equals(object obj)
+    {
+      if (obj == this)
+      {
+        return true;
+      }
 
-		// ----------------------------------------------------------------------
-		public sealed override int GetHashCode()
-		{
-			return HashTool.AddHashCode( GetType().GetHashCode(), ComputeHashCode() );
-		} // GetHashCode
+      if (obj == null || GetType() != obj.GetType())
+      {
+        return false;
+      }
 
-		// ----------------------------------------------------------------------
-		protected abstract void DoVisit( IRtfElementVisitor visitor );
+      return IsEqual(obj);
+    }
 
-		// ----------------------------------------------------------------------
-		protected virtual bool IsEqual( object obj )
-		{
-			return true;
-		} // IsEqual
+    public sealed override int GetHashCode()
+    {
+      return HashTool.AddHashCode(GetType().GetHashCode(), ComputeHashCode());
+    }
 
-		// ----------------------------------------------------------------------
-		protected virtual int ComputeHashCode()
-		{
-			return 0x0f00ba11;
-		} // ComputeHashCode
+    protected abstract void DoVisit(IRtfElementVisitor visitor);
 
-		// ----------------------------------------------------------------------
-		// members
-		private readonly RtfElementKind kind;
+    protected virtual bool IsEqual(object obj)
+    {
+      return true;
+    }
 
-	} // class RtfElement
+    protected virtual int ComputeHashCode()
+    {
+      return 0x0f00ba11;
+    }
 
-} // namespace RtfPipe.Model
-// -- EOF -------------------------------------------------------------------
+    private readonly RtfElementKind kind;
+
+  }
+
+}

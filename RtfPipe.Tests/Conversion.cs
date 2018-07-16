@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RtfPipe;
 using System.Xml;
@@ -142,6 +142,15 @@ ffc001ffffffffffffc001ffffffffffffc001ffffffffffffc001040000002701ffff03000000
       var output = Rtf.ToHtml(rtf);
       Assert.AreEqual(html, output);
     }
+
+    [TestMethod]
+    public void Convertion_NonBreaking()
+    {
+      const string rtf = "{\\rtf1\\ansicpg1252\r\n{\r\n\\fonttbl\r\n{\\f0 Times New Roman;}\r\n{\\f1 Calibri;}\r\n}\r\n{\r\n\\colortbl\r\n;\r\n\\red0\\green0\\blue255;\r\n\\red0\\green0\\blue0;\r\n}\r\n\\nouicompat\\splytwnine\\htmautsp{\\pard\\plain\\ql{\\f1\\fs24\\cf2 <p><span style=\"color:#404040;font-family:calibri;font-size:12pt;\">On d&#233;termine la couverture de votre objectif de revenu d&#8217;invalidit&#233; en analysant dans quelle mesure vos rentr&#233;es de fonds couvrent vos sorties de fonds dans l'&#233;ventualit&#233; d&#8217;une invalidit&#233;. La couverture actuelle de votre objectif est de </span><strong><span style=\"color:#3265a4;font-family:calibri;font-size:12pt;\">79 %</span></strong><span style=\"color:#404040;font-family:calibri;font-size:12pt;\">. Votre besoin en revenu d'invalidit&#233; est de </span><strong><span style=\"color:#3265a4;font-family:calibri;font-size:12pt;\">3\\~320\\~853 $</span></strong><span style=\"color:#404040;font-family:calibri;font-size:12pt;\"> au cours de la p&#233;riode d'invalidit&#233; projet&#233;e de </span><strong><span style=\"color:#3265a4;font-family:calibri;font-size:12pt;\">192</span></strong><span style=\"color:#404040;font-family:calibri;font-size:12pt;\"> mois. Ce besoin inclut toutes les d&#233;penses mensuelles n&#233;cessaires comme la nourriture, les v&#234;tements et le logement. French blah.</span></p>}\\fs24\\par}\r\n}\r\n";
+      var output = Rtf.ToHtml(rtf);
+      Assert.AreEqual("", output);
+    }
+
 
     private class Visitor : DataUriImageVisitor
     {

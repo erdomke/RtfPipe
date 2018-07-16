@@ -1,11 +1,4 @@
-// -- FILE ------------------------------------------------------------------
-// name       : CollectionTool.cs
 // project    : System Framelet
-// created    : Leon Poyyayil - 2005.05.03
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 using System.Collections;
 using System.Reflection;
@@ -14,7 +7,6 @@ using System.Text;
 namespace RtfPipe.Sys.Collection
 {
 
-	// ------------------------------------------------------------------------
 	/// <summary>
 	/// Some utility methods for collections.
 	/// </summary>
@@ -24,7 +16,6 @@ namespace RtfPipe.Sys.Collection
 	public static class CollectionTool
 	{
 
-		// ----------------------------------------------------------------------
 		public static bool HaveSameContents( IEnumerable left, IEnumerable right )
 		{
 			bool equal = left == right;
@@ -60,9 +51,8 @@ namespace RtfPipe.Sys.Collection
 				}
 			}
 			return equal;
-		} // HaveSameContents
+		}
 
-		// ----------------------------------------------------------------------
 		public static bool AreEqual( IEnumerable enumerable, object obj )
 		{
 			bool equal = enumerable == obj;
@@ -73,9 +63,8 @@ namespace RtfPipe.Sys.Collection
 // ReSharper restore PossibleMultipleEnumeration
 			}
 			return equal;
-		} // AreEqual
+		}
 
-		// ----------------------------------------------------------------------
 		public static int AddHashCode( int hash, object obj )
 		{
 			int combinedHash = obj != null ? obj.GetHashCode() : 0;
@@ -84,9 +73,8 @@ namespace RtfPipe.Sys.Collection
 				combinedHash += hash * 31;
 			}
 			return combinedHash;
-		} // AddHashCode
+		}
 
-		// ----------------------------------------------------------------------
 		public static int AddHashCode( int hash, int objHash )
 		{
 			int combinedHash = objHash;
@@ -95,9 +83,8 @@ namespace RtfPipe.Sys.Collection
 				combinedHash += hash * 31;
 			}
 			return combinedHash;
-		} // AddHashCode
+		}
 
-		// ----------------------------------------------------------------------
 		public static int ComputeHashCode( IEnumerable enumerable )
 		{
 			int hash = 1;
@@ -110,21 +97,18 @@ namespace RtfPipe.Sys.Collection
 				hash = hash * 31 + ( item != null ? item.GetHashCode() : 0 );
 			}
 			return hash;
-		} // ComputeHashCode
+		}
 
-		// ----------------------------------------------------------------------
 		public static string ToString( IEnumerable enumerable )
 		{
 			return ToString( enumerable, "[", "]", ",", "null" );
-		} // ToString
+		}
 
-		// ----------------------------------------------------------------------
 		public static string ToString( IEnumerable enumerable, string delimiterText )
 		{
 			return ToString( enumerable, string.Empty, string.Empty, delimiterText, string.Empty );
-		} // ToString
+		}
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// conventiently concatenates the given items to a string for debugging purposes.
 		/// </summary>
@@ -181,9 +165,8 @@ namespace RtfPipe.Sys.Collection
 			str.Append( endText );
 
 			return str.ToString();
-		} // ToString
+		}
 
-		// ----------------------------------------------------------------------
 		public static int ParseEnumValue( Type enumType, string value, bool ignoreCase )
 		{
 			if ( enumType == null )
@@ -207,9 +190,9 @@ namespace RtfPipe.Sys.Collection
 					return 0;
 				}
 			}
-		} // ParseEnumValue
+		}
 
-	} // class CollectionTool
+	}
 
-} // namespace RtfPipe.Sys.Collection
-// -- EOF -------------------------------------------------------------------
+}
+

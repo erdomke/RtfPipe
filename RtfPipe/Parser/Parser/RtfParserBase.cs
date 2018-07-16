@@ -1,28 +1,17 @@
-﻿// -- FILE ------------------------------------------------------------------
-// name       : RtfParserBase.cs
-// project    : RTF Framelet
-// created    : Leon Poyyayil - 2008.05.20
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace RtfPipe.Parser
 {
 
-	// ------------------------------------------------------------------------
 	public abstract class RtfParserBase : IRtfParser
 	{
 
-		// ----------------------------------------------------------------------
 		protected RtfParserBase()
 		{
-		} // RtfParserBase
+		}
 
-		// ----------------------------------------------------------------------
 		protected RtfParserBase( params IRtfParserListener[] listeners )
 		{
 			if ( listeners != null )
@@ -32,12 +21,10 @@ namespace RtfPipe.Parser
 					AddParserListener( listener );
 				}
 			}
-		} // RtfParserBase
+		}
 
-		// ----------------------------------------------------------------------
 		public bool IgnoreContentAfterRootGroup { get; set; }
 
-		// ----------------------------------------------------------------------
 		public void AddParserListener( IRtfParserListener listener )
 		{
 			if ( listener == null )
@@ -52,9 +39,8 @@ namespace RtfPipe.Parser
 			{
 				listeners.Add( listener );
 			}
-		} // AddParserListener
+		}
 
-		// ----------------------------------------------------------------------
 		public void RemoveParserListener( IRtfParserListener listener )
 		{
 			if ( listener == null )
@@ -72,9 +58,8 @@ namespace RtfPipe.Parser
 					listeners = null;
 				}
 			}
-		} // RemoveParserListener
+		}
 
-		// ----------------------------------------------------------------------
 		public void Parse( IRtfSource rtfTextSource )
 		{
 			if ( rtfTextSource == null )
@@ -82,12 +67,10 @@ namespace RtfPipe.Parser
 				throw new ArgumentNullException( "rtfTextSource" );
 			}
 			DoParse( rtfTextSource );
-		} // Parse
+		}
 
-		// ----------------------------------------------------------------------
 		protected abstract void DoParse( IRtfSource rtfTextSource );
 
-		// ----------------------------------------------------------------------
 		protected void NotifyParseBegin()
 		{
 			if ( listeners != null )
@@ -97,9 +80,8 @@ namespace RtfPipe.Parser
 					listener.ParseBegin();
 				}
 			}
-		} // NotifyParseBegin
+		}
 
-		// ----------------------------------------------------------------------
 		protected void NotifyGroupBegin()
 		{
 			if ( listeners != null )
@@ -109,9 +91,8 @@ namespace RtfPipe.Parser
 					listener.GroupBegin();
 				}
 			}
-		} // NotifyGroupBegin
+		}
 
-		// ----------------------------------------------------------------------
 		protected void NotifyTagFound( IRtfTag tag )
 		{
 			if ( listeners != null )
@@ -121,9 +102,8 @@ namespace RtfPipe.Parser
 					listener.TagFound( tag );
 				}
 			}
-		} // NotifyTagFound
+		}
 
-		// ----------------------------------------------------------------------
 		protected void NotifyTextFound( IRtfText text )
 		{
 			if ( listeners != null )
@@ -133,9 +113,8 @@ namespace RtfPipe.Parser
 					listener.TextFound( text );
 				}
 			}
-		} // NotifyTextFound
+		}
 
-		// ----------------------------------------------------------------------
 		protected void NotifyGroupEnd()
 		{
 			if ( listeners != null )
@@ -145,9 +124,8 @@ namespace RtfPipe.Parser
 					listener.GroupEnd();
 				}
 			}
-		} // NotifyGroupEnd
+		}
 
-		// ----------------------------------------------------------------------
 		protected void NotifyParseSuccess()
 		{
 			if ( listeners != null )
@@ -157,9 +135,8 @@ namespace RtfPipe.Parser
 					listener.ParseSuccess();
 				}
 			}
-		} // NotifyParseSuccess
+		}
 
-		// ----------------------------------------------------------------------
 		protected void NotifyParseFail( RtfException reason )
 		{
 			if ( listeners != null )
@@ -169,9 +146,8 @@ namespace RtfPipe.Parser
 					listener.ParseFail( reason );
 				}
 			}
-		} // NotifyParseFail
+		}
 
-		// ----------------------------------------------------------------------
 		protected void NotifyParseEnd()
 		{
 			if ( listeners != null )
@@ -181,13 +157,11 @@ namespace RtfPipe.Parser
 					listener.ParseEnd();
 				}
 			}
-		} // NotifyParseEnd
+		}
 
-		// ----------------------------------------------------------------------
-		// members
 		private List<IRtfParserListener> listeners;
 
-	} // class RtfParserBase
+	}
 
-} // namespace RtfPipe.Parser
-// -- EOF -------------------------------------------------------------------
+}
+

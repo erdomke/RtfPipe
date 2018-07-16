@@ -1,25 +1,16 @@
-// -- FILE ------------------------------------------------------------------
-// name       : HashTool.cs
 // project    : System Framelet
-// created    : Jani Giannoudis - 2005.12.01
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 using System.Collections;
 
 namespace RtfPipe.Sys
 {
 
-	// ------------------------------------------------------------------------
 	/// <summary>
 	/// Some hash utility methods for collections.
 	/// </summary>
 	public static class HashTool
 	{
 
-		// ----------------------------------------------------------------------
 		public static int AddHashCode( int hash, object obj )
 		{
 			int combinedHash = obj != null ? obj.GetHashCode() : 0;
@@ -28,9 +19,8 @@ namespace RtfPipe.Sys
 				combinedHash += hash * 31;
 			}
 			return combinedHash;
-		} // AddHashCode
+		}
 
-		// ----------------------------------------------------------------------
 		public static int AddHashCode( int hash, int objHash )
 		{
 			int combinedHash = objHash;
@@ -39,9 +29,8 @@ namespace RtfPipe.Sys
 				combinedHash += hash * 31;
 			}
 			return combinedHash;
-		} // AddHashCode
+		}
 
-		// ----------------------------------------------------------------------
 		public static int ComputeHashCode( IEnumerable enumerable )
 		{
 			int hash = 1;
@@ -54,9 +43,9 @@ namespace RtfPipe.Sys
 				hash = hash * 31 + ( item != null ? item.GetHashCode() : 0 );
 			}
 			return hash;
-		} // ComputeHashCode
+		}
 
-	} // class HashTool
+	}
 
-} // namespace RtfPipe.Sys
-// -- EOF -------------------------------------------------------------------
+}
+

@@ -1,11 +1,3 @@
-// -- FILE ------------------------------------------------------------------
-// name       : RtfImageConverter.cs
-// project    : RTF Framelet
-// created    : Jani Giannoudis - 2008.05.31
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 using System.IO;
 #if DRAWING
@@ -20,17 +12,15 @@ using System.Collections.Generic;
 namespace RtfPipe.Converter.Image
 {
 
-  // ------------------------------------------------------------------------
+
   public class RtfImageConverter : RtfInterpreterListenerBase
   {
 
-    // ----------------------------------------------------------------------
     public RtfImageConverter() :
       this( new RtfImageConvertSettings() )
     {
-    } // RtfImageConverter
+    }
 
-    // ----------------------------------------------------------------------
     public RtfImageConverter( RtfImageConvertSettings settings )
     {
       if ( settings == null )
@@ -39,29 +29,25 @@ namespace RtfPipe.Converter.Image
       }
 
       this.settings = settings;
-    } // RtfImageConverter
+    }
 
-    // ----------------------------------------------------------------------
     public RtfImageConvertSettings Settings
     {
       get { return settings; }
-    } // Settings
+    }
 
-    // ----------------------------------------------------------------------
     public IList<IRtfConvertedImageInfo> ConvertedImages
     {
       get { return convertedImages; }
-    } // ConvertedImages
+    }
 
-    // ----------------------------------------------------------------------
     protected override void DoBeginDocument( IRtfInterpreterContext context )
     {
       base.DoBeginDocument( context );
 
       convertedImages.Clear();
-    } // DoBeginDocument
+    }
 
-    // ----------------------------------------------------------------------
     protected override void DoInsertImage( IRtfInterpreterContext context,
       RtfVisualImageFormat format,
       int width, int height, 
@@ -108,10 +94,9 @@ namespace RtfPipe.Converter.Image
       }
       convertedImages.Add( new RtfConvertedImageInfo( fileName, imageFormat, imageSize ) );
 #endif
-    } // DoInsertImage
+    }
 
 #if DRAWING && FILEIO
-    // ----------------------------------------------------------------------
     protected virtual void SaveImage( byte[] imageBuffer, RtfVisualImageFormat format, string fileName, Size size )
     {
       ImageFormat targetFormat = settings.ImageAdapter.TargetFormat;
@@ -140,9 +125,8 @@ namespace RtfPipe.Converter.Image
         graphic.DrawImage( image, rectangle );
         convertedImage.Save( fileName, targetFormat );
       }
-    } // SaveImage
+    }
 
-    // ----------------------------------------------------------------------
     protected virtual void EnsureImagesPath( string imageFileName )
     {
       FileInfo fi = new FileInfo( imageFileName );
@@ -150,15 +134,13 @@ namespace RtfPipe.Converter.Image
       {
         Directory.CreateDirectory( fi.DirectoryName );
       }
-    } // EnsureImagesPath
+    }
 #endif
 
-    // ----------------------------------------------------------------------
-    // members
     private readonly IList<IRtfConvertedImageInfo> convertedImages = new List<IRtfConvertedImageInfo>();
     private readonly RtfImageConvertSettings settings;
 
-  } // class RtfImageConverter
+  }
 
-} // namespace RtfPipe.Converter.Image
-// -- EOF -------------------------------------------------------------------
+}
+

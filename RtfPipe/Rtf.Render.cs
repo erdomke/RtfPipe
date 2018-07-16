@@ -93,6 +93,6 @@ namespace RtfPipe
       parser.Parse(source);
       rtfStructure = structureBuilder.StructureRoot;
       return rtfStructure;
-    } // ParseRtf
+    }
   }
 }

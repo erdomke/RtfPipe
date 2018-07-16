@@ -1,27 +1,15 @@
-// -- FILE ------------------------------------------------------------------
-// name       : RtfInterpreter.cs
-// project    : RTF Framelet
-// created    : Leon Poyyayil - 2008.05.20
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 
 namespace RtfPipe.Interpreter
 {
-
-  // ------------------------------------------------------------------------
   public sealed class RtfInterpreter : RtfInterpreterBase, IRtfElementVisitor
   {
 
-    // ----------------------------------------------------------------------
     public RtfInterpreter(params IRtfInterpreterListener[] listeners) :
       base(new RtfInterpreterSettings(), listeners)
     {
-    } // RtfInterpreter
+    }
 
-    // ----------------------------------------------------------------------
     public RtfInterpreter(IRtfInterpreterSettings settings, params IRtfInterpreterListener[] listeners) :
       base(settings, listeners)
     {
@@ -30,9 +18,8 @@ namespace RtfPipe.Interpreter
       documentInfoBuilder = new RtfDocumentInfoBuilder(Context.WritableDocumentInfo);
       userPropertyBuilder = new RtfUserPropertyBuilder(Context.UserProperties);
       imageBuilder = new RtfImageBuilder();
-    } // RtfInterpreter
+    }
 
-    // ----------------------------------------------------------------------
     public static bool IsSupportedDocument(IRtfGroup rtfDocument)
     {
       try
@@ -44,9 +31,8 @@ namespace RtfPipe.Interpreter
         return false;
       }
       return true;
-    } // IsSupportedDocument
+    }
 
-    // ----------------------------------------------------------------------
     public static IRtfGroup GetSupportedDocument(IRtfGroup rtfDocument)
     {
       if (rtfDocument == null)
@@ -76,15 +62,13 @@ namespace RtfPipe.Interpreter
         throw new RtfUnsupportedStructureException(Strings.UnsupportedRtfVersion(firstTag.ValueAsNumber));
       }
       return rtfDocument;
-    } // GetSupportedDocument
+    }
 
-    // ----------------------------------------------------------------------
     protected override void DoInterpret(IRtfGroup rtfDocument)
     {
       InterpretContents(GetSupportedDocument(rtfDocument));
-    } // DoInterpret
+    }
 
-    // ----------------------------------------------------------------------
     private void InterpretContents(IRtfGroup rtfDocument)
     {
       // by getting here we already know that the given document is supported, and hence
@@ -95,9 +79,8 @@ namespace RtfPipe.Interpreter
       VisitChildrenOf(rtfDocument);
       Context.State = RtfInterpreterState.Ended;
       NotifyEndDocument();
-    } // InterpretContents
+    }
 
-    // ----------------------------------------------------------------------
     private void VisitChildrenOf(IRtfGroup group)
     {
       bool pushedTextFormat = false;
@@ -120,9 +103,8 @@ namespace RtfPipe.Interpreter
           Context.PopCurrentTextFormat();
         }
       }
-    } // VisitChildrenOf
+    }
 
-    // ----------------------------------------------------------------------
     void IRtfElementVisitor.VisitTag(IRtfTag tag)
     {
       if (Context.State != RtfInterpreterState.InDocument)
@@ -358,9 +340,8 @@ namespace RtfPipe.Interpreter
           }
           break;
       }
-    } // IRtfElementVisitor.VisitTag
+    }
 
-    // ----------------------------------------------------------------------
     void IRtfElementVisitor.VisitGroup(IRtfGroup group)
     {
       string groupDestination = group.Destination;
@@ -497,9 +478,8 @@ namespace RtfPipe.Interpreter
           }
           break;
       }
-    } // IRtfElementVisitor.VisitGroup
+    }
 
-    // ----------------------------------------------------------------------
     void IRtfElementVisitor.VisitText(IRtfText text)
     {
       switch (Context.State)
@@ -517,10 +497,8 @@ namespace RtfPipe.Interpreter
           break;
       }
       NotifyInsertText(text.Text);
-    } // IRtfElementVisitor.VisitText
+    }
 
-    // ----------------------------------------------------------------------
-    // members
     private readonly RtfFontTableBuilder fontTableBuilder;
     private readonly RtfColorTableBuilder colorTableBuilder;
     private readonly RtfDocumentInfoBuilder documentInfoBuilder;
@@ -528,7 +506,6 @@ namespace RtfPipe.Interpreter
     private readonly RtfImageBuilder imageBuilder;
     private bool lastGroupWasPictureWrapper;
 
-  } // class RtfInterpreter
+  }
 
-} // namespace RtfPipe.Interpreter
-// -- EOF -------------------------------------------------------------------
+}

@@ -1,24 +1,15 @@
-// -- FILE ------------------------------------------------------------------
-// name       : Logger.cs
 // project    : System Framelet
-// created    : Leon Poyyayil - 2005.05.03
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 
 namespace RtfPipe.Sys.Logging
 {
 
-	// ------------------------------------------------------------------------
 	/// <summary>
 	/// Provides public access to logger implementations.
 	/// </summary>
 	public static class Logger
 	{
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Informational access to the active logger factory.
 		/// </summary>
@@ -26,9 +17,8 @@ namespace RtfPipe.Sys.Logging
 		public static string ActiveLoggerFactoryName
 		{
 			get { return LoggerFactory.Instance.GetType().FullName; }
-		} // ActiveLoggerFactoryName
+		}
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Always returns a logger that will ignore all output directed to it.
 		/// This can be used to pass a logger instance to code which requires one
@@ -38,9 +28,8 @@ namespace RtfPipe.Sys.Logging
 		public static ILogger GetIgnoreAllLogger()
 		{
 			return LoggerFactory.Instance.GetLogger( "dummy" );
-		} // GetIgnoreAllLogger
+		}
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Same as <c>GetLogger( type.FullName )</c>.
 		/// </summary>
@@ -53,9 +42,8 @@ namespace RtfPipe.Sys.Logging
 				throw new ArgumentNullException( "type" );
 			}
 			return GetLogger( type.FullName );
-		} // GetLogger
+		}
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Gets the logger with the specified name. Multiple calls with the same name
 		/// will return the same instance.
@@ -65,9 +53,8 @@ namespace RtfPipe.Sys.Logging
 		public static ILogger GetLogger( string name )
 		{
 			return LoggerFactory.Instance.GetLogger( name );
-		} // GetLogger
+		}
 
-		// ----------------------------------------------------------------------
 		public static string CurrentContext
 		{
 			get
@@ -84,9 +71,8 @@ namespace RtfPipe.Sys.Logging
 				}
 				return logger.Context;
 			}
-		} // CurrentContext
+		}
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Gets the monitor to register listeners for logging events.
 		/// </summary>
@@ -94,9 +80,8 @@ namespace RtfPipe.Sys.Logging
 		public static ILoggerMonitor Monitor
 		{
 			get { return LoggerFactory.Instance.Monitor; }
-		} // Monitor
+		}
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Attempts to define which logger factory to use.
 		/// </summary>
@@ -105,9 +90,8 @@ namespace RtfPipe.Sys.Logging
 		public static bool InitializeLoggerFactory( string factoryName )
 		{
 			return LoggerFactory.InitializeLoggerFactory( factoryName );
-		} // InitializeLoggerFactory
+		}
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Sets a new file appender to the root logger.
 		/// </summary>
@@ -128,17 +112,14 @@ namespace RtfPipe.Sys.Logging
 		public static void SetLogFile( string absoluteLogFileName, bool append, string messagePattern )
 		{
 			LoggerFactory.Instance.SetLogFile( absoluteLogFileName, append, messagePattern );
-		} // SetLogFile
+		}
 
-		// ----------------------------------------------------------------------
 		// Logger
 
-		// ----------------------------------------------------------------------
-		// members
 		private static readonly object mutex = new object();
 		private static volatile ILogger logger;
 
-	} // class Logger
+	}
 
-} // namespace RtfPipe.Sys.Logging
-// -- EOF -------------------------------------------------------------------
+}
+

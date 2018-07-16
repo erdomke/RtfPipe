@@ -1,27 +1,18 @@
-// -- FILE ------------------------------------------------------------------
-// name       : LoggerFactoryBuilder.cs
 // project    : System Framelet
-// created    : Leon Poyyayil - 2005.05.04
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 
 namespace RtfPipe.Sys.Logging
 {
 
-  // ------------------------------------------------------------------------
+
   internal static class LoggerFactoryBuilder
   {
 
-    // ----------------------------------------------------------------------
     internal static void SetDefaultLoggerFactory( string factoryName )
     {
       defaultLoggerFactoryName = factoryName;
-    } // SetDefaultLoggerFactory
+    }
 
-    // ----------------------------------------------------------------------
     internal static LoggerFactory BuildFactoryInstance()
     {
       try
@@ -52,9 +43,8 @@ namespace RtfPipe.Sys.Logging
       {
         throw new InvalidOperationException( Strings.LoggerFactoryConfigError, e );
       }
-    } // BuildFactoryInstance
+    }
 
-    // ----------------------------------------------------------------------
     private static LoggerFactory CreateInstance( string typeName )
     {
       LoggerFactory factory = null;
@@ -82,17 +72,15 @@ namespace RtfPipe.Sys.Logging
         }
       }
       return factory;
-    } // CreateInstance
+    }
 
-    // ----------------------------------------------------------------------
-    // members
     private static readonly string environmentVariableName = typeof( LoggerFactory ).FullName;
     private static readonly string[] loggerFactoryChoices = {
       typeof( LoggerFactoryNone ).FullName
     };
     private static string defaultLoggerFactoryName;
 
-  } // class LoggerFactoryBuilder
+  }
 
-} // namespace RtfPipe.Sys.Logging
-// -- EOF -------------------------------------------------------------------
+}
+

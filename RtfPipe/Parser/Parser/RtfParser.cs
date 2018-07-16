@@ -1,11 +1,3 @@
-// -- FILE ------------------------------------------------------------------
-// name       : RtfParser.cs
-// project    : RTF Framelet
-// created    : Leon Poyyayil - 2008.05.20
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 using System.Collections;
 using System.Globalization;
@@ -17,22 +9,19 @@ using System.Collections.Generic;
 namespace RtfPipe.Parser
 {
 
-  // ------------------------------------------------------------------------
+
   public sealed class RtfParser : RtfParserBase
   {
 
-    // ----------------------------------------------------------------------
     public RtfParser()
     {
-    } // RtfParser
+    }
 
-    // ----------------------------------------------------------------------
     public RtfParser(params IRtfParserListener[] listeners) :
       base(listeners)
     {
-    } // RtfParser
+    }
 
-    // ----------------------------------------------------------------------
     protected override void DoParse(IRtfSource rtfTextSource)
     {
       NotifyParseBegin();
@@ -50,9 +39,8 @@ namespace RtfPipe.Parser
       {
         NotifyParseEnd();
       }
-    } // DoParse
+    }
 
-    // ----------------------------------------------------------------------
     private void ParseRtf(TextReader reader)
     {
       curText = new StringBuilder();
@@ -229,9 +217,8 @@ namespace RtfPipe.Parser
         throw new RtfEmptyDocumentException(Strings.NoRtfContent);
       }
       curText = null;
-    } // ParseRtf
+    }
 
-    // ----------------------------------------------------------------------
     private void ParseTag(TextReader reader)
     {
       StringBuilder tagName = new StringBuilder();
@@ -278,9 +265,8 @@ namespace RtfPipe.Parser
           nextChar = PeekNextChar(reader, true);
         }
       }
-    } // ParseTag
+    }
 
-    // ----------------------------------------------------------------------
     private bool HandleTag(TextReader reader, IRtfTag tag)
     {
       if (level == 0)
@@ -429,9 +415,8 @@ namespace RtfPipe.Parser
       tagCount++;
 
       return skippedContent;
-    } // HandleTag
+    }
 
-    // ----------------------------------------------------------------------
     private void UpdateEncoding(IRtfTag tag)
     {
       switch (tag.Name)
@@ -452,9 +437,8 @@ namespace RtfPipe.Parser
           UpdateEncoding(tag.ValueAsNumber);
           break;
       }
-    } // UpdateEncoding
+    }
 
-    // ----------------------------------------------------------------------
     private void UpdateEncoding(int codePage)
     {
       if (encoding == null || (codePage > 0 && codePage != _encodings[encoding.WebName]))
@@ -475,29 +459,25 @@ namespace RtfPipe.Parser
       {
         byteToCharDecoder = encoding.GetDecoder();
       }
-    } // UpdateEncoding
+    }
 
-    // ----------------------------------------------------------------------
     private static bool IsASCIILetter(int character)
     {
       return (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z');
-    } // IsASCIILetter
+    }
 
-    // ----------------------------------------------------------------------
     private static bool IsHexDigit(int character)
     {
       return (character >= '0' && character <= '9') ||
              (character >= 'a' && character <= 'f') ||
              (character >= 'A' && character <= 'F');
-    } // IsHexDigit
+    }
 
-    // ----------------------------------------------------------------------
     private static bool IsDigit(int character)
     {
       return character >= '0' && character <= '9';
-    } // IsDigit
+    }
 
-    // ----------------------------------------------------------------------
     private static int ReadOneByte(TextReader reader)
     {
       int byteValue = reader.Read();
@@ -506,9 +486,8 @@ namespace RtfPipe.Parser
         throw new RtfUnicodeEncodingException(Strings.UnexpectedEndOfFile);
       }
       return byteValue;
-    } // ReadOneByte
+    }
 
-    // ----------------------------------------------------------------------
     private char ReadOneChar(TextReader reader)
     {
       // NOTE: the handling of multi-byte encodings is probably not the most
@@ -537,9 +516,8 @@ namespace RtfPipe.Parser
       }
       char character = charDecodingBuffer[0];
       return character;
-    } // ReadOneChar
+    }
 
-    // ----------------------------------------------------------------------
     private void DecodeCurrentHexBuffer()
     {
       long pendingByteCount = hexDecodingBuffer.Length;
@@ -567,9 +545,8 @@ namespace RtfPipe.Parser
 
         hexDecodingBuffer.SetLength(0);
       }
-    } // DecodeCurrentHexBuffer
+    }
 
-    // ----------------------------------------------------------------------
     // ReSharper disable UnusedParameter.Local
     private static int PeekNextChar(TextReader reader, bool mandatory)
     // ReSharper restore UnusedParameter.Local
@@ -580,9 +557,8 @@ namespace RtfPipe.Parser
         throw new RtfMultiByteEncodingException(Strings.EndOfFileInvalidCharacter);
       }
       return character;
-    } // PeekNextChar
+    }
 
-    // ----------------------------------------------------------------------
     private void FlushText()
     {
       if (curText.Length > 0)
@@ -594,10 +570,8 @@ namespace RtfPipe.Parser
         NotifyTextFound(new RtfText(curText.ToString()));
         curText.Remove(0, curText.Length);
       }
-    } // FlushText
+    }
 
-    // ----------------------------------------------------------------------
-    // members
     private StringBuilder curText;
     private readonly Stack<int> unicodeSkipCountStack = new Stack<int>();
     private int unicodeSkipCount;
@@ -769,7 +743,7 @@ namespace RtfPipe.Parser
       }
     }
 
-  } // class RtfParser
+  }
 
-} // namespace RtfPipe.Parser
-// -- EOF -------------------------------------------------------------------
+}
+

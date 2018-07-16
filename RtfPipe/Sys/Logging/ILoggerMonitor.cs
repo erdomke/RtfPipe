@@ -1,16 +1,7 @@
-// -- FILE ------------------------------------------------------------------
-// name       : ILoggerMonitor.cs
 // project    : System Framelet
-// created    : Leon Poyyayil - 2006.05.12
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
-
 namespace RtfPipe.Sys.Logging
 {
 
-	// ------------------------------------------------------------------------
 	/// <summary>
 	/// Allows monitoring <code>ILogger</code> instances for events they generate.
 	/// </summary>
@@ -22,7 +13,6 @@ namespace RtfPipe.Sys.Logging
 	public interface ILoggerMonitor
 	{
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Registers a listener to handle events occurring in a given context.
 		/// </summary>
@@ -32,7 +22,6 @@ namespace RtfPipe.Sys.Logging
 		/// <exception cref="System.ArgumentException">when given an empty context</exception>
 		void Register( ILoggerListener loggerListener, string context );
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Unregisters a listener from handling events occurring in a given context.
 		/// </summary>
@@ -42,7 +31,7 @@ namespace RtfPipe.Sys.Logging
 		/// <exception cref="System.ArgumentException">when given an empty context</exception>
 		void Unregister( ILoggerListener loggerListener, string context );
 
-	} // interface ILoggerMonitor
+	}
 
-} // namespace RtfPipe.Sys.Logging
-// -- EOF -------------------------------------------------------------------
+}
+

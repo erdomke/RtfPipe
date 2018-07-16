@@ -1,22 +1,12 @@
-﻿// -- FILE ------------------------------------------------------------------
-// name       : IRtfParser.cs
-// project    : RTF Framelet
-// created    : Leon Poyyayil - 2008.05.19
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
-using System;
+﻿using System;
 using System.IO;
 
 namespace RtfPipe
 {
 
-	// ------------------------------------------------------------------------
 	public interface IRtfParser
 	{
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Determines whether to ignore all content after the root group ends.
 		/// Set this to true when parsing content from streams which contain other
@@ -26,7 +16,6 @@ namespace RtfPipe
 		/// </summary>
 		bool IgnoreContentAfterRootGroup { get; set; }
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Adds a listener that will get notified along the parsing process.
 		/// </summary>
@@ -34,7 +23,6 @@ namespace RtfPipe
 		/// <exception cref="ArgumentNullException">in case of a null argument</exception>
 		void AddParserListener( IRtfParserListener listener );
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Removes a listener from this instance.
 		/// </summary>
@@ -42,7 +30,6 @@ namespace RtfPipe
 		/// <exception cref="ArgumentNullException">in case of a null argument</exception>
 		void RemoveParserListener( IRtfParserListener listener );
 
-		// ----------------------------------------------------------------------
 		/// <summary>
 		/// Parses the given RTF text that is read from the given source.
 		/// </summary>
@@ -52,7 +39,7 @@ namespace RtfPipe
 		/// <exception cref="ArgumentNullException">in case of a null argument</exception>
 		void Parse( IRtfSource rtfTextSource );
 
-	} // interface IRtfParser
+	}
 
-} // namespace RtfPipe
-// -- EOF -------------------------------------------------------------------
+}
+

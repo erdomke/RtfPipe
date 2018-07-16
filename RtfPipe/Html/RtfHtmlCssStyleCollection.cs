@@ -1,11 +1,3 @@
-﻿// -- FILE ------------------------------------------------------------------
-// name       : RtfHtmlCssStyleCollection.cs
-// project    : RTF Framelet
-// created    : Jani Giannoudis - 2008.06.08
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,7 +5,7 @@ using System.Collections.Generic;
 namespace RtfPipe.Converter.Html
 {
 
-  // ------------------------------------------------------------------------
+
   public sealed class RtfHtmlCssStyleCollection : IRtfHtmlCssStyleCollection
   {
     private List<IRtfHtmlCssStyle> _innerList = new List<IRtfHtmlCssStyle>();
@@ -23,46 +15,41 @@ namespace RtfPipe.Converter.Html
       get { return _innerList.Count; }
     }
 
-    // ----------------------------------------------------------------------
-    public IRtfHtmlCssStyle this[ int index ]
+    public IRtfHtmlCssStyle this[int index]
     {
-      get { return _innerList[ index ] as RtfHtmlCssStyle; }
-    } // this[ int ]
+      get { return _innerList[index] as RtfHtmlCssStyle; }
+    }
 
-    // ----------------------------------------------------------------------
-    public bool Contains( string selectorName )
+    public bool Contains(string selectorName)
     {
-      foreach ( var cssStyle in _innerList )
+      foreach (var cssStyle in _innerList)
       {
-        if ( cssStyle.SelectorName.Equals( selectorName ) )
+        if (cssStyle.SelectorName.Equals(selectorName))
         {
           return true;
         }
       }
       return false;
-    } // Contains
+    }
 
-    // ----------------------------------------------------------------------
-    public void CopyTo( IRtfHtmlCssStyle[] array, int index )
+    public void CopyTo(IRtfHtmlCssStyle[] array, int index)
     {
-      _innerList.CopyTo( array, index );
-    } // CopyTo
+      _innerList.CopyTo(array, index);
+    }
 
-    // ----------------------------------------------------------------------
-    public void Add( IRtfHtmlCssStyle item )
+    public void Add(IRtfHtmlCssStyle item)
     {
-      if ( item == null )
+      if (item == null)
       {
-        throw new ArgumentNullException( "item" );
+        throw new ArgumentNullException("item");
       }
-      _innerList.Add( item );
-    } // Add
+      _innerList.Add(item);
+    }
 
-    // ----------------------------------------------------------------------
     public void Clear()
     {
       _innerList.Clear();
-    } // Clear
+    }
 
     public IEnumerator<IRtfHtmlCssStyle> GetEnumerator()
     {
@@ -73,7 +60,7 @@ namespace RtfPipe.Converter.Html
     {
       return GetEnumerator();
     }
-  } // class RtfHtmlCssStyleCollection
+  }
 
-} // namespace RtfPipe.Converter.Html
-// -- EOF -------------------------------------------------------------------
+}
+

@@ -1,12 +1,4 @@
-﻿// -- FILE ------------------------------------------------------------------
-// name       : RtfColorTableBuilder.cs
-// project    : RTF Framelet
-// created    : Leon Poyyayil - 2008.05.21
-// language   : c#
-// environment: .NET 2.0
-// copyright  : (c) 2004-2013 by Jani Giannoudis, Switzerland
-// --------------------------------------------------------------------------
-using System;
+﻿using System;
 using RtfPipe.Model;
 using RtfPipe.Support;
 using System.Collections.Generic;
@@ -14,11 +6,9 @@ using System.Collections.Generic;
 namespace RtfPipe.Interpreter
 {
 
-	// ------------------------------------------------------------------------
 	public sealed class RtfColorTableBuilder : RtfElementVisitorBase
 	{
 
-		// ----------------------------------------------------------------------
 		public RtfColorTableBuilder( IList<IRtfColor> colorTable ) :
 			base( RtfElementVisitorOrder.NonRecursive )
 		{
@@ -28,27 +18,24 @@ namespace RtfPipe.Interpreter
 				throw new ArgumentNullException( "colorTable" );
 			}
 			this.colorTable = colorTable;
-		} // RtfColorTableBuilder
+		}
 
-		// ----------------------------------------------------------------------
 		public void Reset()
 		{
 			colorTable.Clear();
 			curRed = 0;
 			curGreen = 0;
 			curBlue = 0;
-		} // Reset
+		}
 
-		// ----------------------------------------------------------------------
 		protected override void DoVisitGroup( IRtfGroup group )
 		{
 			if ( RtfSpec.TagColorTable.Equals( group.Destination ) )
 			{
 				VisitGroupChildren( group );
 			}
-		} // DoVisitGroup
+		}
 
-		// ----------------------------------------------------------------------
 		protected override void DoVisitTag( IRtfTag tag )
 		{
 			switch ( tag.Name )
@@ -63,9 +50,8 @@ namespace RtfPipe.Interpreter
 					curBlue = tag.ValueAsNumber;
 					break;
 			}
-		} // DoVisitTag
+		}
 
-		// ----------------------------------------------------------------------
 		protected override void DoVisitText( IRtfText text )
 		{
 			if ( RtfSpec.TagDelimiter.Equals( text.Text ) )
@@ -79,17 +65,15 @@ namespace RtfPipe.Interpreter
 			{
 				throw new RtfColorTableFormatException( Strings.ColorTableUnsupportedText( text.Text ) );
 			}
-		} // DoVisitText
+		}
 
-		// ----------------------------------------------------------------------
-		// members
 		private readonly IList<IRtfColor> colorTable;
 
 		private int curRed;
 		private int curGreen;
 		private int curBlue;
 
-	} // class RtfColorBuilder
+	}
 
-} // namespace RtfPipe.Interpreter
-// -- EOF -------------------------------------------------------------------
+}
+
