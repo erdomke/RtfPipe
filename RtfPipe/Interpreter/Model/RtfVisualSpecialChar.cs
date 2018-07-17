@@ -3,16 +3,13 @@ using System;
 
 namespace RtfPipe.Model
 {
-
-
   public sealed class RtfVisualSpecialChar : RtfVisual, IRtfVisualSpecialChar
   {
-
-    public RtfVisualSpecialChar(RtfVisualSpecialCharKind charKind, IRtfTextFormat format) :
+    public RtfVisualSpecialChar(RtfVisualSpecialCharKind charKind, Style format) :
       base(RtfVisualKind.Special)
     {
-      this.charKind = charKind;
-      this.format = format;
+      this.CharKind = charKind;
+      this._format = format;
     }
 
     protected override void DoVisit(IRtfVisualVisitor visitor)
@@ -20,46 +17,40 @@ namespace RtfPipe.Model
       visitor.VisitSpecial(this);
     }
 
-    public RtfVisualSpecialCharKind CharKind
-    {
-      get { return charKind; }
-    }
+    public RtfVisualSpecialCharKind CharKind { get; private set; }
 
-    public IRtfTextFormat Format
+    public Style Format
     {
-      get { return format; }
+      get { return _format; }
       set
       {
-        if (format == null)
+        if (_format == null)
         {
           throw new ArgumentNullException("value");
         }
-        format = value;
+        _format = value;
       }
     }
 
     protected override bool IsEqual(object obj)
     {
-      RtfVisualSpecialChar compare = obj as RtfVisualSpecialChar; // guaranteed to be non-null
-      return
-        compare != null &&
-        base.IsEqual(compare) &&
-        charKind == compare.charKind;
+      var compare = obj as RtfVisualSpecialChar; // guaranteed to be non-null
+      return compare != null
+        && base.IsEqual(compare)
+        && CharKind == compare.CharKind;
     }
 
     protected override int ComputeHashCode()
     {
-      return HashTool.AddHashCode(base.ComputeHashCode(), charKind);
+      return HashTool.AddHashCode(base.ComputeHashCode(), CharKind);
     }
 
     public override string ToString()
     {
-      return charKind.ToString();
+      return CharKind.ToString();
     }
 
-    private readonly RtfVisualSpecialCharKind charKind;
-    private IRtfTextFormat format;
-
+    private Style _format;
   }
 
 }

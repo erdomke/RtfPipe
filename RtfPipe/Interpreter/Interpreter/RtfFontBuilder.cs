@@ -63,14 +63,14 @@ namespace RtfPipe.Interpreter
       }
     }
 
-    public IRtfFont CreateFont()
+    public Font CreateFont()
     {
       string fontName = FontName;
       if (string.IsNullOrEmpty(fontName))
       {
         fontName = "UnnamedFont_" + fontId;
       }
-      return new RtfFont(fontId, fontKind, fontPitch,
+      return new Font(fontId, fontKind, fontPitch,
         fontCharset, fontCodePage, fontName);
     }
 

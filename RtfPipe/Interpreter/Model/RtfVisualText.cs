@@ -7,7 +7,7 @@ namespace RtfPipe.Model
   public sealed class RtfVisualText : RtfVisual, IRtfVisualText
   {
 
-    public RtfVisualText(string text, IRtfTextFormat format) :
+    public RtfVisualText(string text, Style format) :
       base(RtfVisualKind.Text)
     {
       if (text == null)
@@ -32,7 +32,7 @@ namespace RtfPipe.Model
       get { return text; }
     }
 
-    public IRtfTextFormat Format
+    public Style Format
     {
       get { return format; }
       set
@@ -69,7 +69,7 @@ namespace RtfPipe.Model
     }
 
     private readonly string text;
-    private IRtfTextFormat format;
+    private Style format;
 
   }
 

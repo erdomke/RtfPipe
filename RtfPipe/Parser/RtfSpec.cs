@@ -59,7 +59,7 @@ namespace RtfPipe
     public const string TagThemeFontDbMinor = "fdbminor";
     public const string TagThemeFontBiMinor = "fbiminor";
 
-    public const int DefaultFontSize = 24;
+    public static readonly UnitValue DefaultFontSize = UnitValue.FromHalfPoint(24);
 
     public const string TagCodePage = "cpg";
 

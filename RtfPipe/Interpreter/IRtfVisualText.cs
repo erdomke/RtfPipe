@@ -6,7 +6,7 @@
 
     string Text { get; }
 
-    IRtfTextFormat Format { get; }
+    Style Format { get; }
 
   }
 

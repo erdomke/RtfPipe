@@ -3,23 +3,23 @@ using System.Collections.Generic;
 
 namespace RtfPipe.Model
 {
-  public class RtfFontCollection : IList<IRtfFont>
+  public class RtfFontCollection : IList<Font>
   {
-    private List<IRtfFont> _list = new List<IRtfFont>();
-    private Dictionary<string, IRtfFont> _dict = new Dictionary<string, IRtfFont>();
+    private List<Font> _list = new List<Font>();
+    private Dictionary<string, Font> _dict = new Dictionary<string, Font>();
 
-    public IRtfFont this[string id]
+    public Font this[string id]
     {
       get
       {
-        IRtfFont result;
+        Font result;
         if (_dict.TryGetValue(id, out result))
           return result;
-        return default(IRtfFont);
+        return default(Font);
       }
     }
 
-    public IRtfFont this[int index]
+    public Font this[int index]
     {
       get { return _list[index]; }
       set
@@ -33,7 +33,7 @@ namespace RtfPipe.Model
     public int Count { get { return _list.Count; } }
     public bool IsReadOnly { get { return false; } }
 
-    public void Add(IRtfFont item)
+    public void Add(Font item)
     {
       _dict.Add(item.Id, item);
       _list.Add(item);
@@ -49,33 +49,33 @@ namespace RtfPipe.Model
     {
       return _dict.ContainsKey(id);
     }
-    public bool Contains(IRtfFont item)
+    public bool Contains(Font item)
     {
       return _dict.ContainsKey(item.Id);
     }
 
-    public void CopyTo(IRtfFont[] array, int arrayIndex)
+    public void CopyTo(Font[] array, int arrayIndex)
     {
       _list.CopyTo(array, arrayIndex);
     }
 
-    public IEnumerator<IRtfFont> GetEnumerator()
+    public IEnumerator<Font> GetEnumerator()
     {
       return _list.GetEnumerator();
     }
 
-    public int IndexOf(IRtfFont item)
+    public int IndexOf(Font item)
     {
       return _list.IndexOf(item);
     }
 
-    public void Insert(int index, IRtfFont item)
+    public void Insert(int index, Font item)
     {
       _dict.Add(item.Id, item);
       _list.Insert(index, item);
     }
 
-    public bool Remove(IRtfFont item)
+    public bool Remove(Font item)
     {
       return _dict.Remove(item.Id) && _list.Remove(item);
     }

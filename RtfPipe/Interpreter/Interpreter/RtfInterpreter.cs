@@ -152,51 +152,50 @@ namespace RtfPipe.Interpreter
             case RtfSpec.TagParagraphDefaults:
             case RtfSpec.TagSectionDefaults:
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithAlignment(RtfTextAlignment.Left);
+                Context.WritableCurrentTextFormat.Clone(s => s.Alignment = TextAlignment.Left);
               break;
             case RtfSpec.TagBold:
-              bool bold = !tag.HasValue || tag.ValueAsNumber != 0;
+              var bold = !tag.HasValue || tag.ValueAsNumber != 0;
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithBold(bold);
+                Context.WritableCurrentTextFormat.Clone(s => s.IsBold = bold);
               break;
             case RtfSpec.TagItalic:
-              bool italic = !tag.HasValue || tag.ValueAsNumber != 0;
+              var italic = !tag.HasValue || tag.ValueAsNumber != 0;
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithItalic(italic);
+                Context.WritableCurrentTextFormat.Clone(s => s.IsItalic = italic);
               break;
             case RtfSpec.TagUnderLine:
               bool underline = !tag.HasValue || tag.ValueAsNumber != 0;
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithUnderline(underline);
+                Context.WritableCurrentTextFormat.Clone(s => s.Underline = underline ? Underline.Solid : Underline.None);
               break;
             case RtfSpec.TagUnderLineNone:
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithUnderline(false);
+                Context.WritableCurrentTextFormat.Clone(s => s.Underline = Underline.None);
               break;
             case RtfSpec.TagStrikeThrough:
               bool strikeThrough = !tag.HasValue || tag.ValueAsNumber != 0;
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithStrikeThrough(strikeThrough);
+                Context.WritableCurrentTextFormat.Clone(s => s.Strikethrough = strikeThrough ? Strikethrough.Single : Strikethrough.None);
               break;
             case RtfSpec.TagHidden:
               bool hidden = !tag.HasValue || tag.ValueAsNumber != 0;
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithHidden(hidden);
+                Context.WritableCurrentTextFormat.Clone(s => s.IsHidden = hidden);
               break;
             case RtfSpec.TagFont:
               string fontId = tag.FullName;
               if (Context.FontTable.ContainsKey(fontId))
               {
                 Context.WritableCurrentTextFormat =
-                  Context.WritableCurrentTextFormat.DeriveWithFont(
-                    Context.FontTable[fontId]);
+                  Context.WritableCurrentTextFormat.Clone(s => s.Font = Context.FontTable[fontId]);
               }
               else
               {
                 if (Settings.IgnoreUnknownFonts && Context.FontTable.Count > 0)
                 {
                   Context.WritableCurrentTextFormat =
-                    Context.WritableCurrentTextFormat.DeriveWithFont(Context.FontTable[0]);
+                    Context.WritableCurrentTextFormat.Clone(s => s.Font = Context.FontTable[0]);
                 }
                 else
                 {
@@ -209,7 +208,7 @@ namespace RtfPipe.Interpreter
               if (fontSize >= 0)
               {
                 Context.WritableCurrentTextFormat =
-                  Context.WritableCurrentTextFormat.DeriveWithFontSize(fontSize);
+                  Context.WritableCurrentTextFormat.Clone(s => s.FontSize = UnitValue.FromHalfPoint(fontSize));
               }
               else
               {
@@ -218,15 +217,19 @@ namespace RtfPipe.Interpreter
               break;
             case RtfSpec.TagFontSubscript:
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithSuperScript(false);
+                Context.WritableCurrentTextFormat.Clone(s => s.IsSubscript = true);
               break;
             case RtfSpec.TagFontSuperscript:
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithSuperScript(true);
+                Context.WritableCurrentTextFormat.Clone(s => s.IsSuperscript = true);
               break;
             case RtfSpec.TagFontNoSuperSub:
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithSuperScript(0);
+                Context.WritableCurrentTextFormat.Clone(s =>
+                {
+                  s.IsSubscript = false;
+                  s.IsSuperscript = false;
+                });
               break;
             case RtfSpec.TagFontDown:
               int moveDown = tag.ValueAsNumber;
@@ -235,7 +238,7 @@ namespace RtfPipe.Interpreter
                 moveDown = 6; // the default value according to rtf spec
               }
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithSuperScript(-moveDown);
+                Context.WritableCurrentTextFormat.Clone(s => s.Offset = UnitValue.FromHalfPoint(-1 * moveDown));
               break;
             case RtfSpec.TagFontUp:
               int moveUp = tag.ValueAsNumber;
@@ -244,23 +247,23 @@ namespace RtfPipe.Interpreter
                 moveUp = 6; // the default value according to rtf spec
               }
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithSuperScript(moveUp);
+                Context.WritableCurrentTextFormat.Clone(s => s.Offset = UnitValue.FromHalfPoint(moveUp));
               break;
             case RtfSpec.TagAlignLeft:
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithAlignment(RtfTextAlignment.Left);
+                Context.WritableCurrentTextFormat.Clone(s => s.Alignment = TextAlignment.Left);
               break;
             case RtfSpec.TagAlignCenter:
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithAlignment(RtfTextAlignment.Center);
+                Context.WritableCurrentTextFormat.Clone(s => s.Alignment = TextAlignment.Center);
               break;
             case RtfSpec.TagAlignRight:
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithAlignment(RtfTextAlignment.Right);
+                Context.WritableCurrentTextFormat.Clone(s => s.Alignment = TextAlignment.Right);
               break;
             case RtfSpec.TagAlignJustify:
               Context.WritableCurrentTextFormat =
-                Context.WritableCurrentTextFormat.DeriveWithAlignment(RtfTextAlignment.Justify);
+                Context.WritableCurrentTextFormat.Clone(s => s.Alignment = TextAlignment.Justify);
               break;
             case RtfSpec.TagColorBackground:
             case RtfSpec.TagColorBackgroundWord:
@@ -269,11 +272,11 @@ namespace RtfPipe.Interpreter
               int colorIndex = tag.ValueAsNumber;
               if (colorIndex >= 0 && colorIndex < Context.ColorTable.Count)
               {
-                IRtfColor newColor = Context.ColorTable[colorIndex];
+                ColorValue newColor = Context.ColorTable[colorIndex];
                 bool isForeground = RtfSpec.TagColorForeground.Equals(tag.Name);
                 Context.WritableCurrentTextFormat = isForeground ?
-                  Context.WritableCurrentTextFormat.DeriveWithForegroundColor(newColor) :
-                  Context.WritableCurrentTextFormat.DeriveWithBackgroundColor(newColor);
+                  Context.WritableCurrentTextFormat.Clone(s => s.Color = newColor) :
+                  Context.WritableCurrentTextFormat.Clone(s => s.Background = newColor);
               }
               else
               {

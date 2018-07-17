@@ -13,7 +13,7 @@ namespace RtfPipe.Model
 
     public RtfVisualImage(
       RtfVisualImageFormat format,
-      RtfTextAlignment alignment,
+      TextAlignment alignment,
       int width,
       int height,
       int desiredWidth,
@@ -73,7 +73,7 @@ namespace RtfPipe.Model
       get { return format; }
     }
 
-    public RtfTextAlignment Alignment
+    public TextAlignment Alignment
     {
       get { return alignment; }
       set { alignment = value; }
@@ -216,7 +216,7 @@ namespace RtfPipe.Model
     }
 
     private readonly RtfVisualImageFormat format;
-    private RtfTextAlignment alignment;
+    private TextAlignment alignment;
     private readonly int width;
     private readonly int height;
     private readonly int desiredWidth;

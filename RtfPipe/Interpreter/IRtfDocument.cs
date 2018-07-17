@@ -10,17 +10,17 @@ namespace RtfPipe
 
     int RtfVersion { get; }
 
-    IRtfFont DefaultFont { get; }
+    Font DefaultFont { get; }
 
-    IRtfTextFormat DefaultTextFormat { get; }
+    Style DefaultTextFormat { get; }
 
     RtfFontCollection FontTable { get; }
 
-    IList<IRtfColor> ColorTable { get; }
+    IList<ColorValue> ColorTable { get; }
 
     string Generator { get; }
 
-    IList<IRtfTextFormat> UniqueTextFormats { get; }
+    IList<Style> UniqueTextFormats { get; }
 
     IRtfDocumentInfo DocumentInfo { get; }
 

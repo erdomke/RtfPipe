@@ -6,7 +6,7 @@
 
 		RtfVisualImageFormat Format { get; }
 
-		RtfTextAlignment Alignment { get; }
+		TextAlignment Alignment { get; }
 
 		int Width { get; }
 

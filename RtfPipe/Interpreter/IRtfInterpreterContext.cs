@@ -14,21 +14,21 @@ namespace RtfPipe
 
     string DefaultFontId { get; }
 
-    IRtfFont DefaultFont { get; }
+    Font DefaultFont { get; }
 
     RtfFontCollection FontTable { get; }
 
-    IList<IRtfColor> ColorTable { get; }
+    IList<ColorValue> ColorTable { get; }
 
     string Generator { get; }
 
-    IList<IRtfTextFormat> UniqueTextFormats { get; }
+    IList<Style> UniqueTextFormats { get; }
 
-    IRtfTextFormat CurrentTextFormat { get; }
+    Style CurrentTextFormat { get; }
 
-    IRtfTextFormat GetSafeCurrentTextFormat();
+    Style GetSafeCurrentTextFormat();
 
-    IRtfTextFormat GetUniqueTextFormatInstance( IRtfTextFormat templateFormat );
+    Style GetUniqueTextFormatInstance( Style templateFormat );
 
     IRtfDocumentInfo DocumentInfo { get; }
 

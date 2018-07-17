@@ -7,7 +7,7 @@
 
     RtfVisualSpecialCharKind CharKind { get; }
 
-    IRtfTextFormat Format { get; }
+    Style Format { get; }
 
   }
 

@@ -28,12 +28,12 @@ namespace RtfPipe
       set { defaultFontId = value; }
     }
 
-    public IRtfFont DefaultFont
+    public Font DefaultFont
     {
       get
       {
         return fontTable[defaultFontId]
-          ?? new RtfFont(DefaultFontId, RtfFontKind.Nil, RtfFontPitch.Default, 0, 0, "serif");
+          ?? new Font(DefaultFontId, RtfFontKind.Nil, RtfFontPitch.Default, 0, 0, "serif");
       }
     }
 
@@ -43,7 +43,7 @@ namespace RtfPipe
     }
 
 
-    public IList<IRtfColor> ColorTable
+    public IList<ColorValue> ColorTable
     {
       get { return colorTable; }
     }
@@ -54,28 +54,28 @@ namespace RtfPipe
       set { generator = value; }
     }
 
-    public IList<IRtfTextFormat> UniqueTextFormats
+    public IList<Style> UniqueTextFormats
     {
       get { return uniqueTextFormats; }
     }
 
-    public IRtfTextFormat CurrentTextFormat
+    public Style CurrentTextFormat
     {
       get { return currentTextFormat; }
     }
 
-    public IRtfTextFormat GetSafeCurrentTextFormat()
+    public Style GetSafeCurrentTextFormat()
     {
       return currentTextFormat ?? WritableCurrentTextFormat;
     }
 
-    public IRtfTextFormat GetUniqueTextFormatInstance(IRtfTextFormat templateFormat)
+    public Style GetUniqueTextFormatInstance(Style templateFormat)
     {
       if (templateFormat == null)
       {
         throw new ArgumentNullException("templateFormat");
       }
-      IRtfTextFormat uniqueInstance;
+      Style uniqueInstance;
       int existingEquivalentPos = uniqueTextFormats.IndexOf(templateFormat);
       if (existingEquivalentPos >= 0)
       {
@@ -91,20 +91,20 @@ namespace RtfPipe
       return uniqueInstance;
     }
 
-    public RtfTextFormat WritableCurrentTextFormat
+    public Style WritableCurrentTextFormat
     {
       get
       {
         if (currentTextFormat == null)
         {
           // set via property to ensure it will get added to the unique map
-          WritableCurrentTextFormat = new RtfTextFormat(DefaultFont, RtfSpec.DefaultFontSize);
+          WritableCurrentTextFormat = new Style(DefaultFont, RtfSpec.DefaultFontSize);
         }
         return currentTextFormat;
       }
       set
       {
-        currentTextFormat = (RtfTextFormat)GetUniqueTextFormatInstance(value);
+        currentTextFormat = (Style)GetUniqueTextFormatInstance(value);
       }
     }
 
@@ -134,7 +134,7 @@ namespace RtfPipe
       {
         throw new RtfStructureException(Strings.InvalidTextContextState);
       }
-      currentTextFormat = (RtfTextFormat)textFormatStack.Pop();
+      currentTextFormat = (Style)textFormatStack.Pop();
     }
 
     public void Reset()
@@ -156,11 +156,11 @@ namespace RtfPipe
     private int rtfVersion;
     private string defaultFontId;
     private readonly RtfFontCollection fontTable = new RtfFontCollection();
-    private readonly IList<IRtfColor> colorTable = new List<IRtfColor>();
+    private readonly IList<ColorValue> colorTable = new List<ColorValue>();
     private string generator;
-    private readonly IList<IRtfTextFormat> uniqueTextFormats = new List<IRtfTextFormat>();
-    private readonly Stack<RtfTextFormat> textFormatStack = new Stack<RtfTextFormat>();
-    private RtfTextFormat currentTextFormat;
+    private readonly IList<Style> uniqueTextFormats = new List<Style>();
+    private readonly Stack<Style> textFormatStack = new Stack<Style>();
+    private Style currentTextFormat;
     private readonly RtfDocumentInfo documentInfo = new RtfDocumentInfo();
     private readonly IList<IRtfDocumentProperty> userProperties = new List<IRtfDocumentProperty>();
 

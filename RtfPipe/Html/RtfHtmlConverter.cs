@@ -412,22 +412,22 @@ namespace RtfPipe.Converter.Html
         return;
       }
 
-      IRtfTextFormat textFormat = visualText.Format;
+      Style textFormat = visualText.Format;
 
       if (!IsInListItem && BeginParagraph())
       {
         switch (textFormat.Alignment)
         {
-          case RtfTextAlignment.Left:
+          case TextAlignment.Left:
             //Writer.AddStyleAttribute( HtmlTextWriterStyle.TextAlign, "left" );
             break;
-          case RtfTextAlignment.Center:
+          case TextAlignment.Center:
             Writer.WriteAttributeString("style", "text-align:center");
             break;
-          case RtfTextAlignment.Right:
+          case TextAlignment.Right:
             Writer.WriteAttributeString("style", "text-align:right");
             break;
-          case RtfTextAlignment.Justify:
+          case TextAlignment.Justify:
             Writer.WriteAttributeString("style", "text-align:justify");
             break;
         }
@@ -443,11 +443,11 @@ namespace RtfPipe.Converter.Html
       {
         RenderITag();
       }
-      if (textFormat.IsUnderline)
+      if (textFormat.Underline != Underline.None)
       {
         RenderUTag();
       }
-      if (textFormat.IsStrikeThrough)
+      if (textFormat.Strikethrough != Strikethrough.None)
       {
         RenderSTag();
       }
@@ -507,11 +507,11 @@ namespace RtfPipe.Converter.Html
       }
 
       // subscript and superscript
-      if (textFormat.SuperScript < 0)
+      if (textFormat.IsSubscript)
       {
         RenderSubTag();
       }
-      else if (textFormat.SuperScript > 0)
+      else if (textFormat.IsSuperscript)
       {
         RenderSupTag();
       }
@@ -519,11 +519,11 @@ namespace RtfPipe.Converter.Html
       Writer.WriteString(visualText.Text);
 
       // subscript and superscript
-      if (textFormat.SuperScript < 0)
+      if (textFormat.IsSubscript)
       {
         RenderEndTag(); // sub
       }
-      else if (textFormat.SuperScript > 0)
+      else if (textFormat.IsSuperscript)
       {
         RenderEndTag(); // sup
       }
@@ -541,11 +541,11 @@ namespace RtfPipe.Converter.Html
       }
 
       // format tags
-      if (textFormat.IsStrikeThrough)
+      if (textFormat.Strikethrough != Strikethrough.None)
       {
         RenderEndTag(); // s
       }
-      if (textFormat.IsUnderline)
+      if (textFormat.Underline != Underline.None)
       {
         RenderEndTag(); // u
       }
@@ -572,16 +572,16 @@ namespace RtfPipe.Converter.Html
       {
         switch (visualImage.Alignment)
         {
-          case RtfTextAlignment.Left:
+          case TextAlignment.Left:
             //Writer.AddStyleAttribute( HtmlTextWriterStyle.TextAlign, "left" );
             break;
-          case RtfTextAlignment.Center:
+          case TextAlignment.Center:
             Writer.WriteAttributeString("style", "text-align:center");
             break;
-          case RtfTextAlignment.Right:
+          case TextAlignment.Right:
             Writer.WriteAttributeString("style", "text-align:right");
             break;
-          case RtfTextAlignment.Justify:
+          case TextAlignment.Justify:
             Writer.WriteAttributeString("style", "text-align:justify");
             break;
         }
@@ -611,16 +611,16 @@ namespace RtfPipe.Converter.Html
       {
         switch (visualSpecialChar.Format.Alignment)
         {
-          case RtfTextAlignment.Left:
+          case TextAlignment.Left:
             //Writer.AddStyleAttribute( HtmlTextWriterStyle.TextAlign, "left" );
             break;
-          case RtfTextAlignment.Center:
+          case TextAlignment.Center:
             Writer.WriteAttributeString("style", "text-align:center");
             break;
-          case RtfTextAlignment.Right:
+          case TextAlignment.Right:
             Writer.WriteAttributeString("style", "text-align:right");
             break;
-          case RtfTextAlignment.Justify:
+          case TextAlignment.Justify:
             Writer.WriteAttributeString("style", "text-align:justify");
             break;
         }

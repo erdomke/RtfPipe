@@ -8,15 +8,15 @@ namespace RtfPipe.Converter.Image
   {
 
     public RtfImageConvertSettings() :
-      this( new RtfVisualImageAdapter() )
+      this(new RtfVisualImageAdapter())
     {
     }
 
-    public RtfImageConvertSettings( IRtfVisualImageAdapter imageAdapter )
+    public RtfImageConvertSettings(IRtfVisualImageAdapter imageAdapter)
     {
-      if ( imageAdapter == null )
+      if (imageAdapter == null)
       {
-        throw new ArgumentNullException( "imageAdapter" );
+        throw new ArgumentNullException("imageAdapter");
       }
 
       this.imageAdapter = imageAdapter;
@@ -27,7 +27,7 @@ namespace RtfPipe.Converter.Image
       get { return imageAdapter; }
     }
 
-    public IRtfColor BackgroundColor { get; set; }
+    public ColorValue BackgroundColor { get; set; }
 
     public string ImagesPath
     {
@@ -45,10 +45,10 @@ namespace RtfPipe.Converter.Image
 
     public float ScaleExtension { get; set; }
 
-    public string GetImageFileName( int index, RtfVisualImageFormat rtfVisualImageFormat )
+    public string GetImageFileName(int index, RtfVisualImageFormat rtfVisualImageFormat)
     {
-      string imageFileName = imageAdapter.ResolveFileName( index, rtfVisualImageFormat );
-      if ( !string.IsNullOrEmpty( imagesPath ) )
+      string imageFileName = imageAdapter.ResolveFileName(index, rtfVisualImageFormat);
+      if (!string.IsNullOrEmpty(imagesPath))
       {
 #if FILEIO
         imageFileName = Path.Combine( imagesPath, imageFileName );

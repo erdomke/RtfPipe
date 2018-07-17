@@ -29,7 +29,7 @@ namespace RtfPipe.Interpreter
     {
       if (combineTextWithSameFormat)
       {
-        IRtfTextFormat newFormat = context.GetSafeCurrentTextFormat();
+        Style newFormat = context.GetSafeCurrentTextFormat();
         if (!newFormat.Equals(pendingTextFormat))
         {
           FlushPendingText();
@@ -87,7 +87,7 @@ namespace RtfPipe.Interpreter
 
     private void EndParagraph(IRtfInterpreterContext context)
     {
-      RtfTextAlignment finalParagraphAlignment = context.GetSafeCurrentTextFormat().Alignment;
+      TextAlignment finalParagraphAlignment = context.GetSafeCurrentTextFormat().Alignment;
       foreach (IRtfVisual alignedVisual in pendingParagraphContent)
       {
         switch (alignedVisual.Kind)
@@ -105,9 +105,8 @@ namespace RtfPipe.Interpreter
             RtfVisualText text = (RtfVisualText)alignedVisual;
             if (text.Format.Alignment != finalParagraphAlignment)
             {
-              IRtfTextFormat correctedFormat = ((RtfTextFormat)text.Format).DeriveWithAlignment(finalParagraphAlignment);
-              IRtfTextFormat correctedUniqueFormat = context.GetUniqueTextFormatInstance(correctedFormat);
-              text.Format = correctedUniqueFormat;
+              var correctedFormat = text.Format.Clone(s => s.Alignment = finalParagraphAlignment);
+              text.Format = context.GetUniqueTextFormatInstance(correctedFormat);
             }
             break;
         }
@@ -137,7 +136,7 @@ namespace RtfPipe.Interpreter
     private IList<IRtfVisual> visualDocumentContent;
     private readonly IList<IRtfVisual> pendingParagraphContent = new List<IRtfVisual>();
 
-    private IRtfTextFormat pendingTextFormat;
+    private Style pendingTextFormat;
     private readonly StringBuilder pendingText = new StringBuilder();
 
   }

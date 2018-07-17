@@ -21,11 +21,11 @@ namespace RtfPipe.Model
 
     public RtfDocument(
       int rtfVersion,
-      IRtfFont defaultFont,
+      Font defaultFont,
       RtfFontCollection fontTable,
-      IList<IRtfColor> colorTable,
+      IList<ColorValue> colorTable,
       string generator,
-      IList<IRtfTextFormat> uniqueTextFormats,
+      IList<Style> uniqueTextFormats,
       IRtfDocumentInfo documentInfo,
       IList<IRtfDocumentProperty> userProperties,
       IList<IRtfVisual> visualContent
@@ -50,7 +50,7 @@ namespace RtfPipe.Model
 
       this.RtfVersion = rtfVersion;
       this.DefaultFont = defaultFont;
-      DefaultTextFormat = new RtfTextFormat(defaultFont, RtfSpec.DefaultFontSize);
+      DefaultTextFormat = new Style(defaultFont, RtfSpec.DefaultFontSize);
       this.FontTable = fontTable;
       this.ColorTable = colorTable;
       this.Generator = generator;
@@ -62,17 +62,17 @@ namespace RtfPipe.Model
 
     public int RtfVersion { get; }
 
-    public IRtfFont DefaultFont { get; }
+    public Font DefaultFont { get; }
 
-    public IRtfTextFormat DefaultTextFormat { get; }
+    public Style DefaultTextFormat { get; }
 
     public RtfFontCollection FontTable { get; }
 
-    public IList<IRtfColor> ColorTable { get; }
+    public IList<ColorValue> ColorTable { get; }
 
     public string Generator { get; }
 
-    public IList<IRtfTextFormat> UniqueTextFormats { get; }
+    public IList<Style> UniqueTextFormats { get; }
 
     public IRtfDocumentInfo DocumentInfo { get; }
 
