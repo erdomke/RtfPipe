@@ -4,8 +4,11 @@ using System.Text;
 
 namespace RtfPipe
 {
-  public interface IToken
+  public enum TextAlignment
   {
-    TokenType Type { get; }
+    Left,
+    Right,
+    Center,
+    Justify
   }
 }

@@ -1,0 +1,724 @@
+{\rtf1\mac\ansicpg10001\cocoartf102
+{\fonttbl\f0\fswiss\fcharset77 Helvetica;\f1\fnil\fcharset78 HiraKakuPro-W3;\f2\fswiss\fcharset77 Helvetica-Bold;
+\f3\fnil\fcharset78 HiraKakuPro-W6;\f4\fswiss\fcharset77 Helvetica-Oblique;}
+{\colortbl;\red255\green255\blue255;}
+\vieww11720\viewh12440\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f0\fs36 \cf0 \
+SuperCollider 3 Synth Server Architecture\
+SuperCollider 3 
+\f1 \'83\'56\'83\'93\'83\'5a\'83\'54\'81\'5b\'83\'6f\'81\'5b\'8d\'5c\'91\'a2
+\f0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\fs20 \cf0 \
+copyright \'a9 2002 James McCartney\
+Japanese Translation by Kenji Yasaka, 2004\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\fs36 \cf0 \
+Introduction\
+
+\f1 \'82\'cd\'82\'b6\'82\'df\'82\'c9
+\f0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\fs24 \cf0 \
+The SuperCollider 3 Synth Server is a simple but powerful synthesis engine. While synthesis is running, new modules can be created, destroyed and repatched, sample buffers can be created and reallocated. Effects processes can be created and patched into a signal flow dynamically at scheduled times.  All running modules are ordered in a tree of nodes that define an order of execution. Patching between modules is done through global audio and control buses. \
+\
+SuperCollider 3
+\f1 \'82\'cc\'83\'56\'83\'93\'83\'5a\'83\'54\'81\'5b\'83\'6f\'81\'5b\'82\'cd\'83\'56\'83\'93\'83\'76\'83\'8b\'82\'c5\'8b\'ad\'97\'cd\'82\'c8\'89\'b9\'8b\'bf\'8d\'87\'90\'ac\'83\'47\'83\'93\'83\'57\'83\'93\'82\'c5\'82\'a0\'82\'e9\'81\'42\'89\'b9\'8b\'bf\'8f\'88\'97\'9d\'92\'86\'82\'c5\'82\'a0\'82\'c1\'82\'c4\'82\'e0\'81\'41\'90\'56\'82\'bd\'82\'c9\'83\'82\'83\'57\'83\'85\'81\'5b\'83\'8b\'82\'f0\'8d\'ec\'90\'ac\'81\'45\'94\'6a\'8a\'fc\'81\'45\'8d\'c4\'8d\'5c\'90\'ac\'82\'aa\'82\'c5\'82\'ab\'81\'41\'83\'54\'83\'93\'83\'76\'83\'8b\'83\'6f\'83\'62\'83\'74\'83\'40\'82\'e0\'90\'8f\'8e\'9e\'8d\'ec\'90\'ac\'81\'45\'8d\'c4\'8d\'5c\'90\'ac\'82\'b7\'82\'e9\'82\'b1\'82\'c6\'82\'aa\'82\'c5\'82\'ab\'82\'e9\'81\'42\'83\'47\'83\'74\'83\'46\'83\'4e\'83\'67\'8f\'88\'97\'9d\'82\'e0\'83\'56\'83\'4f\'83\'69\'83\'8b\'82\'cc\'97\'ac\'82\'ea\'82\'cc\'92\'86\'82\'c9\'93\'ae\'93\'49\'82\'c9\'91\'67\'82\'dd\'8d\'9e\'82\'de\'82\'b1\'82\'c6\'82\'aa\'82\'c5\'82\'ab\'82\'e9\'81\'42\'93\'ae\'8d\'ec\'92\'86\'82\'cc\'91\'53\'83\'82\'83\'57\'83\'85\'81\'5b\'83\'8b\'82\'cd\'83\'63\'83\'8a\'81\'5b\'8f\'f3\'82\'cc\'83\'6d\'81\'5b\'83\'68\'82\'c6\'82\'b5\'82\'c4\'94\'7a\'92\'75\'82\'b3\'82\'ea\'81\'41\'8f\'88\'97\'9d\'8f\'87\'82\'f0\'92\'e8\'8b\'60\'82\'c5\'82\'ab\'82\'e9\'81\'42\'83\'82\'83\'57\'83\'85\'81\'5b\'83\'8b\'8a\'d4\'82\'cc\'83\'70\'83\'62\'83\'60(\'90\'da\'91\'b1)\'82\'cd\'83\'4f\'83\'8d\'81\'5b\'83\'6f\'83\'8b\'97\'cc\'88\'e6\'82\'c9\'82\'a0\'82\'e9\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'83\'6f\'83\'58\'81\'41\'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'83\'6f\'83\'58\'8c\'6f\'97\'52\'82\'c5\'8d\'73\'82\'ed\'82\'ea\'82\'e9\'81\'42
+\f0 \
+\
+All commands are received via TCP or UDP using a simplified version of Open Sound Control (OSC). The synth server and its client(s) may be on the same machine or across a network. The synth server does not send or receive MIDI. It is expected that the client will send all control commands. If MIDI is desired, it is up to the client to receive it and convert it to appropriate OSC commands for the synth engine.\
+\
+
+\f1 \'82\'b7\'82\'d7\'82\'c4\'82\'cc\'83\'52\'83\'7d\'83\'93\'83\'68\'82\'cdOpen Sound Control(OSC)\'82\'f0\'8a\'c8\'97\'aa\'89\'bb\'82\'b5\'82\'bd\'82\'e0\'82\'cc\'82\'f0TCP\'81\'41\'82\'a0\'82\'e9\'82\'a2\'82\'cdUDP\'8c\'6f\'97\'52\'82\'c5\'8e\'f3\'82\'af\'8e\'e6\'82\'e7\'82\'ea\'82\'e9\'81\'42\'83\'56\'83\'93\'83\'5a\'83\'54\'81\'5b\'83\'6f\'81\'5b\'82\'c6\'83\'4e\'83\'89\'83\'43\'83\'41\'83\'93\'83\'67\'82\'cd\'93\'af\'82\'b6\'83\'7d\'83\'56\'83\'93\'82\'c9\'91\'b6\'8d\'dd\'82\'b7\'82\'e9\'82\'b1\'82\'c6\'82\'e0\'81\'41\'83\'6c\'83\'62\'83\'67\'83\'8f\'81\'5b\'83\'4e\'8f\'f3\'82\'c9\'95\'ca\'81\'58\'82\'c9\'91\'b6\'8d\'dd\'82\'b7\'82\'e9\'82\'b1\'82\'c6\'82\'e0\'82\'c5\'82\'ab\'82\'e9\'81\'42\'83\'56\'83\'93\'83\'5a\'83\'54\'81\'5b\'83\'6f\'81\'5b\'8e\'a9\'90\'67\'82\'cdMIDI\'90\'4d\'8d\'86\'82\'cc\'91\'97\'8e\'f3\'90\'4d\'82\'cd\'8d\'73\'82\'ed\'82\'c8\'82\'a2\'81\'42\'82\'b1\'82\'ea\'82\'cd\'81\'41\'82\'b7\'82\'d7\'82\'c4\'82\'cc\'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'83\'52\'83\'7d\'83\'93\'83\'68\'82\'aa\'83\'4e\'83\'89\'83\'43\'83\'41\'83\'93\'83\'67\'82\'a9\'82\'e7\'91\'97\'82\'e7\'82\'ea\'82\'c4\'82\'ad\'82\'e9\'82\'b1\'82\'c6\'82\'f0\'91\'4f\'92\'f1\'82\'c6\'82\'b5\'82\'c4\'82\'a2\'82\'e9\'82\'bd\'82\'df\'82\'c5\'82\'a0\'82\'e9\'81\'42MIDI\'82\'f0\'97\'98\'97\'70\'82\'b5\'82\'bd\'82\'a2\'8f\'ea\'8d\'87\'82\'cd\'81\'41\'83\'4e\'83\'89\'83\'43\'83\'41\'83\'93\'83\'67\'91\'a4\'82\'c5\'8e\'f3\'82\'af\'8e\'e6\'82\'e8\'81\'41\'83\'56\'83\'93\'83\'5a\'83\'47\'83\'93\'83\'57\'83\'93\'82\'aa\'97\'9d\'89\'f0\'82\'c5\'82\'ab\'82\'e9OSC\'83\'52\'83\'7d\'83\'93\'83\'68\'82\'c9\'95\'cf\'8a\'b7\'82\'b5\'82\'c4\'82\'a9\'82\'e7\'83\'56\'83\'93\'83\'5a\'83\'54\'81\'5b\'83\'6f\'81\'5b\'82\'c9\'91\'97\'82\'e9\'95\'4b\'97\'76\'82\'aa\'82\'a0\'82\'e9\'81\'42
+\f0 \
+\
+Synth definitions are stored in files generated by the SuperCollider language application. Unit generator definitions are Mach-O bundles (not to be confused with CFBundles). The Unit generator API is a simple C interface.\
+\
+
+\f1 \'83\'56\'83\'93\'83\'5a\'82\'cc\'92\'e8\'8b\'60(\'8a\'79\'8a\'ed\'82\'cc\'92\'e8\'8b\'60)\'82\'cdSuperCollider\'83\'4e\'83\'89\'83\'43\'83\'41\'83\'93\'83\'67\'82\'c9\'82\'c4\'90\'b6\'90\'ac\'82\'b3\'82\'ea\'81\'41\'83\'74\'83\'40\'83\'43\'83\'8b\'82\'c6\'82\'b5\'82\'c4\'95\'db\'91\'b6\'82\'b3\'82\'ea\'82\'e9\'81\'42\'83\'86\'83\'6a\'83\'62\'83\'67\'83\'57\'83\'46\'83\'6c\'83\'8c\'81\'5b\'83\'5e\'82\'cc\'92\'e8\'8b\'60\'82\'cdMach-O\'8c\'60\'8e\'ae\'82\'cc\'83\'6f\'83\'43\'83\'69\'83\'8a\'82\'c5\'95\'db\'91\'b6\'82\'b3\'82\'ea\'82\'e9\'81\'42\'83\'86\'83\'6a\'83\'62\'83\'67\'83\'57\'83\'46\'83\'6c\'83\'8c\'81\'5b\'83\'5e\'82\'ccAPI\'82\'cdC\'82\'c5\'8b\'4c\'8f\'71\'82\'b3\'82\'ea\'82\'c4\'82\'a2\'82\'e9\'81\'42
+\f0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\fs36 \cf0 \
+\
+\
+Main Design Concepts\
+
+\f1 \'83\'66\'83\'55\'83\'43\'83\'93\'83\'52\'83\'93\'83\'5a\'83\'76\'83\'67
+\f0\fs24 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 Node\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f0\b0 \cf0 A Node is an addressable node in a tree of nodes run by the synth engine. There are two types, Synths and Groups. The tree defines the order of execution of all Synths. All nodes have an integer ID.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f3 \cf0 \'83\'6d\'81\'5b\'83\'68\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f1\b0 \cf0 \'83\'6d\'81\'5b\'83\'68\'82\'cd\'81\'41\'83\'41\'83\'68\'83\'8c\'83\'58\'8e\'77\'92\'e8\'89\'c2\'94\'5c\'82\'c8\'8c\'c2\'91\'cc\'82\'c5\'82\'a0\'82\'e8\'81\'41\'83\'56\'83\'93\'83\'5a\'83\'47\'83\'93\'83\'57\'83\'93\'93\'e0\'82\'c5\'83\'63\'83\'8a\'81\'5b\'8d\'5c\'91\'a2\'82\'f0\'82\'c8\'82\'b5\'82\'c4\'93\'ae\'8d\'ec\'82\'b7\'82\'e9\'81\'42\'83\'6d\'81\'5b\'83\'68\'82\'c9\'82\'cd\'82\'51\'8e\'ed\'97\'de\'82\'a0\'82\'e8\'81\'41\'83\'56\'83\'93\'83\'5a\'83\'6d\'81\'5b\'83\'68\'82\'c6\'83\'4f\'83\'8b\'81\'5b\'83\'76\'83\'6d\'81\'5b\'83\'68\'82\'aa\'91\'b6\'8d\'dd\'82\'b7\'82\'e9\'81\'42\'83\'63\'83\'8a\'81\'5b\'8d\'5c\'91\'a2\'82\'cd\'81\'41\'82\'bb\'82\'cc\'82\'dc\'82\'dc\'82\'b7\'82\'d7\'82\'c4\'82\'cc\'83\'56\'83\'93\'83\'5a\'82\'cc\'8f\'88\'97\'9d\'8f\'87\'82\'f0\'92\'e8\'8b\'60\'82\'b7\'82\'e9\'81\'42\'83\'6d\'81\'5b\'83\'68\'82\'c9\'82\'cd\'88\'ea\'88\'d3\'82\'cc\'90\'ae\'90\'94ID\'82\'c9\'82\'e6\'82\'c1\'82\'c4\'8e\'af\'95\'ca\'82\'b3\'82\'ea\'82\'e9\'81\'42
+\f2\b \
+\
+Group
+\f0\b0 \
+A Group is a collection of Nodes represented as a linked list. A new Node may be added to the head or tail of the group. The Nodes within a Group may be controlled together. The Nodes in a Group may be both Synths and other Groups. At startup there is a top level group with an ID of zero that defines the root of the tree.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f3\b \cf0 \'83\'4f\'83\'8b\'81\'5b\'83\'76
+\f1\b0 \
+\'83\'4f\'83\'8b\'81\'5b\'83\'76\'82\'cd\'83\'6d\'81\'5b\'83\'68\'82\'cc\'8f\'57\'8d\'87\'91\'cc\'82\'c5\'82\'a0\'82\'e8\'81\'41\'8a\'65\'83\'6d\'81\'5b\'83\'68ID\'82\'cc\'88\'ea\'97\'97\'82\'c9\'82\'e6\'82\'c1\'82\'c4\'95\'5c\'82\'b3\'82\'ea\'82\'e9\'81\'42\'90\'56\'82\'b5\'82\'a2\'83\'6d\'81\'5b\'83\'68\'82\'cd\'83\'4f\'83\'8b\'81\'5b\'83\'76\'82\'cc\'93\'aa\'81\'41\'82\'a0\'82\'e9\'82\'a2\'82\'cd\'8c\'e3\'82\'eb\'82\'c9\'92\'c7\'89\'c1\'82\'c5\'82\'ab\'82\'e9\'81\'42\'83\'4f\'83\'8b\'81\'5b\'83\'76\'93\'e0\'82\'cc\'83\'6d\'81\'5b\'83\'68\'82\'cd\'82\'dc\'82\'c6\'82\'df\'82\'c4\'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'82\'c5\'82\'ab\'82\'e9\'81\'42\'83\'4f\'83\'8b\'81\'5b\'83\'76\'93\'e0\'82\'cc\'83\'6d\'81\'5b\'83\'68\'82\'cd\'83\'56\'83\'93\'83\'5a\'83\'6d\'81\'5b\'83\'68\'82\'c5\'82\'e0\'83\'4f\'83\'8b\'81\'5b\'83\'76\'83\'6d\'81\'5b\'83\'68\'82\'c5\'82\'e0\'97\'98\'97\'70\'82\'c5\'82\'ab\'82\'e9\'81\'42SuperCollider\'8b\'4e\'93\'ae\'8e\'9e\'82\'c9\'82\'cd\'8d\'c5\'8f\'e3\'88\'ca\'82\'cc\'83\'4f\'83\'8b\'81\'5b\'83\'76\'82\'ccID\'82\'cd"0"\'82\'aa\'92\'e8\'8b\'60\'82\'b3\'82\'ea\'82\'e9\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 Synth
+\f0\b0 \
+A Synth is a collection of unit generators that run together. They can be addressed and controlled by commands to the synthesis engine. They read input and write output to global audio and control buses. Synths can have their own local controls that are set via commands to the server.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f3\b \cf0 Synth(\'83\'56\'83\'93\'83\'5a)
+\f1\b0 \
+\'83\'56\'83\'93\'83\'5a\'82\'cd\'83\'86\'83\'6a\'83\'62\'83\'67\'83\'57\'83\'46\'83\'6c\'83\'8c\'81\'5b\'83\'5e\'82\'cc\'8f\'57\'8d\'87\'91\'cc\'82\'c5\'82\'a0\'82\'e9\'81\'42\'83\'41\'83\'68\'83\'8c\'83\'58\'8e\'77\'92\'e8\'82\'aa\'89\'c2\'94\'5c\'82\'c5\'81\'41\'83\'56\'83\'93\'83\'5a\'83\'47\'83\'93\'83\'57\'83\'93\'82\'d6\'82\'cc\'83\'52\'83\'7d\'83\'93\'83\'68\'82\'c9\'82\'e6\'82\'c1\'82\'c4\'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'82\'aa\'82\'c5\'82\'ab\'82\'e9\'81\'42\'93\'fc\'8f\'6f\'97\'cd\'82\'cd\'81\'41\'83\'4f\'83\'8d\'81\'5b\'83\'6f\'83\'8b\'97\'cc\'88\'e6\'82\'cc\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'83\'6f\'83\'58\'81\'41\'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'83\'6f\'83\'58\'82\'c6\'82\'e2\'82\'e8\'8e\'e6\'82\'e8\'82\'aa\'89\'c2\'94\'5c\'81\'42\'83\'56\'83\'93\'83\'5a\'8e\'a9\'90\'4d\'82\'cc\'93\'e0\'95\'94\'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'82\'e0\'89\'c2\'94\'5c\'82\'c5\'81\'41\'83\'54\'81\'5b\'83\'6f\'81\'5b\'82\'d6\'82\'cc\'83\'52\'83\'7d\'83\'93\'83\'68\'8c\'6f\'97\'52\'82\'c5\'90\'dd\'92\'e8\'82\'aa\'82\'c5\'82\'ab\'82\'e9\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 Synth Definition
+\f0\b0 \
+Synths are created from Synth Definitions. Synth Definition files are created by the SuperCollider language application and are loaded into the synth server. Synth Definitions are referred to by name.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f3\b \cf0 Synth Definition(\'83\'56\'83\'93\'83\'5a\'92\'e8\'8b\'60)
+\f1\b0 \
+\'83\'56\'83\'93\'83\'5a\'82\'cdSynth Definition\'82\'c9\'82\'e6\'82\'c1\'82\'c4\'8d\'ec\'90\'ac\'82\'b3\'82\'ea\'82\'e9\'81\'42Synth Definition\'83\'74\'83\'40\'83\'43\'83\'8b\'82\'cdSuperCollider\'83\'4e\'83\'89\'83\'43\'83\'41\'83\'93\'83\'67\'82\'c9\'82\'e6\'82\'c1\'82\'c4\'8d\'ec\'90\'ac\'82\'b3\'82\'ea\'81\'41\'83\'56\'83\'93\'83\'5a\'83\'54\'81\'5b\'83\'6f\'81\'5b\'82\'c9\'91\'97\'82\'e7\'82\'ea\'82\'e9\'81\'42Synth Definition\'82\'cd\'81\'41\'82\'bb\'82\'ea\'82\'bc\'82\'ea\'82\'c9\'82\'c2\'82\'af\'82\'e7\'82\'ea\'82\'bd\'83\'56\'83\'93\'83\'5a\'96\'bc\'82\'c9\'82\'e6\'82\'c1\'82\'c4\'8e\'51\'8f\'c6\'82\'b3\'82\'ea\'82\'e9\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 Audio Buses
+\f0\b0 \
+Synths send audio signals to each other via a single global array of audio buses.  Audio buses are indexed by integers beginning with zero. Using buses rather than connecting synths to each other directly allows synths to connect themselves to the community of other synths without having to know anything about them specifically. The lowest numbered buses get written to the audio hardware outputs. Immediately following the output buses are the input buses, read from the audio hardware inputs. The number of bus channels defined as inputs and outputs do not have to match that of the hardware.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f3\b \cf0 \'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'83\'6f\'83\'58
+\f1\b0 \
+\'83\'56\'83\'93\'83\'5a\'82\'cd\'83\'4f\'83\'8d\'81\'5b\'83\'6f\'83\'8b\'97\'cc\'88\'e6\'82\'c9\'82\'a0\'82\'e9\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'83\'6f\'83\'58\'8c\'6f\'97\'52\'82\'c5\'82\'a8\'8c\'dd\'82\'a2\'82\'c9\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'83\'56\'83\'4f\'83\'69\'83\'8b\'82\'f0\'91\'97\'82\'ea\'82\'e9\'81\'42\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'83\'6f\'83\'58\'82\'cd"0"\'82\'a9\'82\'e7\'8e\'6e\'82\'dc\'82\'e9\'90\'ae\'90\'94ID\'82\'c5\'8e\'af\'95\'ca\'82\'b3\'82\'ea\'82\'e9\'81\'42\'83\'56\'83\'93\'83\'5a\'8e\'a9\'90\'67\'82\'f0\'82\'a8\'8c\'dd\'82\'a2\'82\'c9\'90\'da\'91\'b1\'82\'b9\'82\'b8\'82\'c9\'83\'6f\'83\'58\'8c\'6f\'97\'52\'82\'c9\'82\'b7\'82\'e9\'82\'b1\'82\'c6\'82\'c5\'81\'41\'91\'bc\'82\'c9\'82\'a0\'82\'e9\'83\'56\'83\'93\'83\'5a\'82\'cc\'82\'b1\'82\'c6\'82\'f0\'82\'bb\'82\'ea\'82\'bc\'82\'ea\'94\'46\'8e\'af\'82\'b7\'82\'e9\'82\'b1\'82\'c6\'82\'c8\'82\'ad\'83\'56\'83\'93\'83\'5a\'82\'cc\'8f\'57\'8d\'87\'91\'cc\'82\'c9\'90\'da\'91\'b1\'82\'c5\'82\'ab\'82\'e9\'82\'e6\'82\'a4\'82\'c9\'82\'c8\'82\'e9\'81\'42ID\'82\'cc\'90\'94\'8e\'9a\'82\'cc\'92\'e1\'82\'a2\'83\'6f\'83\'58\'82\'aa\'8e\'c0\'8d\'db\'82\'cc\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'8f\'6f\'97\'cd\'91\'95\'92\'75\'82\'c9\'90\'da\'91\'b1\'82\'b3\'82\'ea\'82\'e9\'81\'42\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'8f\'6f\'97\'cd\'82\'c9\'90\'da\'91\'b1\'82\'b3\'82\'ea\'82\'bd\'94\'d4\'8d\'86\'82\'c9\'91\'b1\'82\'adID\'82\'aa\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'91\'95\'92\'75\'82\'a9\'82\'e7\'82\'cc\'93\'fc\'97\'cd\'83\'6f\'83\'58\'82\'c6\'82\'c8\'82\'e9\'81\'42\'93\'fc\'8f\'6f\'97\'cd\'82\'cc\'82\'bd\'82\'df\'82\'cc\'83\'6f\'83\'58\'82\'cc\'90\'94\'82\'cd\'81\'41\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'93\'fc\'8f\'6f\'97\'cd\'91\'95\'92\'75\'82\'c9\'91\'ce\'89\'9e\'82\'b3\'82\'b9\'82\'e9\'95\'4b\'97\'76\'82\'cd\'82\'c8\'82\'a2\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 Control Buses
+\f0\b0 \
+Synths can send control signals to each other via a single global array of control buses.  Buses are indexed by integers beginning with zero.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f3\b \cf0 \'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'83\'6f\'83\'58
+\f1\b0 \
+\'83\'56\'83\'93\'83\'5a\'82\'cd\'83\'4f\'83\'8d\'81\'5b\'83\'6f\'83\'8b\'97\'cc\'88\'e6\'82\'cc\'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'83\'6f\'83\'58\'82\'f0\'8c\'6f\'97\'52\'82\'b5\'82\'c4\'81\'41\'82\'a8\'8c\'dd\'82\'a2\'82\'c9\'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'83\'56\'83\'4f\'83\'69\'83\'8b\'82\'f0\'82\'e2\'82\'e8\'8e\'e6\'82\'e8\'82\'c5\'82\'ab\'82\'e9\'81\'42\'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'83\'6f\'83\'58\'82\'e0"0"\'82\'a9\'82\'e7\'8e\'6e\'82\'dc\'82\'e9\'90\'ae\'90\'94ID\'82\'c5\'8e\'af\'95\'ca\'82\'b3\'82\'ea\'82\'e9\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 Buffers
+\f0\b0 \
+Buffers are arrays of 32 bit floating point values with a small descriptive header. Buffers are stored in a single global array indexed by integers beginning with zero. Buffers may be safely allocated, loaded and freed while synthesis is running, even while unit generators are using them. Buffers are used for wave tables, sample buffers, delay lines, envelopes, or for any other need which can use an array of floating point values. Sound files may be loaded into or written from buffers.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f3\b \cf0 \'83\'6f\'83\'62\'83\'74\'83\'40
+\f1\b0 \
+\'83\'6f\'83\'62\'83\'74\'83\'40\'82\'cd\'8b\'4c\'8f\'71\'89\'c2\'94\'5c\'82\'c8\'8f\'ac\'82\'b3\'82\'c8\'83\'77\'83\'62\'83\'5f\'82\'aa\'82\'c2\'82\'a2\'82\'bd32bit\'82\'cc\'95\'82\'93\'ae\'8f\'ac\'90\'94\'93\'5f\'82\'cc\'94\'7a\'97\'f1\'82\'c5\'82\'a0\'82\'e9\'81\'42\'83\'6f\'83\'62\'83\'74\'83\'40\'82\'cd\'83\'4f\'83\'8d\'81\'5b\'83\'6f\'83\'8b\'97\'cc\'88\'e6\'82\'c9"0"\'82\'a9\'82\'e7\'8e\'6e\'82\'dc\'82\'e9\'90\'ae\'90\'94ID\'82\'c9\'82\'e6\'82\'c1\'82\'c4\'8e\'af\'95\'ca\'81\'41\'95\'db\'8e\'9d\'82\'b3\'82\'ea\'82\'e9\'81\'42\'83\'6f\'83\'62\'83\'74\'83\'40\'82\'cd\'89\'b9\'8b\'bf\'8d\'87\'90\'ac\'8f\'88\'97\'9d\'92\'86\'82\'c5\'82\'e0\'83\'86\'83\'6a\'83\'62\'83\'67\'83\'57\'83\'46\'83\'6c\'83\'8c\'81\'5b\'83\'5e\'82\'aa\'8e\'67\'97\'70\'92\'86\'82\'c5\'82\'a0\'82\'c1\'82\'c4\'82\'e0\'81\'41\'88\'c0\'91\'53\'82\'c9\'8d\'ec\'90\'ac\'81\'45\'97\'98\'97\'70\'81\'45\'89\'f0\'95\'fa\'82\'b7\'82\'e9\'82\'b1\'82\'c6\'82\'aa\'82\'c5\'82\'ab\'82\'e9\'81\'42\'83\'6f\'83\'62\'83\'74\'83\'40\'82\'cd\'94\'67\'8c\'60\'83\'65\'81\'5b\'83\'75\'83\'8b\'81\'41\'83\'54\'83\'93\'83\'76\'83\'8b\'83\'6f\'83\'62\'83\'74\'83\'40\'81\'41\'83\'66\'83\'42\'83\'8c\'83\'43\'83\'89\'83\'43\'83\'93\'81\'41\'83\'47\'83\'93\'83\'78\'83\'8d\'81\'5b\'83\'76\'81\'41\'82\'a0\'82\'e9\'82\'a2\'82\'cd\'82\'bb\'82\'cc\'91\'bc\'95\'82\'93\'ae\'8f\'ac\'90\'94\'93\'5f\'82\'cc\'94\'7a\'97\'f1\'82\'f0\'8a\'69\'94\'5b\'82\'b7\'82\'e9\'82\'cc\'82\'c9\'97\'98\'97\'70\'82\'c5\'82\'ab\'82\'e9\'81\'42\'83\'54\'83\'45\'83\'93\'83\'68\'83\'74\'83\'40\'83\'43\'83\'8b\'82\'a9\'82\'e7\'83\'6f\'83\'62\'83\'74\'83\'40\'82\'d6\'93\'c7\'82\'dd\'8d\'9e\'82\'de\'82\'b1\'82\'c6\'82\'e0\'81\'41\'83\'6f\'83\'62\'83\'74\'83\'40\'82\'a9\'82\'e7\'83\'54\'83\'45\'83\'93\'83\'68\'83\'74\'83\'40\'83\'43\'83\'8b\'82\'d6\'8f\'91\'82\'ab\'8f\'6f\'82\'b7\'82\'b1\'82\'c6\'82\'e0\'82\'c5\'82\'ab\'82\'e9\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 Unit Generator Definitions
+\f0\b0 \
+Unit Generator Definitions are plug-ins loaded automatically when the program starts. They are binary code libraries that are used as building blocks by Synths to build synthesis algorithms. Unit Generator Definitions have names that match the names of SuperCollider language classes used in building Synth Definitions. \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f3\b \cf0 \'83\'86\'83\'6a\'83\'62\'83\'67\'83\'57\'83\'46\'83\'6c\'83\'8c\'81\'5b\'83\'5e\'92\'e8\'8b\'60
+\f1\b0 \
+\'83\'86\'83\'6a\'83\'62\'83\'67\'83\'57\'83\'46\'83\'6c\'83\'8c\'81\'5b\'83\'5e\'92\'e8\'8b\'60\'82\'cd\'83\'76\'83\'8d\'83\'4f\'83\'89\'83\'80\'82\'aa\'8a\'4a\'8e\'6e\'82\'b3\'82\'ea\'82\'e9\'8d\'db\'82\'c9\'8e\'a9\'93\'ae\'93\'49\'82\'c9\'93\'c7\'82\'dd\'8d\'9e\'82\'dc\'82\'ea\'82\'e9\'83\'76\'83\'89\'83\'4f\'83\'43\'83\'93\'82\'c5\'82\'a0\'82\'e9\'81\'42\'83\'6f\'83\'43\'83\'69\'83\'8a\'83\'52\'81\'5b\'83\'68\'82\'cc\'83\'89\'83\'43\'83\'75\'83\'89\'83\'8a\'82\'c5\'82\'a0\'82\'e8\'81\'41\'89\'b9\'8b\'bf\'8d\'87\'90\'ac\'83\'41\'83\'8b\'83\'53\'83\'8a\'83\'59\'83\'80\'8d\'5c\'92\'7a\'82\'cc\'8d\'db\'82\'c9\'83\'56\'83\'93\'83\'5a\'82\'c9\'82\'e6\'82\'c1\'82\'c4\'97\'98\'97\'70\'82\'b3\'82\'ea\'82\'e9\'83\'70\'81\'5b\'83\'63\'82\'c6\'82\'c8\'82\'e9\'81\'42\'83\'86\'83\'6a\'83\'62\'83\'67\'83\'57\'83\'46\'83\'6c\'83\'8c\'81\'5b\'83\'5e\'92\'e8\'8b\'60\'82\'cdSuperCollider\'82\'cc\'8c\'be\'8c\'ea\'83\'4e\'83\'89\'83\'58\'82\'c5\'8e\'67\'97\'70\'82\'b3\'82\'ea\'82\'e9SynthDef\'82\'cc\'8d\'5c\'92\'7a\'82\'c9\'82\'e0\'97\'70\'82\'a2\'82\'e7\'82\'ea\'82\'c4\'82\'a2\'82\'e9\'96\'bc\'8f\'cc\'82\'c6\'93\'af\'97\'6c\'82\'cc\'82\'e0\'82\'cc\'82\'aa\'97\'70\'82\'a2\'82\'e7\'82\'ea\'82\'e9\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\fs36 \cf0 \
+\
+Command Line Arguments\
+
+\f1 \'83\'52\'83\'7d\'83\'93\'83\'68\'83\'89\'83\'43\'83\'93\'83\'49\'83\'76\'83\'56\'83\'87\'83\'93
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\fs24 \cf0 One of -u or -t must be supplied. Both may be supplied.
+\fs36 \
+
+\fs24 -u 
+\f4\i udp-port-number
+\f0\i0 \
+	a port number 0-65535. \
+-t 
+\f4\i tcp-port-number
+\f0\i0 \
+	a port number 0-65535\
+\
+
+\f1 \'88\'c8\'89\'ba\'82\'cc"-u"\'82\'a9"-t"\'82\'cd\'95\'4b\'82\'b8\'8e\'77\'92\'e8\'82\'b7\'82\'e9\'95\'4b\'97\'76\'82\'aa\'82\'a0\'82\'e9\'81\'42\'97\'bc\'95\'fb\'8e\'77\'92\'e8\'82\'b7\'82\'e9\'82\'b1\'82\'c6\'82\'e0\'89\'c2\'94\'5c\'81\'42\
+-u 
+\f4\i udp-port-number
+\f1\i0 \
+	0\'81\'6065535\'82\'dc\'82\'c5\'82\'cc\'83\'7c\'81\'5b\'83\'67\'94\'d4\'8d\'86\
+-t 
+\f4\i tcp-port-number
+\f1\i0 \
+	0\'81\'6065535\'82\'dc\'82\'c5\'82\'cc\'83\'7c\'81\'5b\'83\'67\'94\'d4\'8d\'86
+\f0 \
+	\
+-v 
+\f4\i device-name
+\f0\i0 \
+	Name of a sound i/o device to use. If not specified, the default device is used.\
+	Currently this is ignored and the default device is used.\
+\
+-v 
+\f4\i device-name
+\f1\i0 \
+	\'8e\'67\'97\'70\'82\'b7\'82\'e9\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'93\'fc\'8f\'6f\'97\'cd\'91\'95\'92\'75\'82\'cc\'96\'bc\'8f\'cc\'81\'42\'8e\'77\'92\'e8\'82\'aa\'82\'c8\'82\'a2\'8f\'ea\'8d\'87\'82\'cdOS\'82\'cc\'83\'66\'83\'74\'83\'48\'83\'8b\'83\'67\'91\'95\'92\'75	\'82\'aa\'8a\'84\'82\'e8\'93\'96\'82\'c4\'82\'e7\'82\'ea\'82\'e9\'81\'42\'8c\'bb\'8d\'dd\'82\'cc\'82\'c6\'82\'b1\'82\'eb\'82\'b1\'82\'cc\'83\'49\'83\'76\'83\'56\'83\'87\'83\'93\'82\'cd\'96\'b3\'8e\'8b\'82\'b3\'82\'ea\'81\'41\'83\'66\'83\'74\'83\'48\'83\'8b\'83\'67\'82\'cc\'91\'95\'92\'75	\'82\'aa\'91\'49\'91\'f0\'82\'b3\'82\'ea\'82\'e9\'81\'42
+\f0 \
+	\
+-a 
+\f4\i num-audio-bus-channels
+\f0\i0 \
+	number of audio bus channels (default = 128).\
+	The space allocated for audio buses is: (numchannels * (blocksize + 1) * 4)\
+
+\f1 -a 
+\f4\i num-audio-bus-channels
+\f1\i0 \
+	\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'83\'6f\'83\'58\'82\'cc\'83\'60\'83\'83\'83\'93\'83\'6c\'83\'8b\'90\'94(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd128\'83\'60\'83\'83\'83\'93\'83\'6c\'83\'8b)\
+	\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'83\'6f\'83\'58\'82\'c9\'8a\'84\'82\'e8\'93\'96\'82\'c4\'82\'e7\'82\'ea\'82\'e9\'83\'41\'83\'68\'83\'8c\'83\'58\'8b\'f3\'8a\'d4\'82\'cd (\'83\'60\'83\'83\'83\'93\'83\'6c\'83\'8b\'90\'94 x (\'83\'75\'83\'8d\'83\'62\'83\'4e\'83\'54\'83\'43	\'83\'59 + 1) x 4)
+\f0 \
+-i 
+\f4\i num-input-bus-channels
+\f0\i0 \
+	number of audio input bus channels (default = 2)\
+-i 
+\f4\i num-input-bus-channels
+\f1\i0 \
+	\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'93\'fc\'97\'cd\'83\'6f\'83\'58\'82\'cc\'83\'60\'83\'83\'83\'93\'83\'6c\'83\'8b\'90\'94(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd2)
+\f0 \
+-o 
+\f4\i num-output-bus-channels
+\f0\i0 \
+	number of audio output bus channels (default = 2)\
+-o 
+\f4\i num-output-bus-channels
+\f1\i0 \
+	\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'8f\'6f\'97\'cd\'83\'6f\'83\'58\'82\'cc\'83\'60\'83\'83\'83\'93\'83\'6c\'83\'8b\'90\'94(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd2)
+\f0 \
+-c 
+\f4\i num-control-bus-channels
+\f0\i0 \
+	number of control bus channels (default = 4096)\
+	The space allocated for control buses is: (numchannels * 8)\
+-c 
+\f4\i num-control-bus-channels
+\f1\i0 \
+	\'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'83\'6f\'83\'58\'82\'cc\'83\'60\'83\'83\'83\'93\'83\'6c\'83\'8b\'90\'94(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd4,096)\
+	\'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'83\'6f\'83\'58\'82\'c9\'8a\'84\'82\'e8\'93\'96\'82\'c4\'82\'e7\'82\'ea\'82\'e9\'83\'41\'83\'68\'83\'8c\'83\'58\'8b\'f3\'8a\'d4\'82\'cd (\'83\'60\'83\'83\'83\'93\'83\'6c\'83\'8b\'90\'94 x 8)
+\f0 \
+-b 
+\f4\i num-buffers
+\f0\i0 \
+	number of sample buffers (default = 1024)\
+-b 
+\f4\i num-buffers
+\f1\i0 \
+	\'83\'54\'83\'93\'83\'76\'83\'8b\'83\'6f\'83\'62\'83\'74\'83\'40\'90\'94(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd1,024)
+\f0 \
+-n 
+\f4\i max-nodes
+\f0\i0 \
+	maximum number of nodes (default = 1024)\
+-n 
+\f4\i max-nodes
+\f1\i0 \
+	\'8d\'c5\'91\'e5\'83\'6d\'81\'5b\'83\'68\'90\'94(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd1,024)
+\f0 \
+-d 
+\f4\i max-synth-defs
+\f0\i0 \
+	maximum number of synth definitions (default = 1024)\
+-d 
+\f4\i max-synth-defs
+\f1\i0 \
+	SynthDef(\'83\'56\'83\'93\'83\'5a\'92\'e8\'8b\'60)\'82\'cc\'8d\'c5\'91\'e5\'90\'94(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd1,024)
+\f0 \
+-D 
+\f4\i 1 or 0
+\f0\i0 \
+	if zero, then synth definitions will not be loaded on start up. (default = 1)\
+-D 
+\f4\i 1 or 0
+\f0\i0 \
+	
+\f1 \'83\'5b\'83\'8d\'82\'cc\'8f\'ea\'8d\'87\'81\'41SynthDef(\'83\'56\'83\'93\'83\'5a\'92\'e8\'8b\'60)\'82\'cd\'8b\'4e\'93\'ae\'8e\'9e\'82\'c9\'93\'c7\'82\'dd\'8d\'9e\'82\'dc\'82\'ea\'82\'c8\'82\'a2(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd1)
+\f0 \
+-z 
+\f4\i block-size
+\f0\i0 \
+	The number of samples in one control period. (default = 64)\
+
+\f1 -z 
+\f4\i block-size
+\f1\i0 \
+	\'82\'50\'8e\'fc\'8a\'fa\'82\'c9\'93\'c7\'82\'dd\'8d\'9e\'82\'dc\'82\'ea\'82\'e9\'83\'54\'83\'93\'83\'76\'83\'8b\'90\'94(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd64)
+\f0 \
+-Z 
+\f4\i preferred-hardware-buffer-size
+\f0\i0 \
+	If non-zero, it will attempt to set the hardware buffer frame size. (default = 0)\
+-Z 
+\f4\i preferred-hardware-buffer-size
+\f1\i0 \
+	\'83\'5b\'83\'8d\'88\'c8\'8a\'4f\'82\'cc\'8f\'ea\'8d\'87\'81\'41\'83\'6e\'81\'5b\'83\'68\'83\'45\'83\'46\'83\'41\'83\'6f\'83\'62\'83\'74\'83\'40\'82\'cc\'83\'74\'83\'8c\'81\'5b\'83\'80\'83\'54\'83\'43\'83\'59\'82\'f0\'97\'5e\'82\'a6\'82\'e7\'82\'ea\'82\'bd\'92\'6c\'82\'c9\'90\'dd\'92\'e8	\'82\'b5\'82\'e6\'82\'a4\'82\'c6\'8e\'8e\'82\'dd\'82\'e9(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd0)
+\f0 \
+-S 
+\f4\i preferred-sample-rate
+\f0\i0 \
+	If non-zero, it will attempt to set the hardware sample rate. (default = 0)\
+-S 
+\f4\i preferred-sample-rate
+\f1\i0 \
+	\'83\'5b\'83\'8d\'88\'c8\'8a\'4f\'82\'cc\'8f\'ea\'8d\'87\'81\'41\'83\'6e\'81\'5b\'83\'68\'83\'45\'83\'46\'83\'41\'82\'cc\'83\'54\'83\'93\'83\'76\'83\'8b\'83\'8c\'81\'5b\'83\'67\'82\'f0\'97\'5e\'82\'a6\'82\'e7\'82\'ea\'82\'bd\'92\'6c\'82\'c9\'90\'dd\'92\'e8\'82\'b5\'82\'e6\'82\'a4\'82\'c6	\'8e\'8e\'82\'dd\'82\'e9(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd0)
+\f0 \
+-m 
+\f4\i real-time-memory-size
+\f0\i0 \
+	The number of kilobytes of real time memory. \
+	This memory is used to allocate synths and any memory that \
+	unit generators themselves allocate. (default = 2048)\
+
+\f1 -m 
+\f4\i real-time-memory-size
+\f1\i0 \
+	\'83\'8a\'83\'41\'83\'8b\'83\'5e\'83\'43\'83\'80\'8f\'88\'97\'9d\'97\'70\'82\'cc\'83\'81\'83\'82\'83\'8a\'8e\'67\'97\'70\'97\'ca\'82\'f0\'83\'4c\'83\'8d\'83\'6f\'83\'43\'83\'67\'82\'c5\'8e\'77\'92\'e8\'82\'b7\'82\'e9\'81\'42\
+	\'82\'b1\'82\'cc\'83\'81\'83\'82\'83\'8a\'82\'cd\'83\'56\'83\'93\'83\'5a\'82\'f0\'8a\'dc\'82\'df\'81\'41\'82\'a0\'82\'e7\'82\'e4\'82\'e9\'83\'86\'83\'6a\'83\'62\'83\'67\'83\'57\'83\'46\'83\'6c\'83\'8c\'81\'5b\'83\'5e\'8e\'a9\'90\'67\'82\'aa\'8a\'84\'82\'e8\'93\'96\'82\'c4\'82\'e9\'83\'81	\'83\'82\'83\'8a\'82\'c6\'82\'b5\'82\'c4\'97\'98\'97\'70\'82\'b3\'82\'ea\'82\'e9(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd2,048)
+\f0 \
+-r 
+\f4\i random-number-generators
+\f0\i0 \
+	The number of seedable random number generators. (default = 64)\
+-r 
+\f4\i random-number-generators
+\f1\i0 \
+	\'97\'98\'97\'70\'89\'c2\'94\'5c\'82\'c8\'97\'90\'90\'94\'90\'b6\'90\'ac\'8b\'40\'94\'5c\'82\'cc\'90\'94(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd64)
+\f0 \
+-w 
+\f4\i max-interconnect-buffers
+\f0\i0 \
+	The maximum number of buffers that are allocated for buffers to interconnect \
+	unit generators. Sets the limit of complexity of synth defs that can be loaded at \
+	runtime. This value will be increased if a more complex synth-def is loaded at \
+	start up time, but it cannot be increased once synthesis has begun. (default = 64)\
+-w 
+\f4\i max-interconnect-buffers
+\f1\i0 \
+	\'83\'86\'83\'6a\'83\'62\'83\'67\'83\'57\'83\'46\'83\'6c\'83\'8c\'81\'5b\'83\'5e\'8a\'d4\'82\'f0\'8c\'8b\'82\'d4\'8d\'db\'82\'c9\'97\'98\'97\'70\'82\'b3\'82\'ea\'82\'e9\'83\'6f\'83\'62\'83\'74\'83\'40\'82\'cc\'8d\'c5\'91\'e5\'90\'94\'81\'42\'8e\'c0\'8d\'73\'8e\'9e\'82\'c9\'93\'c7\'82\'dd	\'8d\'9e\'82\'dd\'89\'c2\'94\'5c\'82\'c8SynthDef(\'83\'56\'83\'93\'83\'5a\'92\'e8\'8b\'60)\'82\'cc\'95\'a1\'8e\'47\'93\'78\'82\'f0\'90\'a7\'8c\'c0\'82\'c5\'82\'ab\'82\'e9\'81\'42\'82\'b1\'82\'cc\'92\'6c\'82\'f0\'91\'e5\'82\'ab\'82\'ad\'82\'b7\'82\'e9\'82\'b1	\'82\'c6\'82\'c5\'82\'e6\'82\'e8\'95\'a1\'8e\'47\'82\'c8\'83\'56\'83\'93\'83\'5a\'92\'e8\'8b\'60\'82\'f0\'8b\'4e\'93\'ae\'8e\'9e\'82\'c9\'93\'c7\'82\'dd\'8d\'9e\'82\'df\'82\'e9\'82\'aa\'81\'41\'88\'ea\'92\'55\'89\'b9\'8b\'bf\'8f\'88\'97\'9d\'82\'aa\'8a\'4a\'8e\'6e\'82\'b3\'82\'ea\'82\'c4	\'82\'a9\'82\'e7\'95\'cf\'8d\'58\'82\'b7\'82\'e9\'82\'b1\'82\'c6\'82\'cd\'82\'c5\'82\'ab\'82\'c8\'82\'a2\'81\'42(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd64)]\
+
+\f0 \
+	\
+-l 
+\f4\i max-logins
+\f0\i0 \
+	maximum number of named return addresses stored (default = 64)\
+	also maximum number of tcp connections accepted\
+-l 
+\f4\i max-logins
+\f1\i0 \
+	\'95\'db\'91\'b6\'82\'b3\'82\'ea\'82\'c4\'82\'a2\'82\'e9\'96\'bc\'91\'4f\'95\'74\'82\'ab\'82\'cc\'83\'41\'83\'68\'83\'8c\'83\'58\'82\'cc\'8d\'c5\'91\'e5\'90\'94(\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'cd64)\
+	\'82\'dc\'82\'bd\'81\'41TCP\'8e\'67\'97\'70\'8e\'9e\'82\'c9\'82\'cd\'8d\'c5\'91\'e5\'90\'da\'91\'b1\'90\'94\'82\'f0\'8e\'77\'92\'e8
+\f0 \
+-p 
+\f4\i session-password
+\f0\i0 \
+	When using TCP, the session password must be the first command sent.\
+	The default is no password.\
+	UDP ports never require passwords, so if password protection is desired, \
+	use TCP.\
+-p 
+\f4\i session-password\
+	
+\f1\i0 TCP\'97\'98\'97\'70\'8e\'9e\'82\'cc\'83\'5a\'83\'62\'83\'56\'83\'87\'83\'93\'83\'70\'83\'58\'83\'8f\'81\'5b\'83\'68\'82\'f0\'8e\'77\'92\'e8\'81\'42\'8f\'89\'8a\'fa\'90\'dd\'92\'e8\'82\'c5\'82\'cd\'83\'70\'83\'58\'83\'8f\'81\'5b\'83\'68\'82\'c8\'82\'b5\'82\'c9\'82\'c8\'82\'c1	\'82\'c4\'82\'a2\'82\'e9\'81\'42UDP\'83\'7c\'81\'5b\'83\'67\'82\'c5\'82\'cd\'83\'70\'83\'58\'83\'8f\'81\'5b\'83\'68\'82\'cd\'95\'4b\'97\'76\'82\'c6\'82\'b3\'82\'ea\'82\'c8\'82\'a2\'82\'bd\'82\'df\'81\'41\'83\'70\'83\'58\'83\'8f\'81\'5b\'83\'68\'82\'c9\'82\'e6\'82\'e9\'83\'76	\'83\'8d\'83\'65\'83\'4e\'83\'67\'82\'aa\'95\'4b\'97\'76\'82\'c8\'8f\'ea\'8d\'87\'82\'cdTCP\'82\'f0\'97\'98\'97\'70\'82\'b7\'82\'e9\'81\'42
+\f0 \
+\
+-I 
+\f4\i input-streams-enable-string
+\f0\i0 \
+	Allows turning off input streams that you are not interested in on the device.\
+	If the string is 01100, for example, then only the second and third input streams\
+	on the device will be enabled. Turning off streams can reduce CPU load.\
+-I 
+\f4\i input-streams-enable-string
+\f0\i0 \
+	
+\f1 \'83\'66\'83\'6f\'83\'43\'83\'58\'8f\'e3\'82\'cc\'95\'4b\'97\'76\'82\'c6\'82\'b5\'82\'c4\'82\'a2\'82\'c8\'82\'a2\'93\'fc\'97\'cd\'83\'58\'83\'67\'83\'8a\'81\'5b\'83\'80\'82\'f0\'96\'b3\'8c\'f8\'82\'c9\'82\'c5\'82\'ab\'82\'e9\'81\'4201100\'82\'c6\'8e\'77\'92\'e8	\'82\'b5\'82\'bd\'8f\'ea\'8d\'87\'81\'41\'83\'66\'83\'6f\'83\'43\'83\'58\'8f\'e3\'82\'cc\'91\'e6\'82\'51\'82\'c6\'91\'e6\'82\'52\'93\'fc\'97\'cd\'83\'58\'83\'67\'83\'8a\'81\'5b\'83\'80\'82\'cc\'82\'dd\'82\'aa\'97\'4c\'8c\'f8\'82\'c6\'82\'c8\'82\'e9\'81\'42\'83\'58\'83\'67\'83\'8a\'81\'5b	\'83\'80\'82\'f0\'96\'b3\'8c\'f8\'82\'c9\'82\'b7\'82\'e9\'82\'b1\'82\'c6\'82\'c5CPU\'82\'cc\'95\'89\'89\'d7\'82\'f0\'8c\'79\'8c\'b8\'82\'c5\'82\'ab\'82\'e9\'81\'42
+\f0 \
+\
+-O 
+\f4\i output-streams-enable-string
+\f0\i0 \
+	Allows turning off output streams that you are not interested in on the device.\
+	If the string is 11000, for example, then only the first two output streams\
+	on the device will be enabled. Turning off streams can reduce CPU load.\
+-O 
+\f4\i output-streams-enable-string
+\f0\i0 \
+	
+\f1 \'83\'66\'83\'6f\'83\'43\'83\'58\'8f\'e3\'82\'c9\'95\'4b\'97\'76\'82\'c6\'82\'b5\'82\'c4\'82\'a2\'82\'c8\'82\'a2\'8f\'6f\'97\'cd\'83\'58\'83\'67\'83\'8a\'81\'5b\'83\'80\'82\'f0\'96\'b3\'8c\'f8\'82\'c9\'82\'c5\'82\'ab\'82\'e9\'81\'4211000\'82\'c6\'8e\'77\'92\'e8	\'82\'b5\'82\'bd\'8f\'ea\'8d\'87\'81\'41\'83\'66\'83\'6f\'83\'43\'83\'58\'8f\'e3\'82\'cc\'8d\'c5\'8f\'89\'82\'cc\'82\'51\'82\'c2\'82\'cc\'8f\'6f\'97\'cd\'83\'58\'83\'67\'83\'8a\'81\'5b\'83\'80\'82\'cc\'82\'dd\'82\'aa\'97\'4c\'8c\'f8\'82\'c6\'82\'c8\'82\'e9\'81\'42\'83\'58\'83\'67	\'83\'8a\'81\'5b\'83\'80\'82\'f0\'96\'b3\'8c\'f8\'82\'c9\'82\'b7\'82\'e9\'82\'b1\'82\'c6\'82\'c5CPU\'82\'cc\'95\'89\'89\'d7\'82\'f0\'8c\'79\'8c\'b8\'82\'c5\'82\'ab\'82\'e9\'81\'42
+\f0 \
+	\
+-N 
+\f4\i cmd-filename input-filename output-filename sample-rate header-format sample-format\
+
+\f0\i0 \
+	Run in non-real-time mode. \
+	The 
+\f4\i cmd-filename
+\f0\i0  should be a file that contains OSC bundles sorted in \
+	ascending time order. If 
+\f4\i cmd-filename
+\f0\i0  is the underscore character _, then OSC \
+	will be streamed from standard input.\
+	The audio input will taken from 
+\f4\i input-filename
+\f0\i0 . \
+	If 
+\f4\i input-filename
+\f0\i0  is the underscore character _, then no input file will be read. \
+	Output will be written to 
+\f4\i output-filename
+\f0\i0 .\
+	The output file's sample rate is specified by 
+\f4\i sample-rate
+\f0\i0 .\
+	The output file 
+\f4\i header-format
+\f0\i0  should be one of: AIFF, WAVE, NeXT. \
+	The output file 
+\f4\i sample-format
+\f0\i0  should be one of: int16, int24, int32, float, double. \
+	The number of channels in the output file is specified with the -o argument.\
+-N 
+\f4\i cmd-filename input-filename output-filename sample-rate header-format sample-format
+\f0\i0 \
+	
+\f1 \'83\'6d\'83\'93\'83\'8a\'83\'41\'83\'8b\'83\'5e\'83\'43\'83\'80\'83\'82\'81\'5b\'83\'68\'82\'c5\'8e\'c0\'8d\'73\'82\'b7\'82\'e9\'81\'42\
+	
+\f4\i cmd-filename
+\f1\i0 \'82\'cd\'8f\'88\'97\'9d\'8e\'9e\'8a\'d4\'8f\'87\'82\'c9\'95\'c0\'82\'d7\'82\'e7\'82\'ea\'82\'bdOSC\'83\'6f\'83\'93\'83\'68\'83\'8b\'82\'aa\'8b\'4c\'8f\'71\'82\'b3\'82\'ea\'82\'c4\'82\'a2\'82\'e9\'83\'74\'83\'40\'83\'43	\'83\'8b\'82\'f0\'8e\'77\'92\'e8\'82\'b7\'82\'e9\'81\'42
+\f4\i cmd-filename
+\f1\i0 \'82\'c9"_"\'82\'aa\'8a\'dc\'82\'dc\'82\'ea\'82\'c4\'82\'a2\'82\'e9\'8f\'ea\'8d\'87\'81\'41OSC\'82\'cd\'95\'57\'8f\'80\'93\'fc\'97\'cd\'82\'a9\'82\'e7\'93\'fc	\'97\'cd\'82\'b3\'82\'ea\'82\'e9\'81\'42\
+	\'83\'49\'81\'5b\'83\'66\'83\'42\'83\'49\'93\'fc\'97\'cd\'82\'cd
+\f4\i input-filename
+\f1\i0 \'82\'a9\'82\'e7\'92\'f1\'8b\'9f\'82\'b3\'82\'ea\'82\'e9\'81\'42\
+	
+\f4\i input-filename
+\f1\i0 \'82\'c9"_"\'82\'aa\'8a\'dc\'82\'dc\'82\'ea\'82\'c4\'82\'a2\'82\'e9\'8f\'ea\'8d\'87\'81\'41\'83\'74\'83\'40\'83\'43\'83\'8b\'82\'a9\'82\'e7\'82\'cd\'93\'c7\'82\'dd\'8d\'9e\'82\'dc\'82\'ea\'82\'c8\'82\'a2\'81\'42\
+	\'8c\'8b\'89\'ca\'82\'cd
+\f4\i output-filename
+\f1\i0 \'82\'c9\'8f\'6f\'97\'cd\'82\'b3\'82\'ea\'82\'e9\'81\'42\
+	\'8f\'6f\'97\'cd\'83\'74\'83\'40\'83\'43\'83\'8b\'82\'cc\'83\'54\'83\'93\'83\'76\'83\'8a\'83\'93\'83\'4f\'83\'8c\'81\'5b\'83\'67\'82\'cd
+\f4\i sample-rate
+\f1\i0 \'82\'c5\'8e\'77\'92\'e8\'82\'b7\'82\'e9\'81\'42\
+	\'8f\'6f\'97\'cd\'83\'74\'83\'40\'83\'43\'83\'8b\'82\'cc\'83\'74\'83\'48\'81\'5b\'83\'7d\'83\'62\'83\'67\'82\'f0\'8e\'77\'92\'e8\'82\'b7\'82\'e9
+\f4\i header-format
+\f1\i0 \'82\'cdAIFF\'81\'41WAVE\'81\'41NeXT	\'82\'cc\'82\'a2\'82\'b8\'82\'ea\'82\'a9\'82\'f0\'8e\'77\'92\'e8\'82\'b7\'82\'e9\'81\'42\
+	\'8f\'6f\'97\'cd\'83\'74\'83\'40\'83\'43\'83\'8b\'82\'cc
+\f4\i sample-format
+\f1\i0 \'82\'cd\'81\'41int16\'81\'41int24\'81\'41int32\'81\'41float\'81\'41double\'82\'cc\'82\'a2	\'82\'b8\'82\'ea\'82\'a9\'82\'f0\'8e\'77\'92\'e8\'82\'b7\'82\'e9\'81\'42\
+	\'8f\'6f\'97\'cd\'83\'74\'83\'40\'83\'43\'83\'8b\'82\'cc\'83\'60\'83\'83\'83\'93\'83\'6c\'83\'8b\'90\'94\'82\'cd -o \'88\'f8\'90\'94\'82\'c5\'8e\'77\'92\'e8\'82\'b7\'82\'e9\'81\'42
+\f0 \
+\
+\
+example:\
+
+\f1 \'97\'e1\'81\'46
+\f0 \
+\
+scscynth -u 57117 >synth_log &\
+	\
+	Accept commands via UDP on port 57117. \
+	Send output to file "synth_log"\
+	Run asynchronously: &.\
+\
+scscynth -u 57117 >synth_log &\
+\
+	UDP
+\f1 \'92\'ca\'90\'4d\'82\'f057117\'94\'d4\'83\'7c\'81\'5b\'83\'67\'82\'c5\'8e\'f3\'82\'af\'95\'74\'82\'af\'82\'e9\'81\'42\
+	\'8f\'6f\'97\'cd\'82\'f0"synth_log"\'82\'c9\'8d\'73\'82\'a4\'81\'42\
+	\'94\'f1\'93\'af\'8a\'fa(\'83\'6f\'83\'62\'83\'4e\'83\'4f\'83\'89\'83\'45\'83\'93\'83\'68)\'82\'c5\'8e\'c0\'8d\'73\'82\'b7\'82\'e9\'81\'46\'81\'95
+\f0 \
+\
+scsynth -N score.osc _ out.aiff 48000 AIFF int24 \
+	\
+	Run in non real time mode with command file score.osc, no input file, and output file named out.aiff. Sample rate is 48000. Output file header format is aiff, sample format is 24 bit integer.\
+\
+scsynth -N score.osc _ out.aiff 48000 AIFF int24\
+\
+	
+\f1 \'83\'6d\'83\'93\'83\'8a\'83\'41\'83\'8b\'83\'5e\'83\'43\'83\'80\'83\'82\'81\'5b\'83\'68\'82\'c5score.osc\'83\'74\'83\'40\'83\'43\'83\'8b\'93\'e0\'82\'cc\'83\'52\'83\'7d\'83\'93\'83\'68\'82\'f0\'8e\'c0\'8d\'73\'82\'b7\'82\'e9\'81\'42\'8f\'6f\'97\'cd\'82\'cdout.aiff\'82\'c9\'8d\'73\'82\'a4\'81\'42\'83\'54\'83\'93\'83\'76\'83\'8a\'83\'93\'83\'4f\'83\'8c\'81\'5b\'83\'67\'82\'cd48000\'82\'f0\'8e\'67\'97\'70\'82\'b7\'82\'e9\'81\'42\'83\'74\'83\'40\'83\'43\'83\'8b\'8c\'60\'8e\'ae\'82\'cdAIFF\'82\'c5\'81\'41\'83\'54\'83\'93\'83\'76\'83\'8b\'82\'cc\'8c\'60\'8e\'ae\'82\'cd24bit\'90\'ae\'90\'94\'82\'c5\'82\'a0\'82\'e9\'81\'42
+\f0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\fs36 \cf0 \
+Binary Format of Messages\
+
+\f1 \'83\'6f\'83\'43\'83\'69\'83\'8a\'8c\'60\'8e\'ae\'82\'cc\'83\'81\'83\'62\'83\'5a\'81\'5b\'83\'57
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\fs24 \cf0 Messages are similar in format to Open Sound Control messages, except that OSC #bundles may not be nested, and pattern matching of the command name is not performed. When streamed via TCP, Messages are each preceeded by a 32 bit integer giving the length in bytes of the message. UDP datagrams contain this length information already.\
+\
+
+\f1 \'83\'81\'83\'62\'83\'5a\'81\'5b\'83\'57\'82\'cdOpen Sound Control\'82\'cc\'83\'81\'83\'62\'83\'5a\'81\'5b\'83\'57\'82\'c6\'93\'af\'97\'6c\'82\'cc\'82\'e0\'82\'cc\'82\'be\'82\'aa\'81\'41OSC\'82\'cc#\'83\'6f\'83\'93\'83\'68\'83\'8b\'82\'f0\'93\'fc\'82\'ea\'8e\'71\'82\'c9\'82\'b7\'82\'e9\'82\'b1\'82\'c6\'82\'cd\'82\'c5\'82\'ab\'82\'c8\'82\'a2\'81\'42\'82\'dc\'82\'bd\'81\'41\'83\'52\'83\'7d\'83\'93\'83\'68\'96\'bc\'82\'cc\'83\'70\'83\'5e\'81\'5b\'83\'93\'83\'7d\'83\'62\'83\'60\'82\'e0\'8d\'73\'82\'ed\'82\'ea\'82\'c8\'82\'a2\'81\'42TCP\'8c\'6f\'97\'52\'82\'c5\'83\'81\'83\'62\'83\'5a\'81\'5b\'83\'57\'82\'f0\'8e\'f3\'82\'af\'8e\'e6\'82\'c1\'82\'bd\'8f\'ea\'8d\'87\'81\'41\'82\'bb\'82\'ea\'82\'bc\'82\'ea\'82\'cc\'83\'81\'83\'62\'83\'5a\'81\'5b\'83\'57\'82\'cc\'92\'b7\'82\'b3\'82\'f032bit\'90\'ae\'90\'94\'82\'c5\'8b\'4c\'8f\'71\'82\'b5\'82\'bd\'92\'6c\'82\'aa\'8d\'c5\'8f\'89\'82\'c9\'82\'ad\'82\'e9\'81\'42UDP\'83\'66\'81\'5b\'83\'5e\'83\'4f\'83\'89\'83\'80\'82\'c9\'82\'cd\'82\'b1\'82\'cc\'8f\'ee\'95\'f1\'82\'aa\'8a\'f9\'82\'c9\'8a\'dc\'82\'dc\'82\'ea\'82\'c4\'82\'a2\'82\'e9\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 Types:\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f0\b0 \cf0 All values are in network byte order.\
+	
+\f2\b long
+\f0\b0  - a 64 bit integer. Used for time stamps only.\
+	
+\f2\b int
+\f0\b0  - a 32 bit integer.\
+	
+\f2\b float
+\f0\b0  - a 32 bit floating point number.\
+	
+\f2\b string
+\f0\b0  - a string of 8 bit ASCII characters, zero padded to a multiple of 4 bytes.\
+	
+\f2\b bytes
+\f0\b0  - a buffer of data preceeded by a 32 bit length field and padded to a multiple of 4 bytes. \
+\
+
+\f1 \'83\'5e\'83\'43\'83\'76(\'8c\'60\'8e\'ae)\'81\'46\
+\'82\'b7\'82\'d7\'82\'c4\'82\'cc\'92\'6c\'82\'cd\'83\'6c\'83\'62\'83\'67\'83\'8f\'81\'5b\'83\'4e\'83\'6f\'83\'43\'83\'67\'8f\'87(MostSignificantBit first, big endian)\
+	long - 64bit\'90\'ae\'90\'94\'8c\'60\'8e\'ae\'81\'42\'83\'5e\'83\'43\'83\'80\'83\'58\'83\'5e\'83\'93\'83\'76\'82\'c9\'82\'cc\'82\'dd\'8e\'67\'97\'70\'82\'b3\'82\'ea\'82\'e9\
+	int - 32bit\'90\'ae\'90\'94\'8c\'60\'8e\'ae\'81\'42\
+	float - 32bit\'95\'82\'93\'ae\'8f\'ac\'90\'94\'93\'5f\'8c\'60\'8e\'ae\'81\'42\
+	string - 8bit ASCII\'95\'b6\'8e\'9a\'82\'c5\'95\'5c\'8c\'bb\'82\'b3\'82\'ea\'82\'e9\'95\'b6\'8e\'9a\'97\'f1\'81\'424byte\'92\'50\'88\'ca\'82\'c5\'88\'b5\'82\'a4(Unicode)\'81\'42\
+	bytes - 32bit\'82\'cc\'83\'6f\'83\'62\'83\'74\'83\'40\'92\'b7\'8f\'ee\'95\'f1\'82\'c9\'91\'b1\'82\'ad\'83\'6f\'83\'62\'83\'74\'83\'40\'83\'66\'81\'5b\'83\'5e\'81\'424byte\'92\'50\'88\'ca\'82\'c5\'88\'b5\'82\'a4\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 Tags:\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f0\b0 \cf0 Command arguments have single character tags which occur in a tag string to identify their types.\
+	'i' - an int.\
+	'f' - a float\
+	's' - a string\
+	'b' - bytes\
+\
+
+\f1 \'83\'5e\'83\'4f\'81\'46\
+\'83\'52\'83\'7d\'83\'93\'83\'68\'82\'c9\'82\'cd\'81\'41\'83\'5e\'83\'43\'83\'76(\'8c\'60\'8e\'ae)\'82\'f0\'8e\'77\'92\'e8\'82\'b7\'82\'e9\'82\'bd\'82\'df\'88\'c8\'89\'ba\'82\'cc\'83\'41\'83\'8b\'83\'74\'83\'40\'83\'78\'83\'62\'83\'67\'82\'50\'95\'b6\'8e\'9a\'82\'aa\'97\'70\'82\'a2\'82\'e7\'82\'ea\'82\'e9\'81\'42\
+
+\f0 	'i' - int.\
+	'f' - float\
+	's' - string\
+	'b' - bytes\
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 a Command consists of:\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f0\b0 \cf0 	string - the command name. See the Command Reference below.\
+	string - a string with tags defined by the types of the arguments to follow. \
+			The tag string begins with a comma ',' character.\
+	...any combination of arguments of types: int, float, string or bytes.\
+\
+
+\f1 \'83\'52\'83\'7d\'83\'93\'83\'68\'82\'cc\'8d\'5c\'90\'ac\'97\'76\'91\'66\'81\'46\
+	string - \'83\'52\'83\'7d\'83\'93\'83\'68\'96\'bc\'81\'42Command Reference\'82\'f0\'8e\'51\'8f\'c6\'81\'42\
+	string - \'8c\'60\'8e\'ae\'82\'f0\'8e\'77\'92\'e8\'82\'b7\'82\'e9\'83\'5e\'83\'4f\'81\'42\'83\'5e\'83\'4f\'82\'cd\'83\'52\'83\'93\'83\'7d(,)\'82\'c5\'8e\'6e\'82\'dc\'82\'e9\'81\'42\
+	......\'88\'c8\'8d\'7e\'81\'41\'83\'5e\'83\'4f\'82\'c5\'8e\'77\'92\'e8\'82\'b5\'82\'bd\'8c\'60\'8e\'ae\'82\'cc\'88\'f8\'90\'94\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 a Bundle consists of:\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f0\b0 \cf0 	time stamp - long. Time stamps are in the same format as defined by Open Sound Control :  The top 32 bits are seconds since 1970 and the lower 32 bits represent the 32 bit fraction of one second.\
+	...a series of Commands each preceded by a 32-bit integer byte length.\
+\
+
+\f1 \'83\'6f\'83\'93\'83\'68\'83\'8b\'82\'cc\'8d\'5c\'90\'ac\'97\'76\'91\'66\'81\'46\
+	\'83\'5e\'83\'43\'83\'80\'83\'58\'83\'5e\'83\'93\'83\'76 - long  \'83\'5e\'83\'43\'83\'80\'83\'58\'83\'5e\'83\'93\'83\'76\'82\'cdOpen Sound Control\'82\'c5\'92\'e8\'8b\'60\'82\'b3\'82\'ea\'82\'c4\'82\'a2\'82\'e9\'82\'e0\'82\'cc\'82\'f0\'93\'af\'97\'6c\'82\'cc\'82\'e0\'82\'cc\'82\'f0\'97\'98\'97\'70\'82\'b7\'82\'e9\'81\'42\'8d\'c5\'8f\'89\'82\'cc32bit\'82\'cd1970\'94\'4e\'88\'c8\'8d\'7e\'82\'cc\'95\'62\'90\'94\'82\'f0\'95\'5c\'82\'b5\'81\'41\'89\'ba\'88\'ca32bit\'82\'cd\'88\'ea\'95\'62\'82\'f032bit\'82\'c5\'95\'5c\'82\'b5\'82\'bd\'92\'6c\'81\'42\
+	......\'88\'c8\'8d\'7e\'81\'4132bit\'90\'ae\'90\'94\'82\'c5\'95\'5c\'82\'b3\'82\'ea\'82\'bd\'83\'66\'81\'5b\'83\'5e\'92\'b7\'82\'c9\'91\'b1\'82\'a2\'82\'c4\'83\'52\'83\'7d\'83\'93\'83\'68\'82\'aa\'91\'b1\'82\'ad\'81\'42
+\f0 \
+	\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 a Message consists of:\
+	using UDP : \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f0\b0 \cf0 		one Bundle or one Command.\
+		\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 	using TCP : \
+		
+\f0\b0 int - the length in bytes of the following message.
+\f2\b \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f0\b0 \cf0 		one Bundle or one Command.\
+	\
+
+\f1 \'83\'81\'83\'62\'83\'5a\'81\'5b\'83\'57\'82\'cc\'8d\'5c\'90\'ac\'97\'76\'91\'66\'81\'46\
+	UDP\'8e\'67\'97\'70\'8e\'9e\'81\'46\
+		\'82\'50\'83\'52\'83\'7d\'83\'93\'83\'68\'82\'a0\'82\'bd\'82\'e8\'82\'50\'83\'6f\'83\'93\'83\'68\'83\'8b\
+\
+	TCP\'8e\'67\'97\'70\'8e\'9e\'81\'46\
+		int - \'83\'81\'83\'62\'83\'5a\'81\'5b\'83\'57\'82\'cc\'92\'b7\'82\'b3\'82\'f0byte\'82\'c5\'8b\'4c\'8f\'71\
+		\'82\'50\'83\'52\'83\'7d\'83\'93\'83\'68\'82\'a0\'82\'bd\'82\'e8\'82\'50\'83\'6f\'83\'93\'83\'68\'83\'8b
+\f0 \
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\fs36 \cf0 Glossary\
+
+\f1 \'97\'70\'8c\'ea\'8f\'57
+\f0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\fs24 \cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 buffer
+\f0\b0  - a header and array of floating point sample data. Buffers are used for sound files, delay lines, arrays of global controls, and arrays of inter-synth patch points.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f1 \cf0 \'83\'6f\'83\'62\'83\'74\'83\'40 - \'83\'77\'83\'62\'83\'5f\'81\'5b\'82\'c6\'95\'82\'93\'ae\'8f\'ac\'90\'94\'93\'5f\'83\'54\'83\'93\'83\'76\'83\'8b\'83\'66\'81\'5b\'83\'5e\'82\'cc\'94\'7a\'97\'f1\'82\'a9\'82\'e7\'8d\'5c\'90\'ac\'82\'b3\'82\'ea\'82\'e9\'81\'42\'83\'6f\'83\'62\'83\'74\'83\'40\'82\'cd\'83\'54\'83\'45\'83\'93\'83\'68\'83\'74\'83\'40\'83\'43\'83\'8b\'81\'41\'83\'66\'83\'42\'83\'8c\'83\'43\'83\'89\'83\'43\'83\'93\'81\'41\'83\'4f\'83\'8d\'81\'5b\'83\'6f\'83\'8b\'97\'cc\'88\'e6\'82\'cc\'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'97\'f1\'81\'41\'82\'bb\'82\'b5\'82\'c4\'83\'56\'83\'93\'83\'5a\'8a\'d4\'82\'cc\'90\'da\'91\'b1\'94\'7a\'97\'f1\'82\'c5\'97\'98\'97\'70\'82\'b3\'82\'ea\'82\'e9\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 group
+\f0\b0  - a linked list of nodes. groups provide ways to control execution of many nodes at once. a group is a kind of node.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f1 \cf0 \'83\'4f\'83\'8b\'81\'5b\'83\'76 - \'98\'41\'8c\'8b\'82\'b3\'82\'ea\'82\'bd\'83\'6d\'81\'5b\'83\'68\'82\'cc\'88\'ea\'97\'97\'81\'42\'83\'4f\'83\'8b\'81\'5b\'83\'76\'82\'cd\'88\'ea\'93\'78\'82\'c9\'91\'bd\'82\'ad\'82\'cc\'83\'6d\'81\'5b\'83\'68\'82\'f0\'91\'80\'8d\'ec\'82\'b7\'82\'e9\'8e\'e8\'92\'69\'82\'f0\'92\'f1\'8b\'9f\'82\'b7\'82\'e9\'81\'42\'83\'4f\'83\'8b\'81\'5b\'83\'76\'82\'e0\'83\'6d\'81\'5b\'83\'68\'82\'cc\'88\'ea\'8e\'ed\'82\'c5\'82\'a0\'82\'e9\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 MIDI
+\f0\b0  - a protocol for sending music control data between synthesizers.\
+\
+MIDI - 
+\f1 \'83\'56\'83\'93\'83\'5a\'83\'54\'83\'43\'83\'55\'8a\'d4\'82\'c5\'83\'52\'83\'93\'83\'67\'83\'8d\'81\'5b\'83\'8b\'83\'66\'81\'5b\'83\'5e\'82\'f0\'82\'e2\'82\'e8\'8e\'e6\'82\'e8\'82\'b7\'82\'e9\'82\'cc\'82\'c9\'97\'70\'82\'a2\'82\'e7\'82\'ea\'82\'c4\'82\'a2\'82\'e9\'83\'76\'83\'8d\'83\'67\'83\'52\'83\'8b\'81\'42
+\f0 \
+\
+
+\f2\b node
+\f0\b0  - an object in a tree of objects executed in a depth first traversal order by the synth engine. There are two types of nodes, synths and groups.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f1 \cf0 \'83\'6d\'81\'5b\'83\'68 - \'83\'56\'83\'93\'83\'5a\'83\'47\'83\'93\'83\'57\'83\'93\'93\'e0\'82\'c5\'8b\'4f\'93\'b9\'8f\'87\'82\'f0\'90\'a7\'8c\'e4\'82\'b7\'82\'e9\'82\'cc\'82\'c9\'97\'70\'82\'a2\'82\'e7\'82\'ea\'82\'e9\'81\'41\'83\'63\'83\'8a\'81\'5b\'8d\'5c\'91\'a2\'82\'c5\'8d\'5c\'90\'ac\'82\'b3\'82\'ea\'82\'e9\'83\'49\'83\'75\'83\'57\'83\'46\'83\'4e\'83\'67\'82\'cc\'92\'50\'88\'ca\'81\'42\'83\'6d\'81\'5b\'83\'68\'82\'c9\'82\'cd\'83\'56\'83\'93\'83\'5a\'82\'c6\'83\'4f\'83\'8b\'81\'5b\'83\'76\'82\'cc\'82\'51\'82\'c2\'82\'cc\'8e\'ed\'97\'de\'82\'aa\'91\'b6\'8d\'dd\'82\'b7\'82\'e9\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 Open Sound Control
+\f0\b0  - a protocol defined by CNMAT at UCBerkeley for controlling synthesizers. See http://cnmat.cnmat.berkeley.edu/OSC/ .\
+\
+Open Sound Control - UC
+\f1 \'91\'e5\'8a\'77
+\f0 Berkeley
+\f1 \'8d\'5a\'82\'ccCNMAT\'8c\'a4\'8b\'86\'8f\'8a\'82\'c5\'8a\'4a\'94\'ad\'82\'b3\'82\'ea\'82\'bd\'81\'41\'83\'56\'83\'93\'83\'5a\'83\'54\'83\'43\'83\'55\'82\'f0\'91\'80\'8d\'ec\'82\'b7\'82\'e9\'82\'bd\'82\'df\'82\'cc\'83\'76\'83\'8d\'83\'67\'83\'52\'83\'8b\'81\'42http://cnmat.cnmat.berkeley.edu/OSC/ \'82\'f0\'8e\'51\'8f\'c6\'81\'42
+\f0 \
+\
+
+\f2\b OSC
+\f0\b0  - see Open Sound Control.\
+\
+OSC - Open Sound Control
+\f1 \'82\'cc\'8f\'c8\'97\'aa\'8c\'60\'81\'42
+\f0 \
+\
+
+\f2\b synth
+\f0\b0  - a sound processing module. Similar to "voice " in other systems. Synths are referred to by a number.\
+\
+
+\f2\b synth definition
+\f0\b0  - a definition for creating new synths. similar to "instrument" in other systems.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f1 \cf0 SynthDef(\'83\'56\'83\'93\'83\'5a\'92\'e8\'8b\'60) - \'90\'56\'82\'b5\'82\'ad\'83\'56\'83\'93\'83\'5a\'82\'f0\'8d\'ec\'90\'ac\'82\'b7\'82\'e9\'82\'bd\'82\'df\'82\'cc\'92\'e8\'8b\'60\'81\'42\'91\'bc\'82\'cc\'83\'56\'83\'58\'83\'65\'83\'80\'82\'c5\'82\'cd\'8a\'79\'8a\'ed(\'83\'43\'83\'93\'83\'58\'83\'67\'83\'8b\'83\'81\'83\'93\'83\'67)\'82\'c9\'91\'8a\'93\'96\'82\'b7\'82\'e9\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ri-620\ql\qnatural
+
+\f2\b \cf0 TCP
+\f0\b0  - a protocol for streaming data over a network.\
+\
+TCP - 
+\f1 \'83\'6c\'83\'62\'83\'67\'83\'8f\'81\'5b\'83\'4e\'8f\'e3\'82\'c5\'83\'58\'83\'67\'83\'8a\'81\'5b\'83\'80\'83\'66\'81\'5b\'83\'5e\'82\'f0\'82\'e2\'82\'e8\'8e\'e6\'82\'e8\'82\'b7\'82\'e9\'82\'bd\'82\'df\'82\'cc\'83\'76\'83\'8d\'83\'67\'83\'52\'83\'8b\'81\'42
+\f0 \
+\
+
+\f2\b UDP
+\f0\b0  - a protocol for sending datagrams over a network.\
+\
+UDP - 
+\f1 \'83\'6c\'83\'62\'83\'67\'83\'8f\'81\'5b\'83\'4e\'8f\'e3\'82\'c5\'83\'66\'81\'5b\'83\'5e\'83\'4f\'83\'89\'83\'80\'8c\'60\'8e\'ae\'82\'cc\'83\'66\'81\'5b\'83\'5e\'82\'f0\'82\'e2\'82\'e8\'8e\'e6\'82\'e8\'82\'b7\'82\'e9\'82\'bd\'82\'df\'82\'cc\'83\'76\'83\'8d\'83\'67\'83\'52\'83\'8b\'81\'42
+\f0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\fs20 \cf0 copyright \'a9 2002 James McCartney\
+Japanese Translation by Kenji Yasaka, 2004\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\fs24 \cf0 \
+}

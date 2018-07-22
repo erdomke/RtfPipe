@@ -53,6 +53,23 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Files\Test01.rtf" />
+    <EmbeddedResource Include="Files\minimal.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_0.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_1.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_2.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_3.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_4.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_5.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_6.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_7.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_8.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_fail_0.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_fail_1.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_fail_2.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_fail_3.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_fail_4.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_fail_5.rtf" />
+    <EmbeddedResource Include="Files\RtfParserTest_fail_6.rtf" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -60,6 +77,18 @@
       <Project>{0ef06a2b-892d-417b-8961-dfa661510ae8}</Project>
       <Name>RtfPipe</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Files\Test01.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Files\minimal.html" />
+    <EmbeddedResource Include="Files\RtfParserTest_0.html" />
+    <EmbeddedResource Include="Files\RtfParserTest_1.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Files\RtfParserTest_2.html" />
+    <EmbeddedResource Include="Files\RtfParserTest_3.html" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

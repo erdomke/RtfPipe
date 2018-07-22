@@ -5,9 +5,10 @@ using System.Text;
 
 namespace RtfPipe
 {
-  public abstract class ControlWord<T> : IEquatable<ControlWord<T>>, IToken
+  public abstract class ControlWord<T> : IEquatable<ControlWord<T>>, IWord
   {
     public abstract string Name { get; }
+    public virtual TokenType Type => TokenType.Word;
     public T Value { get; }
 
     protected ControlWord(T value)

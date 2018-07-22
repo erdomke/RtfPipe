@@ -4,8 +4,8 @@ using System.Text;
 
 namespace RtfPipe
 {
-  public interface IToken
+  public interface IWord : IToken
   {
-    TokenType Type { get; }
+    string Name { get; }
   }
 }

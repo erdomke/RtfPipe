@@ -8,28 +8,93 @@ using System.Text;
 
 namespace RtfPipe
 {
-  public class Tokenizer
+  public class Parser
   {
     private readonly TextReader _reader;
     private readonly StringBuilder _controlBuffer = new StringBuilder();
     private readonly StringBuffer _textBuffer = new StringBuffer();
     private readonly Stack<EncodingContext> _context = new Stack<EncodingContext>();
-    //private readonly Stack<IToken> _destinations = new Stack<IToken>();
     private int _ignoreDepth = int.MaxValue;
-    private readonly List<IToken> _tokenBuffer = new List<IToken>();
-
-    private Document _document = new Document();
+    private readonly Document _document = new Document();
 
     private int Depth { get { return _context.Count; } }
 
-    public Tokenizer(Stream stream)
-    {
-      _reader = new RtfStreamReader(stream);
-    }
-
-    public Tokenizer(TextReader reader)
+    public Parser(TextReader reader)
     {
       _reader = reader;
+    }
+
+    public Document Parse()
+    {
+      var groups = new Stack<Group>();
+      var infoGroup = default(Group);
+
+      foreach (var token in Tokens())
+      {
+        if (token is Group group)
+        {
+          if (groups.Count < 1)
+          {
+            groups.Push(_document);
+          }
+          else
+          {
+            groups.Peek().Contents.Add(group);
+            groups.Push(group);
+          }
+        }
+        else if (token is GroupEnd)
+        {
+          groups.Pop();
+        }
+        else
+        {
+          groups.Peek().Contents.Add(token);
+          if (token is Info)
+            infoGroup = groups.Peek();
+        }
+      }
+
+      if (infoGroup != null)
+        ParseInfo(_document, infoGroup);
+
+      return _document;
+    }
+
+    private void ParseInfo(Document document, Group info)
+    {
+      foreach (var item in info.Contents.Skip(1))
+      {
+        if (item is Group group)
+        {
+          if (group.Contents.Count == 2
+            && group.Contents[1] is TextToken txt)
+          {
+            document.Information[group.Contents[0]] = txt.Value;
+          }
+          else if (group.Contents.Count > 1
+            && group.Contents[1] is Year yr)
+          {
+            var date = new DateTime(
+              yr.Value,
+              group.Contents.OfType<Month>().FirstOrDefault()?.Value ?? 1,
+              group.Contents.OfType<Day>().FirstOrDefault()?.Value ?? 1,
+              group.Contents.OfType<Hour>().FirstOrDefault()?.Value ?? 0,
+              group.Contents.OfType<Minute>().FirstOrDefault()?.Value ?? 0,
+              group.Contents.OfType<Second>().FirstOrDefault()?.Value ?? 0);
+            document.Information[group.Contents[0]] = date;
+          }
+          else if (group.Contents.Count == 1
+            && group.Contents[0] is ControlWord<int> intWord)
+          {
+            document.Information[group.Contents[0]] = intWord.Value;
+          }
+        }
+        else if (item is ControlWord<int> intWord2)
+        {
+          document.Information[item] = intWord2.Value;
+        }
+      }
     }
 
     public IEnumerable<IToken> Tokens()
@@ -75,7 +140,7 @@ namespace RtfPipe
 
                 case '\'':
                   _reader.Read();
-                  var hex = int.Parse(((char)_reader.Read()).ToString() + (char)_reader.Read(), NumberStyles.HexNumber);
+                  var hex = byte.Parse(((char)_reader.Read()).ToString() + (char)_reader.Read(), NumberStyles.HexNumber);
                   _textBuffer.Append(hex);
                   break;
 
@@ -88,7 +153,7 @@ namespace RtfPipe
                   var singleToken = GetControlWord(((char)_reader.Read()).ToString());
                   if (singleToken != null)
                   {
-                    if (_textBuffer.Position > 0)
+                    if (_textBuffer.Length > 0)
                       yield return ConsumeTextBuffer();
                     yield return ConsumeToken(singleToken);
                   }
@@ -99,7 +164,7 @@ namespace RtfPipe
                   var token = ReadControlWord();
                   if (token != null)
                   {
-                    if (_textBuffer.Position > 0)
+                    if (_textBuffer.Length > 0)
                       yield return ConsumeTextBuffer();
                     yield return ConsumeToken(token);
                   }
@@ -114,29 +179,27 @@ namespace RtfPipe
 
               if (Depth < _ignoreDepth)
               {
-                if (_textBuffer.Position > 0)
+                if (_textBuffer.Length > 0)
                   yield return ConsumeTextBuffer();
-                yield return new GroupToken() { Start = true };
+                yield return new Group();
               }
               break;
             case '}':
-              if (_textBuffer.Position > 0)
+              if (_textBuffer.Length > 0)
                 yield return ConsumeTextBuffer();
-              yield return new GroupToken() { Start = false };
+              yield return new GroupEnd();
 
               if (_context.Count > 0)
                 _context.Pop();
               if (_context.Count > 0)
                 UpdateEncoding(_context.Peek().Encoding);
-
-              _tokenBuffer.Clear();
               break;
             case '\n':
             case '\r':
               // must still consume the 'peek'ed char
               break;
             case '\t':
-              if (_textBuffer.Position > 0)
+              if (_textBuffer.Length > 0)
                 yield return ConsumeTextBuffer();
               yield return ConsumeToken(GetControlWord("tab"));
               break;
@@ -147,7 +210,7 @@ namespace RtfPipe
         }
       }
 
-      if (_textBuffer.Position > 0)
+      if (_textBuffer.Length > 0)
         yield return ConsumeTextBuffer();
     }
 
@@ -194,6 +257,10 @@ namespace RtfPipe
     {
       if (token is ControlWord<Encoding> ctrlEncode && !(ctrlEncode is FontCharSet))
         UpdateEncoding(ctrlEncode.Value);
+      else if (token is Font font && font.Encoding != null)
+        UpdateEncoding(font.Encoding);
+      else if (token is FromHtml || token.Type == TokenType.HtmlFormat)
+        _document.HasHtml = true;
 
       var destination = _context.FirstOrDefault(c => c.Destination != null)?.Destination;
 
@@ -202,35 +269,35 @@ namespace RtfPipe
         if (token is FontRef fontRef)
         {
           _document.FontTable[fontRef.Value] = new Font(fontRef.Value);
-          _tokenBuffer.Add(_document.FontTable[fontRef.Value]);
+          _context.Peek().Buffer.Add(_document.FontTable[fontRef.Value]);
           if (_context.Peek().Destination == null)
             _context.Peek().Destination = new FontTableTag();
         }
-        else
+        else if (_context.Peek().Buffer.Count > 0)
         {
-          ((Font)_tokenBuffer.Last()).Add(token);
+          ((Font)_context.Peek().Buffer.Last()).Add(token);
         }
       }
       else if (destination is ColorTable)
       {
         if (token is TextToken)
         {
-          if (_tokenBuffer.Count != 3)
+          if (_context.Peek().Buffer.Count != 3)
           {
             _document.ColorTable.Add(new ColorValue(0, 0, 0));
           }
           else
           {
             _document.ColorTable.Add(new ColorValue(
-              _tokenBuffer.OfType<Red>().Single().Value
-              , _tokenBuffer.OfType<Green>().Single().Value
-              , _tokenBuffer.OfType<Blue>().Single().Value));
+              _context.Peek().Buffer.OfType<Red>().Single().Value
+              , _context.Peek().Buffer.OfType<Green>().Single().Value
+              , _context.Peek().Buffer.OfType<Blue>().Single().Value));
           }
-          _tokenBuffer.Clear();
+          _context.Peek().Buffer.Clear();
         }
         else
         {
-          _tokenBuffer.Add(token);
+          _context.Peek().Buffer.Add(token);
         }
       }
       else if (IsWord(token) && _context.Count > 0 && _context.Peek().Destination == null)
@@ -243,7 +310,7 @@ namespace RtfPipe
 
     private bool IsWord(IToken token)
     {
-      return !(token == null || token is TextToken || token is GroupToken);
+      return ((token?.Type ?? TokenType.None) & TokenType.Word) == TokenType.Word;
     }
 
     private IToken GetControlWord(string name, int number = int.MinValue)
@@ -298,9 +365,78 @@ namespace RtfPipe
         // General
         case "*":
           return new IgnoreUnrecognized();
+        case "fromhtml":
+          return new FromHtml(number != 0);
+        case "htmltag":
+          return new HtmlTag((HtmlEncapsulation)number);
+        case "htmlrtf":
+          return new HtmlRtf(number != 0);
+
+        // Info
+        case "info":
+          return new Info();
+        case "title":
+          return new Title();
+        case "subject":
+          return new Subject();
+        case "author":
+          return new Author();
+        case "manager":
+          return new Manager();
+        case "company":
+          return new Company();
+        case "operator":
+          return new Operator();
+        case "category":
+          return new Category();
+        case "keywords":
+          return new Keywords();
+        case "comment":
+          return new Comment();
+        case "doccomm":
+          return new DocComment();
+        case "hlinkbase":
+          return new HyperlinkBase();
+        case "creatim":
+          return new CreateTime();
+        case "revtim":
+          return new RevisionTime();
+        case "printim":
+          return new PrintTime();
+        case "buptim":
+          return new BackupTime();
+        case "yr":
+          return new Year(number);
+        case "mo":
+          return new Month(number);
+        case "dy":
+          return new Day(number);
+        case "hr":
+          return new Hour(number);
+        case "min":
+          return new Minute(number);
+        case "sec":
+          return new Second(number);
+        case "version":
+          return new Tokens.Version(number);
+        case "vern":
+          return new InternalVersion(number);
+        case "edmins":
+          return new EditingTime(TimeSpan.FromMinutes(number));
+        case "nofpages":
+          return new NumPages(number);
+        case "nofwords":
+          return new NumWords(number);
+        case "nofchars":
+          return new NumChars(number);
+        case "nofcharsws":
+          return new NumCharsWs(number);
+
 
         // Font Tags
         case "f":
+          if (_document.FontTable.TryGetValue(number, out var font))
+            return font;
           return new FontRef(number);
         case "fnil":
           return new FontCategory(FontFamilyCategory.Nil);
@@ -345,6 +481,14 @@ namespace RtfPipe
         case "fonttbl":
           return new FontTableTag();
 
+        // Style Sheet
+        case "stylesheet":
+          return new StyleSheetTag();
+        case "s":
+          return new StyleRef(number);
+        case "generator":
+          return new GeneratorTag();
+
         // Color
         case "colortbl":
           return new ColorTable();
@@ -355,6 +499,28 @@ namespace RtfPipe
         case "blue":
           return new Blue((byte)number);
 
+        // Paragraph tags
+        case "par":
+          return new ParagraphBreak();
+        case "pard":
+          return new ParagraphDefault();
+        case "line":
+          return new LineBreak();
+        case "qc":
+          return new TextAlign(TextAlignment.Center);
+        case "qj":
+          return new TextAlign(TextAlignment.Justify);
+        case "ql":
+          return new TextAlign(TextAlignment.Left);
+        case "qr":
+          return new TextAlign(TextAlignment.Right);
+
+        // Section tags
+        case "sect":
+          return new SectionBreak();
+        case "sectd":
+          return new SectionDefault();
+
         // Character Tags
         case "b":
           return new BoldToken(number != 0);
@@ -363,9 +529,9 @@ namespace RtfPipe
         case "cb":
         case "chcbpat":
         case "highlight":
-          return new BackgroundColorRef(number);
+          return new BackgroundColor(_document.ColorTable[number]);
         case "cf":
-          return new ForegroundColorRef(number);
+          return new ForegroundColor(_document.ColorTable[number]);
         case "dn":
           if (number > 0)
             return new OffsetToken(UnitValue.FromHalfPoint(-1 * number));
@@ -374,10 +540,14 @@ namespace RtfPipe
           return new ItalicToken(number != 0);
         case "nosupersub":
           return new NoSuperSubToken();
+        case "plain":
+          return new PlainToken();
         case "up":
           if (number > 0)
             return new OffsetToken(UnitValue.FromHalfPoint(number));
           return new OffsetToken(UnitValue.FromHalfPoint(6));
+        case "strike":
+          return new StrikeToken(number != 0);
         case "sub":
           return new SubStartToken();
         case "super":
@@ -413,6 +583,7 @@ namespace RtfPipe
         _context.Peek().Encoding = encoding;
       if (_reader is RtfStreamReader stream)
         stream.Encoding = encoding;
+      _textBuffer.Encoding = encoding;
     }
 
     private class EncodingContext
@@ -420,6 +591,7 @@ namespace RtfPipe
       public Encoding Encoding { get; set; } = TextEncoding.RtfDefault;
       public int AsciiFallbackChars { get; set; } = 1;
       public IToken Destination { get; set; }
+      public List<IToken> Buffer { get; } = new List<IToken>();
 
       public EncodingContext Clone()
       {

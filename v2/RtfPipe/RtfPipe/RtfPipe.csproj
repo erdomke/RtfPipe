@@ -6,6 +6,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <LangVersion>7.1</LangVersion>
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_2;PORTABLE</DefineConstants>
   </PropertyGroup>
 
 </Project>

@@ -9,16 +9,17 @@ namespace RtfPipe
     const int SizeIncrement = 256;
 
     private byte[] _buffer = new byte[SizeIncrement];
-    private readonly char[] _charArray = new[] { '\0' };
+    private int _position;
+    private readonly StringBuilder _chars = new StringBuilder();
 
-    public Encoding Encoding { get; set; } = Encoding.UTF8;
-    public int Position { get; private set; }
+    public Encoding Encoding { get; set; } = TextEncoding.RtfDefault;
+    public int Length { get { return _chars.Length + _position; } }
 
     public StringBuffer Append(byte value)
     {
-      if (Position >= _buffer.Length)
+      if (_position >= _buffer.Length)
         ResizeBuffer(_buffer.Length + SizeIncrement);
-      _buffer[Position++] = value;
+      _buffer[_position++] = value;
       return this;
     }
 
@@ -29,21 +30,25 @@ namespace RtfPipe
 
     public StringBuffer Append(char ch)
     {
-      _charArray[0] = ch;
-      var maxBytes = Encoding.GetMaxByteCount(1);
-      if (Position + maxBytes > _buffer.Length)
-        ResizeBuffer(_buffer.Length + Math.Max(SizeIncrement, maxBytes));
-      Position += Encoding.GetBytes(_charArray, 0, 1, _buffer, Position);
+      FlushBuffer();
+      _chars.Append(ch);
       return this;
     }
 
     public StringBuffer Append(string value)
     {
-      var maxBytes = Encoding.GetMaxByteCount(value.Length);
-      if (Position + maxBytes > _buffer.Length)
-        ResizeBuffer(_buffer.Length + Math.Max(SizeIncrement, maxBytes));
-      Position += Encoding.GetBytes(value, 0, 1, _buffer, Position);
+      FlushBuffer();
+      _chars.Append(value);
       return this;
+    }
+
+    private void FlushBuffer()
+    {
+      if (_position > 0)
+      {
+        _chars.Append(Encoding.GetString(_buffer, 0, _position));
+        _position = 0;
+      }
     }
 
     private void ResizeBuffer(int size)
@@ -55,14 +60,14 @@ namespace RtfPipe
 
     public void Clear()
     {
-      Position = 0;
+      _position = 0;
+      _chars.Length = 0;
     }
 
     public override string ToString()
     {
-      if (Position <= 0)
-        return string.Empty;
-      return Encoding.GetString(_buffer, 0, Position);
+      FlushBuffer();
+      return _chars.ToString();
     }
   }
 }

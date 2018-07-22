@@ -12,6 +12,7 @@ namespace RtfPipe.Tokens
   public class DefaultFontRef : ControlWord<int>
   {
     public override string Name => "deff";
+    public override TokenType Type => TokenType.HeaderTag;
 
     public DefaultFontRef(int value) : base(value) { }
   }
@@ -19,11 +20,13 @@ namespace RtfPipe.Tokens
   public class FontTableTag : ControlTag
   {
     public override string Name => "fonttbl";
+    public override TokenType Type => TokenType.HeaderTag;
   }
 
   public class FontCategory : ControlTag
   {
     public override string Name { get { return "f" + Value.ToString().ToLowerInvariant(); } }
+    public override TokenType Type => TokenType.HeaderTag;
     public FontFamilyCategory Value { get; }
 
     public FontCategory(FontFamilyCategory category)
@@ -35,6 +38,7 @@ namespace RtfPipe.Tokens
   public class FontCharSet : ControlWord<Encoding>
   {
     public override string Name => "fcharset";
+    public override TokenType Type => TokenType.HeaderTag;
 
     public FontCharSet(Encoding value) : base(value) { }
   }
@@ -49,6 +53,7 @@ namespace RtfPipe.Tokens
   public class DefaultCodePage : ControlWord<Encoding>
   {
     public override string Name => "ansicpg";
+    public override TokenType Type => TokenType.HeaderTag;
 
     public DefaultCodePage(Encoding value) : base(value) { }
   }
@@ -56,6 +61,7 @@ namespace RtfPipe.Tokens
   public class DefaultNamedCodePage : ControlWord<Encoding>
   {
     public override string Name { get { return CodePage.ToString().ToLowerInvariant(); } }
+    public override TokenType Type => TokenType.HeaderTag;
     public NamedCodePage CodePage { get; }
 
     public DefaultNamedCodePage(NamedCodePage value) : base(TextEncoding.EncodingFromCodePage((int)value))
@@ -67,6 +73,7 @@ namespace RtfPipe.Tokens
   public class FontPitchToken : ControlWord<FontPitch>
   {
     public override string Name => "fprq";
+    public override TokenType Type => TokenType.HeaderTag;
 
     public FontPitchToken(FontPitch value) : base(value) { }
   }
@@ -74,6 +81,7 @@ namespace RtfPipe.Tokens
   public class FontSize : ControlWord<UnitValue>
   {
     public override string Name => "fs";
+    public override TokenType Type => TokenType.CharacterFormat;
 
     public FontSize(UnitValue value) : base(value) { }
   }

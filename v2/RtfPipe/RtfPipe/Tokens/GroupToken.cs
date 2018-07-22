@@ -4,13 +4,13 @@ using System.Text;
 
 namespace RtfPipe
 {
-  public class GroupToken : IToken
+  public class GroupEnd : IToken
   {
-    public bool Start { get; set; }
+    public TokenType Type => TokenType.GroupEnd;
 
     public override string ToString()
     {
-      return Start ? "{" : "}";
+      return "}";
     }
   }
 }

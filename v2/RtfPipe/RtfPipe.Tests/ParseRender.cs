@@ -10,13 +10,39 @@ namespace RtfPipe.Tests
   public class ParseRender
   {
     [TestMethod]
-    public void TestMethod1()
+    public void Prototype()
     {
-      using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("RtfPipe.Tests.Files.Test01.rtf"))
+      TestParse("RtfPipe.Tests.Files.RtfParserTest_4");
+    }
+
+    [TestMethod]
+    public void RtfToHtml()
+    {
+      TestConvert("RtfPipe.Tests.Files.Test01");
+      TestConvert("RtfPipe.Tests.Files.minimal");
+      TestConvert("RtfPipe.Tests.Files.RtfParserTest_0");
+      TestConvert("RtfPipe.Tests.Files.RtfParserTest_1");
+      TestConvert("RtfPipe.Tests.Files.RtfParserTest_2");
+      TestConvert("RtfPipe.Tests.Files.RtfParserTest_3");
+    }
+
+    private void TestParse(string path)
+    {
+      using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path + ".rtf"))
       {
-        var tokenizer = new Tokenizer(stream);
-        var tokens = tokenizer.Tokens().ToList();
+        var actual = Rtf.ToHtml(stream);
         Assert.Fail();
+      }
+    }
+
+    private void TestConvert(string path)
+    {
+      using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path + ".rtf"))
+      using (var expectedReader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(path + ".html")))
+      {
+        var actual = Rtf.ToHtml(stream);
+        var expected = expectedReader.ReadToEnd();
+        Assert.AreEqual(expected, actual);
       }
     }
 

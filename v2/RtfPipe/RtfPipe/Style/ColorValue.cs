@@ -47,6 +47,11 @@ namespace RtfPipe
       return hash;
     }
 
+    public override string ToString()
+    {
+      return $"{Red:X2}{Green:X2}{Blue:X2}";
+    }
+
     public ColorValue Clone()
     {
       return new ColorValue(Red, Green, Blue);

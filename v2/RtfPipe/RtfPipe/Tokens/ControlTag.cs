@@ -4,9 +4,10 @@ using System.Text;
 
 namespace RtfPipe
 {
-  public abstract class ControlTag : IEquatable<ControlTag>, IToken
+  public abstract class ControlTag : IEquatable<ControlTag>, IWord
   {
     public abstract string Name { get; }
+    public virtual TokenType Type => TokenType.Word;
 
     public override bool Equals(object obj)
     {

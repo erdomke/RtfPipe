@@ -11,6 +11,7 @@ namespace RtfPipe
     public int Id { get; }
     public string Name { get; private set; }
     public Encoding Encoding { get; private set; }
+    public TokenType Type => TokenType.CharacterFormat;
     public FontFamilyCategory Category { get; private set; }
 
     public Font(int id)
