@@ -70,6 +70,7 @@
     <EmbeddedResource Include="Files\RtfParserTest_fail_4.rtf" />
     <EmbeddedResource Include="Files\RtfParserTest_fail_5.rtf" />
     <EmbeddedResource Include="Files\RtfParserTest_fail_6.rtf" />
+    <EmbeddedResource Include="Files\List.rtf" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

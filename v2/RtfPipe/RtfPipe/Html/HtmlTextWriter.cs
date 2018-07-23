@@ -11,7 +11,7 @@ using System.Xml;
 
 namespace RtfPipe
 {
-  public class HtmlTextWriter : XmlWriter
+  internal class HtmlTextWriter : XmlWriter
   {
     private readonly TextWriter _writer;
     private readonly HtmlWriterSettings _settings;
@@ -791,7 +791,6 @@ namespace RtfPipe
     public string NewLineChars { get; set; }
     public bool NewLineOnAttributes { get; set; }
     public char QuoteChar { get; set; }
-    //public bool ReplaceConsecutiveSpaceNonBreaking { get; set; }
 
     public HtmlWriterSettings()
     {
@@ -800,7 +799,6 @@ namespace RtfPipe
       this.NewLineChars = Environment.NewLine;
       this.NewLineOnAttributes = false;
       this.QuoteChar = '"';
-      //this.ReplaceConsecutiveSpaceNonBreaking = false;
     }
   }
 

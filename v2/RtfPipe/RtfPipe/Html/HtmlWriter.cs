@@ -33,7 +33,7 @@ namespace RtfPipe
       if (token is ParagraphBreak)
       {
         EnsureParagraph(format);
-        while (_tags.Peek().Name != "p")
+        while (!IsParagraphTag(_tags.Peek().Name))
           EndTag();
         EndTag();
       }
@@ -57,6 +57,11 @@ namespace RtfPipe
         EndTag();
     }
 
+    private bool IsParagraphTag(string name)
+    {
+      return name == "p" || name == "li";
+    }
+
     private void EnsureSection(FormatContext format)
     {
       if (_tags.Any(t => t.Name == "div"))
@@ -71,15 +76,62 @@ namespace RtfPipe
 
     private void EnsureParagraph(FormatContext format)
     {
-      if (_tags.Any(t => t.Name == "p"))
+      if (_tags.Any(t => IsParagraphTag(t.Name)))
         return;
 
       EnsureSection(format);
 
-      var tag = new TagContext("p", _tags.SafePeek());
-      tag.AddRange(format.Where(t => (t.Type == TokenType.ParagraphFormat || t.Type == TokenType.CharacterFormat)
-        && !IsSpanElement(t)));
-      WriteTag(tag);
+      if (format.Any(t => t is ParagraphNumbering || t is ListLevelType))
+      {
+        if (!_tags.Any(t => t.Name == "ol" || t.Name == "ul"))
+        {
+          var numType = format.OfType<ListLevelType>().FirstOrDefault()?.Value
+            ?? (format.OfType<NumberLevelBullet>().Any() ? (NumberingType?)NumberingType.Bullet : null)
+            ?? format.OfType<NumberingTypeToken>().FirstOrDefault()?.Value
+            ?? NumberingType.Bullet;
+
+          var listTag = default(TagContext);
+          if (numType == NumberingType.Bullet)
+            listTag = new TagContext("ul", _tags.SafePeek());
+          else
+            listTag = new TagContext("ol", _tags.SafePeek());
+
+          listTag.AddRange(format.Where(t => (t.Type == TokenType.ParagraphFormat || t.Type == TokenType.CharacterFormat)
+            && !IsSpanElement(t)));
+          WriteTag(listTag);
+
+          switch (numType)
+          {
+            case NumberingType.LowerLetter:
+              _writer.WriteAttributeString("type", "a");
+              break;
+            case NumberingType.LowerRoman:
+              _writer.WriteAttributeString("type", "i");
+              break;
+            case NumberingType.UpperLetter:
+              _writer.WriteAttributeString("type", "A");
+              break;
+            case NumberingType.UpperRoman:
+              _writer.WriteAttributeString("type", "I");
+              break;
+          }
+        }
+
+        var tag = new TagContext("li", _tags.SafePeek());
+        tag.AddRange(format.Where(t => (t.Type == TokenType.ParagraphFormat || t.Type == TokenType.CharacterFormat)
+          && !IsSpanElement(t)));
+        WriteTag(tag);
+      }
+      else
+      {
+        if (_tags.Peek().Name == "ol" || _tags.Peek().Name == "ul")
+          EndTag();
+
+        var tag = new TagContext("p", _tags.SafePeek());
+        tag.AddRange(format.Where(t => (t.Type == TokenType.ParagraphFormat || t.Type == TokenType.CharacterFormat)
+          && !IsSpanElement(t)));
+        WriteTag(tag);
+      }
     }
 
     private void EnsureSpans(FormatContext format)
@@ -198,7 +250,6 @@ namespace RtfPipe
       var style = tag.ToString();
       if (!string.IsNullOrEmpty(style))
         _writer.WriteAttributeString("style", style);
-      _writer.WriteEndAttribute();
       _tags.Push(tag);
     }
 

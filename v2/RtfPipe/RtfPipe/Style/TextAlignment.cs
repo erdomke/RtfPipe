@@ -6,9 +6,9 @@ namespace RtfPipe
 {
   public enum TextAlignment
   {
-    Left,
-    Right,
-    Center,
-    Justify
+    Left = 0,
+    Center = 1,
+    Right = 2,
+    Justify = 3
   }
 }

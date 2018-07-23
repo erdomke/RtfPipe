@@ -68,6 +68,19 @@ namespace RtfPipe
       }
     }
 
+    public T RemoveFirstOfType<T>()
+    {
+      for (var i = 0; i < _formats.Count; i++)
+      {
+        if (_formats[i] is T result)
+        {
+          _formats.RemoveAt(i);
+          return result;
+        }
+      }
+      return default;
+    }
+
     public FormatContext Clone()
     {
       var result = new FormatContext();

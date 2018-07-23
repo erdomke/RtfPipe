@@ -1,3 +1,4 @@
+using RtfPipe.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,27 @@ namespace RtfPipe
     public List<IToken> Contents { get; } = new List<IToken>();
     public TokenType Type => TokenType.Group;
 
+    public IWord Destination
+    {
+      get
+      {
+        var i = 0;
+        while (i < Contents.Count)
+        {
+          if (i == 0 && Contents[i] is IgnoreUnrecognized)
+            i++;
+          else
+            return Contents[i] as IWord;
+        }
+        return null;
+      }
+    }
+
     public override string ToString()
     {
       if (Contents.Count < 1)
         return "{";
-      return "{" + string.Join("", Contents.Select(t => t.ToString())) + "}";
+      return "{" + string.Concat(Contents.Select(t => t.ToString())) + "}";
     }
   }
 }
