@@ -60,6 +60,10 @@ namespace RtfPipe
         // General
         case "*":
           return new IgnoreUnrecognized();
+        case "generator":
+          return new GeneratorTag();
+        case "objattph":
+          return new ObjectAttachment();
         case "fromhtml":
           return new FromHtml(number != 0);
         case "htmltag":
@@ -181,8 +185,6 @@ namespace RtfPipe
           return new StyleSheetTag();
         case "s":
           return new StyleRef(number);
-        case "generator":
-          return new GeneratorTag();
 
         // Color
         case "colortbl":
@@ -219,6 +221,8 @@ namespace RtfPipe
           return new SpaceBetweenLines(number);
         case "slmult":
           return new LineSpacingMultiple(number);
+        case "outlinelevel":
+          return new OutlineLevel(number);
 
         // Bullets & Numbering
         case "pntext":
@@ -326,6 +330,138 @@ namespace RtfPipe
           return new UnderlineToken(false);
         case "v":
           return new HiddenToken(number != 0);
+
+        // Pictures
+        case "pict":
+          return new PictureTag();
+        case "emfblip":
+          return new EmfBlip();
+        case "pngblip":
+          return new PngBlip();
+        case "jpegblip":
+          return new JpegBlip();
+        case "macpict":
+          return new MacPict();
+        case "pmmetafile":
+          return new PmMetafile(number);
+        case "wmetafile":
+          return new WmMetafile(number);
+        case "dibitmap":
+          return new DiBitmap(number);
+        case "wbitmap":
+          return new WBitmap(number);
+        case "picw":
+          return new PictureWidth(new UnitValue(number, UnitType.Pixel));
+        case "pich":
+          return new PictureHeight(new UnitValue(number, UnitType.Pixel));
+        case "picwgoal":
+          return new PictureWidthGoal(new UnitValue(number, UnitType.Twip));
+        case "pichgoal":
+          return new PictureHeightGoal(new UnitValue(number, UnitType.Twip));
+        case "bin":
+          return new PictureBinaryLength(number);
+
+        // Tables
+        case "trowd":
+          return new RowDefaults();
+        case "row":
+          return new RowBreak();
+        case "tcelld":
+          return new CellDefaults();
+        case "cell":
+          return new CellBreak();
+        case "trgraph":
+          return new CellSpacing(new UnitValue(number, UnitType.Twip));
+        case "cellx":
+          return new RightCellBoundary(new UnitValue(number, UnitType.Twip));
+        case "trautofit":
+          return new RowAutoFit(number == 1);
+        case "trleft":
+          return new RowLeft(new UnitValue(number, UnitType.Twip));
+        case "trqc":
+          return new RowAlign(TextAlignment.Center);
+        case "trql":
+          return new RowAlign(TextAlignment.Left);
+        case "trqr":
+          return new RowAlign(TextAlignment.Right);
+        case "trbrdrt":
+          return new TableBorderSide(BorderPosition.Top);
+        case "trbrdrr":
+          return new TableBorderSide(BorderPosition.Right);
+        case "trbrdrb":
+          return new TableBorderSide(BorderPosition.Bottom);
+        case "trbrdrl":
+          return new TableBorderSide(BorderPosition.Left);
+        case "trpaddt":
+          return new TablePaddingTop(new UnitValue(number, UnitType.Twip));
+        case "trpaddr":
+          return new TablePaddingRight(new UnitValue(number, UnitType.Twip));
+        case "trpaddb":
+          return new TablePaddingBottom(new UnitValue(number, UnitType.Twip));
+        case "trpaddl":
+          return new TablePaddingLeft(new UnitValue(number, UnitType.Twip));
+        case "clbrdrt":
+          return new CellBorderSide(BorderPosition.Top);
+        case "clbrdrr":
+          return new CellBorderSide(BorderPosition.Right);
+        case "clbrdrb":
+          return new CellBorderSide(BorderPosition.Bottom);
+        case "clbrdrl":
+          return new CellBorderSide(BorderPosition.Left);
+        case "clftsWidth":
+          return new CellWidthType((CellWidthUnit)number);
+        case "clwWidth":
+          return new CellWidth(number);
+        case "intbl":
+          return new InTable();
+
+        // Borders and Shading
+        case "brdrs": return new BorderStyleTag(BorderStyle.SingleThick);
+        case "brdrth": return new BorderStyleTag(BorderStyle.DoubleThick);
+        case "brdrsh": return new BorderStyleTag(BorderStyle.Shadowed);
+        case "brdrdb": return new BorderStyleTag(BorderStyle.Double);
+        case "brdrdot": return new BorderStyleTag(BorderStyle.Dotted);
+        case "brdrdash": return new BorderStyleTag(BorderStyle.Dashed);
+        case "brdrhair": return new BorderStyleTag(BorderStyle.Hairline);
+        case "brdrdashsm": return new BorderStyleTag(BorderStyle.DashedSmall);
+        case "brdrdashdot":
+        case "brdrdashd":
+          return new BorderStyleTag(BorderStyle.DotDashed);
+        case "brdrdashdotdot":
+        case "brdrdashdd":
+          return new BorderStyleTag(BorderStyle.DotDotDashed);
+        case "brdrinset": return new BorderStyleTag(BorderStyle.Inset);
+        case "brdrnone": return new BorderStyleTag(BorderStyle.None);
+        case "brdroutset": return new BorderStyleTag(BorderStyle.Outset);
+        case "brdrtriple": return new BorderStyleTag(BorderStyle.Triple);
+        case "brdrtnthsg": return new BorderStyleTag(BorderStyle.ThickThinSmall);
+        case "brdrthtnsg": return new BorderStyleTag(BorderStyle.ThinThickSmall);
+        case "brdrtnthtnsg": return new BorderStyleTag(BorderStyle.ThinThickThinSmall);
+        case "brdrtnthmg": return new BorderStyleTag(BorderStyle.ThickThinMedium);
+        case "brdrthtnmg": return new BorderStyleTag(BorderStyle.ThinThickMedium);
+        case "brdrtnthtnmg": return new BorderStyleTag(BorderStyle.ThinThickThinMedium);
+        case "brdrtnthlg": return new BorderStyleTag(BorderStyle.ThickThinLarge);
+        case "brdrthtnlg": return new BorderStyleTag(BorderStyle.ThinThickLarge);
+        case "brdrtnthtnlg": return new BorderStyleTag(BorderStyle.ThinThickThinLarge);
+        case "brdrwavy": return new BorderStyleTag(BorderStyle.Wavy);
+        case "brdrwavydb": return new BorderStyleTag(BorderStyle.DoubleWavy);
+        case "brdrdashdotstr": return new BorderStyleTag(BorderStyle.Striped);
+        case "brdremboss": return new BorderStyleTag(BorderStyle.Embossed);
+        case "brdrengrave": return new BorderStyleTag(BorderStyle.Engraved);
+        case "brdrframe": return new BorderStyleTag(BorderStyle.Frame);
+        case "brdrw":
+          return new BorderWidth(new UnitValue(number, UnitType.Twip));
+        case "brdrcf":
+          return new BorderColor(_document.ColorTable[number]);
+        case "brdrt":
+          return new TableBorderSide(BorderPosition.Top);
+        case "brdrr":
+          return new TableBorderSide(BorderPosition.Right);
+        case "brdrb":
+          return new TableBorderSide(BorderPosition.Bottom);
+        case "brdrl":
+          return new TableBorderSide(BorderPosition.Left);
+
 
         default:
           if (number == int.MinValue)

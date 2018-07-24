@@ -7,11 +7,13 @@ namespace RtfPipe.Tokens
   public class ParagraphBreak : ControlTag
   {
     public override string Name => "par";
+    public override TokenType Type => TokenType.BreakTag;
   }
 
   public class LineBreak : ControlTag
   {
     public override string Name => "line";
+    public override TokenType Type => TokenType.BreakTag;
   }
 
   public class ParagraphDefault : ControlTag
@@ -68,5 +70,13 @@ namespace RtfPipe.Tokens
     public override TokenType Type => TokenType.ParagraphFormat;
 
     public LineSpacingMultiple(int value) : base(value) { }
+  }
+
+  public class OutlineLevel : ControlWord<int>
+  {
+    public override string Name => "outlinelevel";
+    public override TokenType Type => TokenType.ParagraphFormat;
+
+    public OutlineLevel(int value) : base(value) { }
   }
 }

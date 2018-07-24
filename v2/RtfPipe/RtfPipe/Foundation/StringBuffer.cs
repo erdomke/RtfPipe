@@ -4,7 +4,7 @@ using System.Text;
 
 namespace RtfPipe
 {
-  internal class StringBuffer
+  internal class StringBuffer : IValueBuffer
   {
     const int SizeIncrement = 256;
 
@@ -15,7 +15,7 @@ namespace RtfPipe
     public Encoding Encoding { get; set; } = TextEncoding.RtfDefault;
     public int Length { get { return _chars.Length + _position; } }
 
-    public StringBuffer Append(byte value)
+    public IValueBuffer Append(byte value)
     {
       if (_position >= _buffer.Length)
         ResizeBuffer(_buffer.Length + SizeIncrement);
@@ -23,22 +23,15 @@ namespace RtfPipe
       return this;
     }
 
-    public StringBuffer Append(int ch)
+    public IValueBuffer Append(int ch)
     {
       return Append((char)ch);
     }
 
-    public StringBuffer Append(char ch)
+    public IValueBuffer Append(char ch)
     {
       FlushBuffer();
       _chars.Append(ch);
-      return this;
-    }
-
-    public StringBuffer Append(string value)
-    {
-      FlushBuffer();
-      _chars.Append(value);
       return this;
     }
 

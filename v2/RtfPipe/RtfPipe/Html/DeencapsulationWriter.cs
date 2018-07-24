@@ -35,5 +35,10 @@ namespace RtfPipe
     {
 
     }
+
+    public void AddPicture(FormatContext format, Picture picture)
+    {
+      throw new NotSupportedException();
+    }
   }
 }

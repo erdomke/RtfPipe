@@ -13,6 +13,7 @@ namespace RtfPipe
     private readonly TextReader _reader;
     private readonly StringBuilder _controlBuffer = new StringBuilder();
     private readonly StringBuffer _textBuffer = new StringBuffer();
+    private readonly HexBuffer _hexBuffer = new HexBuffer();
     private readonly Stack<EncodingContext> _context = new Stack<EncodingContext>();
     private int _ignoreDepth = int.MaxValue;
     private readonly Document _document = new Document();
@@ -126,7 +127,7 @@ namespace RtfPipe
               _reader.Read();
               break;
             case '{':
-              _context.Push(new EncodingContext());
+              _context.Push(new EncodingContext() { ValueBuffer = _textBuffer });
               break;
             case '}':
               _context.Pop();
@@ -145,7 +146,7 @@ namespace RtfPipe
                 case '\\':
                 case '{':
                 case '}':
-                  _textBuffer.Append(_reader.Read());
+                  _context.Peek().ValueBuffer.Append(_reader.Read());
                   break;
 
                 case '\n':
@@ -157,7 +158,7 @@ namespace RtfPipe
                 case '\'':
                   _reader.Read();
                   var hex = byte.Parse(((char)_reader.Read()).ToString() + (char)_reader.Read(), NumberStyles.HexNumber);
-                  _textBuffer.Append(hex);
+                  _context.Peek().ValueBuffer.Append(hex);
                   break;
 
                 case '|':
@@ -169,7 +170,7 @@ namespace RtfPipe
                   var singleToken = GetControlWord(((char)_reader.Read()).ToString());
                   if (singleToken != null)
                   {
-                    if (_textBuffer.Length > 0)
+                    if (_context.Peek().ValueBuffer.Length > 0)
                       yield return ConsumeTextBuffer();
                     yield return ConsumeToken(singleToken);
                   }
@@ -180,7 +181,7 @@ namespace RtfPipe
                   var token = ReadControlWord();
                   if (token != null)
                   {
-                    if (_textBuffer.Length > 0)
+                    if (_context.Peek().ValueBuffer.Length > 0)
                       yield return ConsumeTextBuffer();
                     yield return ConsumeToken(token);
                   }
@@ -191,17 +192,17 @@ namespace RtfPipe
               if (_context.Count > 0)
                 _context.Push(_context.Peek().Clone());
               else
-                _context.Push(new EncodingContext());
+                _context.Push(new EncodingContext() { ValueBuffer = _textBuffer });
 
               if (Depth < _ignoreDepth)
               {
-                if (_textBuffer.Length > 0)
+                if (_context.Peek().ValueBuffer.Length > 0)
                   yield return ConsumeTextBuffer();
                 yield return new Group();
               }
               break;
             case '}':
-              if (_textBuffer.Length > 0)
+              if (_context.Peek().ValueBuffer.Length > 0)
                 yield return ConsumeTextBuffer();
               yield return new GroupEnd();
 
@@ -215,25 +216,42 @@ namespace RtfPipe
               // must still consume the 'peek'ed char
               break;
             case '\t':
-              if (_textBuffer.Length > 0)
+              if (_context.Peek().ValueBuffer.Length > 0)
                 yield return ConsumeTextBuffer();
               yield return ConsumeToken(GetControlWord("tab"));
               break;
             default:
-              _textBuffer.Append(curr);
+              if (_context.Peek().Destination is PictureBinaryLength binLength)
+              {
+                var i = 1;
+                _context.Peek().ValueBuffer.Append(curr);
+                while (i < binLength.Value && (curr = _reader.Read()) > 0)
+                {
+                  _context.Peek().ValueBuffer.Append(curr);
+                  i++;
+                }
+              }
+              else
+              {
+                _context.Peek().ValueBuffer.Append(curr);
+              }
               break;
           }
         }
       }
 
-      if (_textBuffer.Length > 0)
+      if (_context.SafePeek()?.ValueBuffer.Length > 0)
         yield return ConsumeTextBuffer();
     }
 
-    private TextToken ConsumeTextBuffer()
+    private IToken ConsumeTextBuffer()
     {
-      var result = new TextToken() { Value = _textBuffer.ToString() };
-      _textBuffer.Clear();
+      var result = default(IToken);
+      if (_context.Peek().ValueBuffer is HexBuffer hex)
+        result = new BinaryToken() { Value = hex.ToArray() };
+      else
+        result = new TextToken() { Value = _context.Peek().ValueBuffer.ToString() };
+      _context.Peek().ValueBuffer.Clear();
       ConsumeToken(result);
       return result;
     }
@@ -277,6 +295,14 @@ namespace RtfPipe
         UpdateEncoding(font.Encoding);
       else if (token is FromHtml || token.Type == TokenType.HtmlFormat)
         _document.HasHtml = true;
+      else if (token is PictureTag)
+        _context.Peek().ValueBuffer = _hexBuffer;
+
+      if (token is PictureBinaryLength)
+      {
+        UpdateEncoding(new BinaryEncoding());
+        _context.Peek().Destination = token;
+      }
 
       var destination = _context.FirstOrDefault(c => c.Destination != null)?.Destination;
 
@@ -285,38 +311,38 @@ namespace RtfPipe
         if (token is FontRef fontRef)
         {
           _document.FontTable[fontRef.Value] = new Font(fontRef.Value);
-          _context.Peek().Buffer.Add(_document.FontTable[fontRef.Value]);
+          _context.Peek().TokenBuffer.Add(_document.FontTable[fontRef.Value]);
           if (_context.Peek().Destination == null)
             _context.Peek().Destination = new FontTableTag();
         }
-        else if (_context.Peek().Buffer.Count > 0)
+        else if (_context.Peek().TokenBuffer.Count > 0)
         {
-          ((Font)_context.Peek().Buffer.Last()).Add(token);
+          ((Font)_context.Peek().TokenBuffer.Last()).Add(token);
         }
       }
       else if (destination is ColorTable)
       {
         if (token is TextToken)
         {
-          if (_context.Peek().Buffer.Count != 3)
+          if (_context.Peek().TokenBuffer.Count != 3)
           {
             _document.ColorTable.Add(new ColorValue(0, 0, 0));
           }
           else
           {
             _document.ColorTable.Add(new ColorValue(
-              _context.Peek().Buffer.OfType<Red>().Single().Value
-              , _context.Peek().Buffer.OfType<Green>().Single().Value
-              , _context.Peek().Buffer.OfType<Blue>().Single().Value));
+              _context.Peek().TokenBuffer.OfType<Red>().Single().Value
+              , _context.Peek().TokenBuffer.OfType<Green>().Single().Value
+              , _context.Peek().TokenBuffer.OfType<Blue>().Single().Value));
           }
-          _context.Peek().Buffer.Clear();
+          _context.Peek().TokenBuffer.Clear();
         }
         else
         {
-          _context.Peek().Buffer.Add(token);
+          _context.Peek().TokenBuffer.Add(token);
         }
       }
-      else if (IsWord(token) && _context.Count > 0 && _context.Peek().Destination == null)
+      else if (IsDestination(token) && _context.Count > 0 && _context.Peek().Destination == null)
       {
         _context.Peek().Destination = token;
       }
@@ -324,9 +350,10 @@ namespace RtfPipe
       return token;
     }
 
-    private bool IsWord(IToken token)
+    private bool IsDestination(IToken token)
     {
-      return ((token?.Type ?? TokenType.None) & TokenType.Word) == TokenType.Word;
+      return ((token?.Type ?? TokenType.None) & TokenType.Word) == TokenType.Word
+        && !(token is IgnoreUnrecognized);
     }
 
     private static bool IsLetter(char ch)
@@ -346,7 +373,7 @@ namespace RtfPipe
         _context.Peek().Encoding = encoding;
       if (_reader is RtfStreamReader stream)
         stream.Encoding = encoding;
-      _textBuffer.Encoding = encoding;
+      _context.Peek().ValueBuffer.Encoding = encoding;
     }
 
     private class EncodingContext
@@ -354,14 +381,16 @@ namespace RtfPipe
       public Encoding Encoding { get; set; } = TextEncoding.RtfDefault;
       public int AsciiFallbackChars { get; set; } = 1;
       public IToken Destination { get; set; }
-      public List<IToken> Buffer { get; } = new List<IToken>();
+      public List<IToken> TokenBuffer { get; } = new List<IToken>();
+      public IValueBuffer ValueBuffer { get; set; }
 
       public EncodingContext Clone()
       {
         return new EncodingContext()
         {
           Encoding = Encoding,
-          AsciiFallbackChars = AsciiFallbackChars
+          AsciiFallbackChars = AsciiFallbackChars,
+          ValueBuffer = ValueBuffer
         };
       }
     }

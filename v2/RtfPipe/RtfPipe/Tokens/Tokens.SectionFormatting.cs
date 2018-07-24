@@ -7,6 +7,7 @@ namespace RtfPipe.Tokens
   public class SectionBreak : ControlTag
   {
     public override string Name => "sect";
+    public override TokenType Type => TokenType.BreakTag;
   }
 
   public class SectionDefault : ControlTag

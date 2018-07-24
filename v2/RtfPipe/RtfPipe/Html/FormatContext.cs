@@ -2,12 +2,15 @@ using RtfPipe.Tokens;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RtfPipe
 {
   internal class FormatContext : IEnumerable<IToken>
   {
     private readonly List<IToken> _formats = new List<IToken>();
+
+    public bool InTable { get; set; }
 
     public void Add(IToken token)
     {
@@ -18,6 +21,20 @@ namespace RtfPipe
       else if (token is ParagraphDefault)
       {
         RemoveWhere(t => t.Type == TokenType.ParagraphFormat);
+        InTable = false;
+      }
+      else if (token is RowDefaults)
+      {
+        RemoveWhere(t => t.Type == TokenType.RowFormat);
+        InTable = true;
+      }
+      else if (token is InTable)
+      {
+        InTable = true;
+      }
+      else if (token is CellDefaults)
+      {
+        RemoveWhere(t => t.Type == TokenType.CellFormat);
       }
       else if (token is PlainToken)
       {
@@ -81,9 +98,24 @@ namespace RtfPipe
       return default;
     }
 
+    public bool TryGetValue<T>(out T value)
+    {
+      foreach (var token in _formats)
+      {
+        if (token is T result)
+        {
+          value = result;
+          return true;
+        }
+      }
+
+      value = default;
+      return false;
+    }
+
     public FormatContext Clone()
     {
-      var result = new FormatContext();
+      var result = new FormatContext() { InTable = InTable };
       result._formats.AddRange(_formats);
       return result;
     }

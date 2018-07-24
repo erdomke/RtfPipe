@@ -71,6 +71,8 @@
     <EmbeddedResource Include="Files\RtfParserTest_fail_5.rtf" />
     <EmbeddedResource Include="Files\RtfParserTest_fail_6.rtf" />
     <EmbeddedResource Include="Files\List.rtf" />
+    <EmbeddedResource Include="Files\table_simple.rtf" />
+    <EmbeddedResource Include="Files\Headings.rtf" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

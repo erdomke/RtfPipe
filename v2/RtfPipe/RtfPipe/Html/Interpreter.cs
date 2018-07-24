@@ -17,16 +17,16 @@ namespace RtfPipe
       _xml = writer;
     }
 
-    public void ToHtml(Document doc)
+    public void ToHtml(Document doc, RtfHtmlSettings settings)
     {
-      _html = doc.HasHtml ? (IHtmlWriter)new DeencapsulationWriter(_xml) : new HtmlWriter(_xml);
+      _html = doc.HasHtml ? (IHtmlWriter)new DeencapsulationWriter(_xml) : new HtmlWriter(_xml, settings);
 
       var body = new Group();
       foreach (var token in doc.Contents)
       {
         if (token is DefaultFontRef defaultFont)
         {
-          _html.DefaultFont = doc.FontTable[defaultFont.Value];
+          _html.DefaultFont = doc.FontTable.TryGetValue(defaultFont.Value, out var font) ? font : doc.FontTable.First().Value;
         }
         else if (token is Group group)
         {
@@ -68,26 +68,23 @@ namespace RtfPipe
         }
         else if (processRtf)
         {
-          if (token.Type == TokenType.CharacterFormat
-            || token.Type == TokenType.ParagraphFormat
-            || token.Type == TokenType.SectionFormat
-            || token.Type == TokenType.HtmlFormat)
+          if ((token.Type & TokenType.Format) == TokenType.Format)
           {
             currStyle.Add(token);
           }
           else if (token is Group childGroup)
           {
             var dest = childGroup.Destination;
-            if (dest is NumberingTextFallback || dest is ListTextFallback)
+            if (dest is NumberingTextFallback
+              || dest is ListTextFallback
+              || dest?.Type == TokenType.HeaderTag)
             {
               // skip
             }
             else if (childGroup.Contents.OfType<ParagraphNumbering>().Any())
             {
               foreach (var child in childGroup.Contents.Where(t => t.Type == TokenType.ParagraphFormat))
-              {
                 currStyle.Add(child);
-              }
             }
             else
             {
@@ -98,11 +95,11 @@ namespace RtfPipe
           {
             _html.AddText(FixStyles(doc, currStyle), text.Value);
           }
-          else if (token is ParagraphBreak
-            || token is SectionBreak
-            || token is LineBreak)
+          else if ((token.Type & TokenType.BreakTag) == TokenType.BreakTag)
           {
             _html.AddBreak(FixStyles(doc, currStyle), token);
+            if (token is RowBreak)
+              currStyle.InTable = false;
           }
         }
         else if (token is Group childGroup2)

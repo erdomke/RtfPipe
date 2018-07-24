@@ -11,13 +11,15 @@ namespace RtfPipe
   {
     private readonly XmlWriter _writer;
     private readonly Stack<TagContext> _tags = new Stack<TagContext>();
+    private readonly RtfHtmlSettings _settings;
 
     public Font DefaultFont { get; set; }
     public FontSize DefaultFontSize { get; } = new FontSize(UnitValue.FromHalfPoint(24));
 
-    public HtmlWriter(XmlWriter xmlWriter)
+    public HtmlWriter(XmlWriter xmlWriter, RtfHtmlSettings settings)
     {
       _writer = xmlWriter;
+      _settings = settings ?? new RtfHtmlSettings();
     }
 
     public void AddText(FormatContext format, string text)
@@ -26,6 +28,29 @@ namespace RtfPipe
         return;
       EnsureSpans(format);
       _writer.WriteValue(text);
+    }
+
+    public void AddPicture(FormatContext format, Picture picture)
+    {
+      EnsureParagraph(format);
+      var uri = _settings?.ImageUriGetter(picture);
+      if (!string.IsNullOrEmpty(uri))
+      {
+        _writer.WriteStartElement("img");
+
+        if (picture.WidthGoal.HasValue)
+          _writer.WriteAttributeString("width", picture.WidthGoal.ToPx().ToString("0"));
+        else if (picture.Width.HasValue)
+          _writer.WriteAttributeString("width", picture.Width.ToPx().ToString("0"));
+
+        if (picture.HeightGoal.HasValue)
+          _writer.WriteAttributeString("height", picture.HeightGoal.ToPx().ToString("0"));
+        else if (picture.Height.HasValue)
+          _writer.WriteAttributeString("height", picture.Height.ToPx().ToString("0"));
+
+        _writer.WriteAttributeString("src", uri);
+        _writer.WriteEndElement();
+      }
     }
 
     public void AddBreak(FormatContext format, IToken token)
@@ -44,6 +69,19 @@ namespace RtfPipe
           EndTag();
         EndTag();
       }
+      else if (token is CellBreak)
+      {
+        EnsureParagraph(format);
+        while (_tags.Peek().Name != "td")
+          EndTag();
+        EndTag();
+      }
+      else if (token is RowBreak)
+      {
+        while (_tags.Peek().Name != "tr")
+          EndTag();
+        EndTag();
+      }
       else if (token is LineBreak)
       {
         _writer.WriteStartElement("br");
@@ -59,7 +97,9 @@ namespace RtfPipe
 
     private bool IsParagraphTag(string name)
     {
-      return name == "p" || name == "li";
+      return name == "p" || name == "li" || name == "td"
+        || name == "h1" || name == "h2" || name == "h3"
+        || name == "h4" || name == "h5" || name == "h6";
     }
 
     private void EnsureSection(FormatContext format)
@@ -76,14 +116,17 @@ namespace RtfPipe
 
     private void EnsureParagraph(FormatContext format)
     {
-      if (_tags.Any(t => IsParagraphTag(t.Name)))
+      if (IsParagraphTag(_tags.SafePeek()?.Name))
         return;
 
       EnsureSection(format);
 
       if (format.Any(t => t is ParagraphNumbering || t is ListLevelType))
       {
-        if (!_tags.Any(t => t.Name == "ol" || t.Name == "ul"))
+        while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == "ul" || _tags.Peek().Name == "ol"))
+          EndTag();
+
+        if (!(_tags.Peek().Name == "ol" || _tags.Peek().Name == "ul"))
         {
           var numType = format.OfType<ListLevelType>().FirstOrDefault()?.Value
             ?? (format.OfType<NumberLevelBullet>().Any() ? (NumberingType?)NumberingType.Bullet : null)
@@ -122,9 +165,43 @@ namespace RtfPipe
           && !IsSpanElement(t)));
         WriteTag(tag);
       }
+      else if (format.InTable)
+      {
+        while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == "table" || _tags.Peek().Name == "tr"))
+          EndTag();
+
+        var tag = default(TagContext);
+        if (!(_tags.Peek().Name == "table" || _tags.Peek().Name == "tr"))
+        {
+          tag = new TagContext("table", _tags.SafePeek());
+          WriteTag(tag);
+        }
+
+        if (_tags.Peek().Name == "table")
+        {
+          tag = new TagContext("tr", _tags.SafePeek());
+          WriteTag(tag);
+        }
+
+        tag = new TagContext("td", _tags.SafePeek());
+        tag.AddRange(format.Where(t => (t.Type == TokenType.ParagraphFormat || t.Type == TokenType.CharacterFormat)
+          && !IsSpanElement(t)));
+        WriteTag(tag);
+      }
+      else if (format.TryGetValue<OutlineLevel>(out var outline) && outline.Value >= 0 && outline.Value < 6)
+      {
+        var tagName = "h" + (outline.Value + 1);
+        while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == tagName))
+          EndTag();
+
+        var tag = new TagContext(tagName, _tags.SafePeek());
+        tag.AddRange(format.Where(t => (t.Type == TokenType.ParagraphFormat || t.Type == TokenType.CharacterFormat)
+          && !IsSpanElement(t)));
+        WriteTag(tag);
+      }
       else
       {
-        if (_tags.Peek().Name == "ol" || _tags.Peek().Name == "ul")
+        while (_tags.Peek().Name != "div")
           EndTag();
 
         var tag = new TagContext("p", _tags.SafePeek());

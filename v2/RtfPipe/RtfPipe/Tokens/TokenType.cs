@@ -12,10 +12,25 @@ namespace RtfPipe
     GroupEnd = 0x3,
     Text = 0x4,
     Word = 0x8,
-    CharacterFormat = 0x18,
-    ParagraphFormat = 0x28,
-    SectionFormat = 0x48,
-    HtmlFormat = 0x88,
-    HeaderTag = 0x1008,
+
+    Format = 0x1000,
+    Character = 0x10,
+    Paragraph = 0x20,
+    Section = 0x40,
+    Html = 0x80,
+    Row = 0x100,
+    Cell = 0x200,
+
+    CharacterFormat = Word | Character | Format,
+    ParagraphFormat = Word | Paragraph | Format,
+    SectionFormat = Word | Section | Format,
+    HtmlFormat = Word | Html | Format,
+    RowFormat = Word | Row | Format,
+    CellFormat = Word | Cell | Format,
+
+    BreakTag = 0x2000 | Word,
+
+    HeaderTag = 0x100008,
+    PictureTypeTag = 0x200008,
   }
 }

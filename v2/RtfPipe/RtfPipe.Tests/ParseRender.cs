@@ -12,7 +12,7 @@ namespace RtfPipe.Tests
     [TestMethod]
     public void Prototype()
     {
-      TestParse("RtfPipe.Tests.Files.List");
+      TestParse("RtfPipe.Tests.Files.Headings");
     }
 
     [TestMethod]

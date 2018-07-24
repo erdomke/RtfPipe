@@ -244,6 +244,7 @@ namespace RtfPipe
     {
       switch (codePage)
       {
+        case 0:
         case AnsiCodePage:
         case SymbolFakeCodePage: // hack to handle a windows legacy ...
           return RtfDefault;
