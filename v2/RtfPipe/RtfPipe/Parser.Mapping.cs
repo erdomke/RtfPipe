@@ -215,8 +215,12 @@ namespace RtfPipe
           return new FirstLineIndent(new UnitValue(number, UnitType.Twip));
         case "li":
           return new LeftIndent(new UnitValue(number, UnitType.Twip));
+        case "ri":
+          return new RightIndent(new UnitValue(number, UnitType.Twip));
         case "sa":
           return new SpaceAfter(new UnitValue(number, UnitType.Twip));
+        case "sb":
+          return new SpaceBefore(new UnitValue(number, UnitType.Twip));
         case "sl":
           return new SpaceBetweenLines(number);
         case "slmult":
@@ -301,9 +305,9 @@ namespace RtfPipe
         case "cb":
         case "chcbpat":
         case "highlight":
-          return new BackgroundColor(_document.ColorTable[number]);
+          return new BackgroundColor(ColorByIndex(number));
         case "cf":
-          return new ForegroundColor(_document.ColorTable[number]);
+          return new ForegroundColor(ColorByIndex(number));
         case "dn":
           if (number > 0)
             return new OffsetToken(UnitValue.FromHalfPoint(-1 * number));
@@ -452,7 +456,7 @@ namespace RtfPipe
         case "brdrw":
           return new BorderWidth(new UnitValue(number, UnitType.Twip));
         case "brdrcf":
-          return new BorderColor(_document.ColorTable[number]);
+          return new BorderColor(ColorByIndex(number));
         case "brdrt":
           return new TableBorderSide(BorderPosition.Top);
         case "brdrr":
@@ -462,12 +466,45 @@ namespace RtfPipe
         case "brdrl":
           return new TableBorderSide(BorderPosition.Left);
 
+        // Fields and bookmarks
+        case "field":
+          return new Field();
+        case "fldinst":
+          return new FieldInstructions();
+        case "fldrslt":
+          return new FieldResult();
+        case "bkmkstart":
+          return new BookmarkStart();
+        case "bkmkend":
+          return new BookmarkEnd();
+
+        // Tabs
+        case "tab":
+          return new Tab();
+        case "deftab":
+          return new DefaultTabWidth(new UnitValue(number, UnitType.Twip));
+        case "tx":
+          return new TabPosition(new UnitValue(number, UnitType.Twip));
+        case "tqr":
+          return new TabAlignment(TextAlignment.Right);
+        case "tqc":
+          return new TabAlignment(TextAlignment.Center);
+        case "page":
+        case "pagebb":
+          return new PageBreak();
 
         default:
           if (number == int.MinValue)
             return new GenericTag(name);
           return new GenericWord(name, number);
       }
+    }
+
+    private ColorValue ColorByIndex(int number)
+    {
+      if (number >= 0 && number < _document.ColorTable.Count)
+        return _document.ColorTable[number];
+      return new ColorValue(0, 0, 0);
     }
   }
 }

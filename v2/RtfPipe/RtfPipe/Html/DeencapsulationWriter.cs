@@ -12,15 +12,17 @@ namespace RtfPipe
     private readonly XmlWriter _writer;
 
     public Font DefaultFont { get; set; }
+    public UnitValue DefaultTabWidth { get; set; }
 
     public DeencapsulationWriter(XmlWriter writer)
     {
       _writer = writer;
     }
 
-    public void AddBreak(FormatContext format, IToken token)
+    public void AddBreak(FormatContext format, IToken token, int count = 1)
     {
-      _writer.WriteRaw("\r\n");
+      if (!(token is Tab))
+        _writer.WriteRaw("\r\n");
     }
 
     public void AddText(FormatContext format, string text)

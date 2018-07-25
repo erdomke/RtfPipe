@@ -40,6 +40,10 @@ namespace RtfPipe
       {
         RemoveWhere(t => t.Type == TokenType.CharacterFormat);
       }
+      else if (token is BookmarkToken bookmark && !bookmark.Start)
+      {
+        RemoveWhere(t => t is BookmarkToken bkmkStart && bkmkStart.Id == bookmark.Id);
+      }
       else if (token is ControlWord<bool> boolean && !boolean.Value)
       {
         RemoveWhere(t => t is ControlWord<bool> boolStyle && boolStyle.Name == boolean.Name);
@@ -50,16 +54,24 @@ namespace RtfPipe
       }
       else
       {
-        if (token is OffsetToken)
-          RemoveWhere(t => t is OffsetToken);
-        else if (token is TextAlign)
-          RemoveWhere(t => t is TextAlign);
-        else if (token is Font font)
-          RemoveWhere(t => t is Font);
-        else if (token is IWord word)
-          RemoveWhere(t => t is IWord currWord && currWord.Name == word.Name);
+        RemoveWhere(SameTokenPredicate(token));
         AddInternal(token);
       }
+    }
+
+    protected virtual Func<IToken, bool> SameTokenPredicate(IToken token)
+    {
+      if (token is OffsetToken)
+        return t => t is OffsetToken;
+      else if (token is TextAlign)
+        return t => t is TextAlign;
+      else if (token is Font font)
+        return t => t is Font;
+      else if (token is TabPosition || token is TabAlignment)
+        return t => false;
+      else if (token is IWord word)
+        return t => t is IWord currWord && currWord.Name == word.Name;
+      return t => false;
     }
 
     protected virtual void AddInternal(IToken token)
@@ -118,6 +130,35 @@ namespace RtfPipe
       var result = new FormatContext() { InTable = InTable };
       result._formats.AddRange(_formats);
       return result;
+    }
+
+    public ParagraphTab GetTab(int idx, UnitValue defaultWidth, UnitValue startPosition = default)
+    {
+      var curr = 0;
+      var tab = new ParagraphTab();
+      var buffer = TextAlignment.Left;
+
+      foreach (var token in _formats)
+      {
+        if (token is TabPosition tabPos)
+        {
+          tab.Position = tabPos.Value;
+          tab.Alignment = buffer;
+          buffer = TextAlignment.Left;
+          if (tab.Position > startPosition)
+            curr++;
+          if (curr == idx)
+            return tab;
+        }
+        else if (token is TabAlignment tabAlign)
+        {
+          buffer = tabAlign.Value;
+        }
+      }
+
+      tab.Position += defaultWidth * (idx - curr);
+      tab.Alignment = TextAlignment.Left;
+      return tab;
     }
 
     public IEnumerator<IToken> GetEnumerator()

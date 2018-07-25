@@ -12,8 +12,10 @@ namespace RtfPipe
     private readonly XmlWriter _writer;
     private readonly Stack<TagContext> _tags = new Stack<TagContext>();
     private readonly RtfHtmlSettings _settings;
+    private bool _startOfLine = true;
 
     public Font DefaultFont { get; set; }
+    public UnitValue DefaultTabWidth { get; set; }
     public FontSize DefaultFontSize { get; } = new FontSize(UnitValue.FromHalfPoint(24));
 
     public HtmlWriter(XmlWriter xmlWriter, RtfHtmlSettings settings)
@@ -26,12 +28,15 @@ namespace RtfPipe
     {
       if (format.OfType<HiddenToken>().Any())
         return;
+      _startOfLine = false;
       EnsureSpans(format);
+      _tags.Peek().ChildCount++;
       _writer.WriteValue(text);
     }
 
     public void AddPicture(FormatContext format, Picture picture)
     {
+      _startOfLine = false;
       EnsureParagraph(format);
       var uri = _settings?.ImageUriGetter(picture);
       if (!string.IsNullOrEmpty(uri))
@@ -50,24 +55,32 @@ namespace RtfPipe
 
         _writer.WriteAttributeString("src", uri);
         _writer.WriteEndElement();
+        _tags.Peek().ChildCount++;
       }
     }
 
-    public void AddBreak(FormatContext format, IToken token)
+    public void AddBreak(FormatContext format, IToken token, int count = 1)
     {
       if (token is ParagraphBreak)
       {
         EnsureParagraph(format);
-        while (!IsParagraphTag(_tags.Peek().Name))
+        while (_tags.Peek().Type != TagType.Paragraph)
           EndTag();
         EndTag();
+        _startOfLine = true;
       }
-      else if (token is SectionBreak)
+      else if (token is SectionBreak || token is PageBreak)
       {
         EnsureSection(format);
         while (_tags.Peek().Name != "div")
           EndTag();
         EndTag();
+        _startOfLine = true;
+        if (token is PageBreak)
+        {
+          format.Add(token);
+          EnsureSection(format);
+        }
       }
       else if (token is CellBreak)
       {
@@ -75,17 +88,50 @@ namespace RtfPipe
         while (_tags.Peek().Name != "td")
           EndTag();
         EndTag();
+        _startOfLine = true;
       }
       else if (token is RowBreak)
       {
         while (_tags.Peek().Name != "tr")
           EndTag();
         EndTag();
+        _startOfLine = true;
       }
       else if (token is LineBreak)
       {
         _writer.WriteStartElement("br");
         _writer.WriteEndElement();
+        _tags.Peek().ChildCount++;
+        _startOfLine = true;
+      }
+      else if (token is Tab)
+      {
+        if (_startOfLine)
+        {
+          if (_tags.SafePeek()?.Type == TagType.Section)
+          {
+            var start = default(UnitValue);
+            if (format.TryGetValue<FirstLineIndent>(out var firstIndent))
+              start = firstIndent.Value;
+            var tab = format.GetTab(count, DefaultTabWidth, start);
+            format.Add(new FirstLineIndent(tab.Position));
+          }
+          else
+          {
+            var tab = format.GetTab(count, DefaultTabWidth);
+            _writer.WriteStartElement("span");
+            _writer.WriteAttributeString("style", $"display:inline-block;width:{tab.Position.ToPx():0.#}px");
+            _writer.WriteEndElement();
+          }
+        }
+        else
+        {
+          var width = DefaultTabWidth * count;
+          _writer.WriteStartElement("span");
+          _writer.WriteAttributeString("style", $"display:inline-block;width:{width.ToPx():0.#}px");
+          _writer.WriteEndElement();
+        }
+        _startOfLine = false;
       }
     }
 
@@ -95,20 +141,13 @@ namespace RtfPipe
         EndTag();
     }
 
-    private bool IsParagraphTag(string name)
-    {
-      return name == "p" || name == "li" || name == "td"
-        || name == "h1" || name == "h2" || name == "h3"
-        || name == "h4" || name == "h5" || name == "h6";
-    }
-
     private void EnsureSection(FormatContext format)
     {
       if (_tags.Any(t => t.Name == "div"))
         return;
 
       var tag = new TagContext("div", _tags.SafePeek());
-      tag.AddRange(format.Where(t => t.Type == TokenType.SectionFormat));
+      tag.AddRange(format.Where(t => t.Type == TokenType.SectionFormat || t is PageBreak));
       tag.Add(DefaultFontSize);
       if (DefaultFont != null) tag.Add(DefaultFont);
       WriteTag(tag);
@@ -116,7 +155,10 @@ namespace RtfPipe
 
     private void EnsureParagraph(FormatContext format)
     {
-      if (IsParagraphTag(_tags.SafePeek()?.Name))
+      var firstParaSection = _tags
+        .SkipWhile(t => t.Type == TagType.Span)
+        .FirstOrDefault();
+      if (firstParaSection?.Type == TagType.Paragraph)
         return;
 
       EnsureSection(format);
@@ -225,10 +267,11 @@ namespace RtfPipe
         return;
       }
 
-      existing = existing.Where(t => !intersection.Contains(t) && IsSpanElement(t)).ToList();
+      var paragraphFormats = _tags.First(t => t.Type == TagType.Paragraph).ToList();
+      existing = existing.Where(t => !intersection.Contains(t) && !paragraphFormats.Contains(t)).ToList();
       requested = requested.Where(t => !intersection.Contains(t)).ToList();
 
-      if (existing.Count > 0 && _tags.Peek().Name != "p")
+      if (existing.Count > 0 && _tags.Peek().Type != TagType.Paragraph)
       {
         EndTag();
         EnsureSpans(format);
@@ -240,6 +283,18 @@ namespace RtfPipe
       else if (TryGetValue<ItalicToken, IToken>(requested, out var italic))
       {
         WriteSpanElement(format, "em", italic, requested);
+      }
+      else if (TryGetValue<HyperlinkToken, IToken>(requested, out var hyperlink))
+      {
+        WriteSpanElement(format, "a", hyperlink, requested, w =>
+        {
+          if (!string.IsNullOrEmpty(hyperlink.Url))
+            w.WriteAttributeString("href", hyperlink.Url);
+          if (!string.IsNullOrEmpty(hyperlink.Target))
+            w.WriteAttributeString("target", hyperlink.Target);
+          if (!string.IsNullOrEmpty(hyperlink.Title))
+            w.WriteAttributeString("title", hyperlink.Title);
+        });
       }
       else if (TryGetValue<UnderlineToken, IToken>(requested, out var underline))
       {
@@ -257,25 +312,36 @@ namespace RtfPipe
       {
         WriteSpanElement(format, "super", super, requested);
       }
+      else if (TryGetValue<BookmarkToken, IToken>(requested, out var bookmark))
+      {
+        WriteSpanElement(format, "a", bookmark, requested, w =>
+        {
+          if (!string.IsNullOrEmpty(bookmark.Id))
+            w.WriteAttributeString("id", bookmark.Id);
+        });
+      }
       else if (requested.Count > 0)
       {
         WriteSpan(format);
       }
     }
 
-    private void WriteSpanElement(FormatContext format, string name, IToken spanToken, IEnumerable<IToken> requested)
+    private void WriteSpanElement(FormatContext format, string name, IToken spanToken
+      , IEnumerable<IToken> requested, Action<XmlWriter> attributes = null)
     {
       var tag = new TagContext(name, _tags.Peek());
-      if (requested.Any(t => IsSpanElement(t) && t != spanToken))
+      if (requested.Any(t => IsSpanElement(t, name) && t != spanToken))
       {
         tag.Add(spanToken);
         WriteTag(tag);
+        attributes?.Invoke(_writer);
         EnsureSpans(format);
       }
       else
       {
         tag.AddRange(requested);
         WriteTag(tag);
+        attributes?.Invoke(_writer);
       }
     }
 
@@ -311,14 +377,16 @@ namespace RtfPipe
         .ToList();
     }
 
-    private bool IsSpanElement(IToken token)
+    private bool IsSpanElement(IToken token, string context = null)
     {
       return token is BoldToken
         || token is ItalicToken
-        || token is UnderlineToken
+        || (token is UnderlineToken && context != "a")
         || token is StrikeToken
         || token is SubStartToken
-        || token is SuperStartToken;
+        || token is SuperStartToken
+        || token is HyperlinkToken
+        || token is BookmarkToken;
     }
 
     private void WriteTag(TagContext tag)
@@ -327,30 +395,65 @@ namespace RtfPipe
       var style = tag.ToString();
       if (!string.IsNullOrEmpty(style))
         _writer.WriteAttributeString("style", style);
+      if (_tags.Count > 0)
+        _tags.Peek().ChildCount++;
       _tags.Push(tag);
     }
 
     private void EndTag()
     {
-      _tags.Pop();
+      var tag = _tags.Pop();
+      if (tag.Type == TagType.Paragraph && tag.ChildCount == 0)
+      {
+        _writer.WriteStartElement("br");
+        _writer.WriteEndElement();
+      }
       _writer.WriteEndElement();
+    }
+
+    private enum TagType
+    {
+      Span,
+      Paragraph,
+      Section
     }
 
     private class TagContext : FormatContext
     {
       public string Name { get; }
       public TagContext Parent { get; }
+      public TagType Type { get; }
+      public int ChildCount { get; set; }
 
       public TagContext(string name, TagContext parent)
       {
         Name = name;
         Parent = parent;
+
+        if (name == "div" || name == "table" || name == "tr"
+            || name == "ul" || name == "ol")
+        {
+          Type = TagType.Section;
+        }
+        else if (name == "p" || name == "li" || name == "td"
+          || name == "h1" || name == "h2" || name == "h3"
+          || name == "h4" || name == "h5" || name == "h6")
+        {
+          Type = TagType.Paragraph;
+        }
+        else
+        {
+          Type = TagType.Span;
+        }
       }
 
       protected override void AddInternal(IToken token)
       {
-        if (Parents().SelectMany(t => t).Contains(token))
+        if (Parents().FirstOrDefault(t => t.Any(SameTokenPredicate(token)))
+          ?.Contains(token) == true)
+        {
           return;
+        }
         base.AddInternal(token);
       }
 
@@ -376,13 +479,19 @@ namespace RtfPipe
 
       public IEnumerable<IToken> AllInherited()
       {
-        return ParentsAndSelf()
-          .SelectMany(c => c);
+        var context = new FormatContext();
+        context.AddRange(ParentsAndSelf()
+          .Reverse()
+          .SelectMany(c => c));
+        return context;
       }
 
       public override string ToString()
       {
         var builder = new StringBuilder();
+        var margins = new UnitValue[4];
+        var underline = false;
+
         foreach (var token in this)
         {
           if (token is Font font)
@@ -397,8 +506,37 @@ namespace RtfPipe
             WriteCss(builder, "color", "#" + color.Value);
           else if (token is TextAlign align)
             WriteCss(builder, "text-align", align.Value.ToString().ToLowerInvariant());
+          else if (token is SpaceAfter spaceAfter)
+            margins[2] = spaceAfter.Value;
+          else if (token is SpaceBefore spaceBefore)
+            margins[0] = spaceBefore.Value;
+          else if (token is UnderlineToken underlineToken)
+            underline = underlineToken.Value;
+          else if (token is PageBreak)
+            WriteCss(builder, "page-break-before", "always");
         }
+
+        if (Type == TagType.Paragraph)
+          WriteCss(builder, "margin", WriteBoxShort(margins));
+        else if (Name == "a")
+          WriteCss(builder, "text-decoration", underline ? "underline" : "none");
+
         return builder.ToString();
+      }
+
+      private string WriteBoxShort(params UnitValue[] values)
+      {
+        var result = new StringBuilder();
+        for (var i = 0; i < values.Length; i++)
+        {
+          if (i > 0)
+            result.Append(' ');
+          var value = values[i].ToPx().ToString("0.#");
+          result.Append(value);
+          if (value != "0")
+            result.Append("px");
+        }
+        return result.ToString();
       }
 
       private void WriteCss(StringBuilder builder, Font font)

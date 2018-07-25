@@ -9,11 +9,11 @@ namespace RtfPipe.Tests
   [TestClass]
   public class ParseRender
   {
-    [TestMethod]
-    public void Prototype()
-    {
-      TestParse("RtfPipe.Tests.Files.Headings");
-    }
+    //[TestMethod]
+    //public void Prototype()
+    //{
+    //  TestParse("RtfPipe.Tests.Files.Hyperlink");
+    //}
 
     [TestMethod]
     public void RtfToHtml()
@@ -24,6 +24,7 @@ namespace RtfPipe.Tests
       TestConvert("RtfPipe.Tests.Files.RtfParserTest_1");
       TestConvert("RtfPipe.Tests.Files.RtfParserTest_2");
       TestConvert("RtfPipe.Tests.Files.RtfParserTest_3");
+      TestConvert("RtfPipe.Tests.Files.Hyperlink");
     }
 
     private void TestParse(string path)

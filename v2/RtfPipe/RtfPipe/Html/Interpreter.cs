@@ -26,7 +26,11 @@ namespace RtfPipe
       {
         if (token is DefaultFontRef defaultFont)
         {
-          _html.DefaultFont = doc.FontTable.TryGetValue(defaultFont.Value, out var font) ? font : doc.FontTable.First().Value;
+          _html.DefaultFont = doc.FontTable.TryGetValue(defaultFont.Value, out var font) ? font : doc.FontTable.FirstOrDefault().Value;
+        }
+        else if (token is DefaultTabWidth tabWidth)
+        {
+          _html.DefaultTabWidth = tabWidth.Value;
         }
         else if (token is Group group)
         {
@@ -47,6 +51,8 @@ namespace RtfPipe
 
     private void ToHtmlGroup(Document doc, Group group, bool processRtf)
     {
+      var tabCount = 0;
+
       if (group.Contents.Count > 1
         && group.Contents[0] is IgnoreUnrecognized
         && (group.Contents[1].GetType().Name == "GenericTag" || group.Contents[1].GetType().Name == "GenericWord"))
@@ -81,6 +87,34 @@ namespace RtfPipe
             {
               // skip
             }
+            else if (dest is FieldInstructions)
+            {
+              var instructions = childGroup.Contents
+                .OfType<Group>().LastOrDefault(g => g.Destination == null && g.Contents.OfType<TextToken>().Any())
+                ?.Contents.OfType<TextToken>().FirstOrDefault()?.Value?.Trim();
+              if (!string.IsNullOrEmpty(instructions))
+              {
+                var args = instructions.Split(' ');
+                if (args[0] == "HYPERLINK")
+                  currStyle.Add(new HyperlinkToken(args));
+              }
+            }
+            else if (dest is BookmarkStart)
+            {
+              currStyle.Add(new BookmarkToken()
+              {
+                Start = true,
+                Id = childGroup.Contents.OfType<TextToken>().FirstOrDefault()?.Value
+              });
+            }
+            else if (dest is BookmarkEnd)
+            {
+              currStyle.Add(new BookmarkToken()
+              {
+                Start = false,
+                Id = childGroup.Contents.OfType<TextToken>().FirstOrDefault()?.Value
+              });
+            }
             else if (childGroup.Contents.OfType<ParagraphNumbering>().Any())
             {
               foreach (var child in childGroup.Contents.Where(t => t.Type == TokenType.ParagraphFormat))
@@ -91,15 +125,24 @@ namespace RtfPipe
               ToHtmlGroup(doc, childGroup, processRtf);
             }
           }
+          else if (token is Tab)
+          {
+            tabCount++;
+          }
           else if (token is TextToken text)
           {
-            _html.AddText(FixStyles(doc, currStyle), text.Value);
+            var style = FixStyles(doc, currStyle);
+            if (tabCount > 0)
+              _html.AddBreak(style, new Tab(), tabCount);
+            _html.AddText(style, text.Value);
+            tabCount = 0;
           }
           else if ((token.Type & TokenType.BreakTag) == TokenType.BreakTag)
           {
             _html.AddBreak(FixStyles(doc, currStyle), token);
             if (token is RowBreak)
               currStyle.InTable = false;
+            tabCount = 0;
           }
         }
         else if (token is Group childGroup2)

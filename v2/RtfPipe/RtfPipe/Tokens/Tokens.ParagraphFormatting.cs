@@ -48,12 +48,28 @@ namespace RtfPipe.Tokens
     public LeftIndent(UnitValue value) : base(value) { }
   }
 
+  public class RightIndent : ControlWord<UnitValue>
+  {
+    public override string Name => "ri";
+    public override TokenType Type => TokenType.ParagraphFormat;
+
+    public RightIndent(UnitValue value) : base(value) { }
+  }
+
   public class SpaceAfter : ControlWord<UnitValue>
   {
     public override string Name => "sa";
     public override TokenType Type => TokenType.ParagraphFormat;
 
     public SpaceAfter(UnitValue value) : base(value) { }
+  }
+
+  public class SpaceBefore : ControlWord<UnitValue>
+  {
+    public override string Name => "sb";
+    public override TokenType Type => TokenType.ParagraphFormat;
+
+    public SpaceBefore(UnitValue value) : base(value) { }
   }
 
   public class SpaceBetweenLines : ControlWord<int>
@@ -78,5 +94,11 @@ namespace RtfPipe.Tokens
     public override TokenType Type => TokenType.ParagraphFormat;
 
     public OutlineLevel(int value) : base(value) { }
+  }
+
+  public class PageBreak : ControlTag
+  {
+    public override string Name => "pagebb";
+    public override TokenType Type => TokenType.BreakTag;
   }
 }

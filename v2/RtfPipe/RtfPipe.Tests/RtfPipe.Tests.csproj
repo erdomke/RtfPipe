@@ -48,7 +48,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OReillyExamples.cs" />
     <Compile Include="ParseRender.cs" />
+    <Compile Include="PindariExamples.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -73,6 +75,7 @@
     <EmbeddedResource Include="Files\List.rtf" />
     <EmbeddedResource Include="Files\table_simple.rtf" />
     <EmbeddedResource Include="Files\Headings.rtf" />
+    <EmbeddedResource Include="Files\Hyperlink.rtf" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +95,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Files\RtfParserTest_2.html" />
     <EmbeddedResource Include="Files\RtfParserTest_3.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Files\Hyperlink.html" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
