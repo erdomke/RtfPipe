@@ -422,7 +422,7 @@ namespace RtfPipe
         // Borders and Shading
         case "brdrs": return new BorderStyleTag(BorderStyle.SingleThick);
         case "brdrth": return new BorderStyleTag(BorderStyle.DoubleThick);
-        case "brdrsh": return new BorderStyleTag(BorderStyle.Shadowed);
+        case "brdrsh": return new BorderShadow();
         case "brdrdb": return new BorderStyleTag(BorderStyle.Double);
         case "brdrdot": return new BorderStyleTag(BorderStyle.Dotted);
         case "brdrdash": return new BorderStyleTag(BorderStyle.Dashed);
@@ -465,6 +465,8 @@ namespace RtfPipe
           return new TableBorderSide(BorderPosition.Bottom);
         case "brdrl":
           return new TableBorderSide(BorderPosition.Left);
+        case "brsp":
+          return new BorderSpacing(new UnitValue(number, UnitType.Twip));
 
         // Fields and bookmarks
         case "field":

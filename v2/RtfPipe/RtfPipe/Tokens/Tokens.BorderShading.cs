@@ -16,7 +16,6 @@ namespace RtfPipe.Tokens
       {
         case BorderStyle.SingleThick: return "s";
         case BorderStyle.DoubleThick: return "th";
-        case BorderStyle.Shadowed: return "sh";
         case BorderStyle.Double: return "db";
         case BorderStyle.Dotted: return "dot";
         case BorderStyle.Dashed: return "dash";
@@ -66,5 +65,17 @@ namespace RtfPipe.Tokens
     public override string Name => "brdr" + Value.ToString().ToLowerInvariant()[0];
 
     public BorderSide(BorderPosition value) : base(value) { }
+  }
+
+  public class BorderSpacing : ControlWord<UnitValue>
+  {
+    public override string Name => "brsp";
+
+    public BorderSpacing(UnitValue value) : base(value) { }
+  }
+
+  public class BorderShadow : ControlTag
+  {
+    public override string Name => "brdrsh";
   }
 }

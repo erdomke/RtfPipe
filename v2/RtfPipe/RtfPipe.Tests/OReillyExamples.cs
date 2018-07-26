@@ -18,7 +18,7 @@ namespace RtfPipe.Tests
     {
       TestConvert(@"{\rtf1\ansi\deff0 {\fonttbl {\f0 Times New Roman;}}
 \f0\fs60 Hello, World!
-}", @"<div style=""font-size:12pt;font-family:&quot;Times New Roman&quot;;""><p style=""font-size:30pt;margin:0 0 0 0;"">Hello, World!</p></div>");
+}", @"<div style=""font-size:12pt;font-family:&quot;Times New Roman&quot;;""><p style=""font-size:30pt;margin:0;"">Hello, World!</p></div>");
     }
 
     [TestMethod()]
@@ -26,7 +26,7 @@ namespace RtfPipe.Tests
     {
       TestConvert(@"{\rtf1\ansi\deff0 {\fonttbl {\f0 Monotype Corsiva;}}
 \qc\f0\fs120\i\b Hello,\line World!
-}", @"<div style=""font-size:12pt;font-family:&quot;Monotype Corsiva&quot;;""><p style=""text-align:center;font-size:60pt;margin:0 0 0 0;""><strong><em>Hello,<br>World!</em></strong></p></div>");
+}", @"<div style=""font-size:12pt;font-family:&quot;Monotype Corsiva&quot;;""><p style=""text-align:center;font-size:60pt;margin:0;""><strong><em>Hello,<br>World!</em></strong></p></div>");
     }
 
     private void TestConvert(string rtf, string html)

@@ -66,15 +66,25 @@ namespace RtfPipe
         _inputStyle.Push(new FormatContext());
       var currStyle = _inputStyle.Peek();
 
-      foreach (var token in group.Contents)
+      for (var i = 0; i < group.Contents.Count; i++)
       {
+        var token = group.Contents[i];
         if (token is HtmlRtf htmlRtf)
         {
           processRtf = !htmlRtf.Value;
         }
         else if (processRtf)
         {
-          if ((token.Type & TokenType.Format) == TokenType.Format)
+          if (token is ControlWord<BorderPosition> borderSide)
+          {
+            var border = new BorderToken(borderSide);
+            i++;
+            while (i < group.Contents.Count && border.Add(group.Contents[i]))
+              i++;
+            i--;
+            currStyle.Add(border);
+          }
+          else if ((token.Type & TokenType.Format) == TokenType.Format)
           {
             currStyle.Add(token);
           }
@@ -114,6 +124,15 @@ namespace RtfPipe
                 Start = false,
                 Id = childGroup.Contents.OfType<TextToken>().FirstOrDefault()?.Value
               });
+            }
+            else if (dest is PictureTag)
+            {
+              var pict = new Picture(childGroup);
+              var style = FixStyles(doc, currStyle);
+              if (tabCount > 0)
+                _html.AddBreak(style, new Tab(), tabCount);
+              _html.AddPicture(style, pict);
+              tabCount = 0;
             }
             else if (childGroup.Contents.OfType<ParagraphNumbering>().Any())
             {

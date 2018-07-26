@@ -15,16 +15,28 @@ namespace RtfPipe.Tests
     //  TestParse("RtfPipe.Tests.Files.Hyperlink");
     //}
 
+    /// <summary>
+    /// Many examples are taken from https://github.com/paulhtremblay/rtf2xml/tree/master/test/test_files/good
+    /// </summary>
     [TestMethod]
     public void RtfToHtml()
     {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.bullet_list");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.char_upper_ranges");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.color");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.diff_types_border");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.escaped_text");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.heading_with_section");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.headings_mixed");
+      //TestConvert("RtfPipe.Tests.Files.Picture");
       TestConvert("RtfPipe.Tests.Files.Test01");
       TestConvert("RtfPipe.Tests.Files.minimal");
       TestConvert("RtfPipe.Tests.Files.RtfParserTest_0");
       TestConvert("RtfPipe.Tests.Files.RtfParserTest_1");
       TestConvert("RtfPipe.Tests.Files.RtfParserTest_2");
       TestConvert("RtfPipe.Tests.Files.RtfParserTest_3");
-      TestConvert("RtfPipe.Tests.Files.Hyperlink");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.Hyperlink");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.caps_mixed");
     }
 
     private void TestParse(string path)
@@ -130,6 +142,45 @@ characters which have special meaning in RTF: {}\<br>
 </body>
 </HTML>
 ";
+      Assert.AreEqual(expected, html);
+    }
+
+    [TestMethod]
+    public void ImageSize()
+    {
+      const string rtf = @"{\rtf1\ansi\ansicpg1251\deff0\nouicompat\deflang1049{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.14393}\viewkind4\uc1 
+\pard\sa200\sl240\slmult1\f0\fs22\lang9{\pict{\*\picprop}\wmetafile8\picw1323\pich265\picwgoal750\pichgoal150 
+010009000003f60000000000cd00000000000400000003010800050000000b0200000000050000
+000c020a003200030000001e0004000000070104000400000007010400cd000000410b2000cc00
+0a003200000000000a0032000000000028000000320000000a0000000100040000000000000000
+000000000000000000000000000000000000000000ffffff003300ff000033ff00000000000000
+000000000000000000000000000000000000000000000000000000000000000000000000000000
+000000222222222222222222222222222222222222222222222222220202022222222222222222
+222222222222222222222222222222222202020222222222222222222222222222222222222222
+222222222222020202222222222222222222222222222222222222222222222222220202022222
+222222222222222222222222222222222222222222222202020222222222222222222222222222
+222222222222222222222222020202222222222222222222222222222222222222222222222222
+220202022222222222222222222222222222222222222222222222222202020222222222222222
+222222222222222222222222222222222222020202222222222222222222222222222222222222
+22222222222232020202040000002701ffff030000000000
+}\par
+\par
+\par
+{\pict{\*\picprop}\wmetafile8\picw1323\pich265\picwgoal750\pichgoal150 
+0100090000037600000000004d00000000000400000003010800050000000b0200000000050000
+000c020a003200030000001e00040000000701040004000000070104004d000000410b2000cc00
+0a003200000000000a0032000000000028000000320000000a0000000100010000000000000000
+000000000000000000000000000000000000000000ffffff00ffffffffffffc001ffffffffffff
+c001ffffffffffffc001ffffffffffffc001ffffffffffffc001ffffffffffffc001ffffffffff
+ffc001ffffffffffffc001ffffffffffffc001ffffffffffffc001040000002701ffff03000000
+0000
+}\par
+
+\pard\sa200\sl276\slmult1\par
+}";
+      var html = Rtf.ToHtml(rtf);
+      var expected = "<div style=\"font-size:12pt;font-family:Calibri;\"><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><img width=\"50\" height=\"10\" src=\"data:windows/metafile;base64,AQAJAAAD9gAAAAAAzQAAAAAABAAAAAMBCAAFAAAACwIAAAAABQAAAAwCCgAyAAMAAAAeAAQAAAAHAQQABAAAAAcBBADNAAAAQQsgAMwACgAyAAAAAAAKADIAAAAAACgAAAAyAAAACgAAAAEABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////ADMA/wAAM/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIgICAiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiICAgIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiAgICIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIgICAiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiICAgIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiAgICIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIgICAiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiICAgIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiAgICIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiMgICAgQAAAAnAf//AwAAAAAA\"></p><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><br></p><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><br></p><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><img width=\"50\" height=\"10\" src=\"data:windows/metafile;base64,AQAJAAADdgAAAAAATQAAAAAABAAAAAMBCAAFAAAACwIAAAAABQAAAAwCCgAyAAMAAAAeAAQAAAAHAQQABAAAAAcBBABNAAAAQQsgAMwACgAyAAAAAAAKADIAAAAAACgAAAAyAAAACgAAAAEAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AP///////8AB////////wAH////////AAf///////8AB////////wAH////////AAf///////8AB////////wAH////////AAf///////8ABBAAAACcB//8DAAAAAAA=\"></p><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><br></p></div>";
       Assert.AreEqual(expected, html);
     }
   }

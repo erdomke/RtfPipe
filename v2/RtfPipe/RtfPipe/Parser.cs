@@ -221,7 +221,12 @@ namespace RtfPipe
               yield return ConsumeToken(GetControlWord("tab"));
               break;
             default:
-              if (_context.Peek().Destination is PictureBinaryLength binLength)
+              if (_context.Count < 1)
+              {
+                if (!char.IsWhiteSpace((char)curr))
+                  throw new NotSupportedException("Non-whitespace characters were found after the end of the file");
+              }
+              else if (_context.Peek().Destination is PictureBinaryLength binLength)
               {
                 var i = 1;
                 _context.Peek().ValueBuffer.Append(curr);
@@ -278,7 +283,15 @@ namespace RtfPipe
       {
         var skip = _context.Count < 1 ? 1 : _context.Peek().AsciiFallbackChars;
         for (var i = 0; i < skip; i++)
-          _reader.Read();
+        {
+          var read = _reader.Read();
+          if (read == '\\' && _reader.Peek() == '\'')
+          {
+            _reader.Read(); // read single quote
+            _reader.Read(); // read first nibble of byte
+            _reader.Read(); // read second nibble of byte
+          }
+        }
       }
 
       if (_reader.Peek() == ' ')

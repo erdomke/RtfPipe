@@ -12,8 +12,6 @@ namespace RtfPipe
     SingleThick,
     ///<summary>Double-thickness border.</summary>
     DoubleThick,
-    ///<summary>Shadowed border.</summary>
-    Shadowed,
     ///<summary>Double border.</summary>
     Double,
     ///<summary>Dotted border.</summary>

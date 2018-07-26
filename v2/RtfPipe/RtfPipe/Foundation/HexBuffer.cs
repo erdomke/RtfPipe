@@ -20,9 +20,9 @@ namespace RtfPipe
       else if (ch >= '0' && ch <= '9')
         AppendNibble(ch - '0');
       else if (ch >= 'a' && ch <= 'f')
-        AppendNibble(ch - 'a');
+        AppendNibble(ch - 'a' + 10);
       else if (ch >= 'A' && ch <= 'Z')
-        AppendNibble(ch - 'A');
+        AppendNibble(ch - 'A' + 10);
       else
         throw new NotSupportedException();
 

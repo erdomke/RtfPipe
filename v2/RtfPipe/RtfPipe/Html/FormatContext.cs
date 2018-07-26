@@ -85,6 +85,26 @@ namespace RtfPipe
         Add(token);
     }
 
+    protected void AddRange(FormatContext tokens)
+    {
+      if (_formats.Count < 1)
+        _formats.AddRange(tokens);
+      else
+        AddRange((IEnumerable<IToken>)tokens);
+    }
+
+    public void RemoveRange(IEnumerable<IToken> tokens)
+    {
+      var i = 0;
+      while (i < _formats.Count)
+      {
+        if (tokens.Contains(_formats[i]))
+          _formats.RemoveAt(i);
+        else
+          i++;
+      }
+    }
+
     public void RemoveWhere(Func<IToken, bool> predicate)
     {
       var i = 0;
@@ -155,6 +175,9 @@ namespace RtfPipe
           buffer = tabAlign.Value;
         }
       }
+
+      if (defaultWidth.ToPx() == 0)
+        defaultWidth = new UnitValue(720, UnitType.Twip);
 
       tab.Position += defaultWidth * (idx - curr);
       tab.Alignment = TextAlignment.Left;

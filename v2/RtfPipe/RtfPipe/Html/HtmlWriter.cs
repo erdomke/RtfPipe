@@ -16,7 +16,6 @@ namespace RtfPipe
 
     public Font DefaultFont { get; set; }
     public UnitValue DefaultTabWidth { get; set; }
-    public FontSize DefaultFontSize { get; } = new FontSize(UnitValue.FromHalfPoint(24));
 
     public HtmlWriter(XmlWriter xmlWriter, RtfHtmlSettings settings)
     {
@@ -72,7 +71,7 @@ namespace RtfPipe
       else if (token is SectionBreak || token is PageBreak)
       {
         EnsureSection(format);
-        while (_tags.Peek().Name != "div")
+        while (_tags.Count > 1)
           EndTag();
         EndTag();
         _startOfLine = true;
@@ -148,7 +147,6 @@ namespace RtfPipe
 
       var tag = new TagContext("div", _tags.SafePeek());
       tag.AddRange(format.Where(t => t.Type == TokenType.SectionFormat || t is PageBreak));
-      tag.Add(DefaultFontSize);
       if (DefaultFont != null) tag.Add(DefaultFont);
       WriteTag(tag);
     }
@@ -175,15 +173,11 @@ namespace RtfPipe
             ?? format.OfType<NumberingTypeToken>().FirstOrDefault()?.Value
             ?? NumberingType.Bullet;
 
-          var listTag = default(TagContext);
-          if (numType == NumberingType.Bullet)
-            listTag = new TagContext("ul", _tags.SafePeek());
-          else
-            listTag = new TagContext("ol", _tags.SafePeek());
-
-          listTag.AddRange(format.Where(t => (t.Type == TokenType.ParagraphFormat || t.Type == TokenType.CharacterFormat)
-            && !IsSpanElement(t)));
-          WriteTag(listTag);
+          var tag = new TagContext(numType == NumberingType.Bullet ? "ul" : "ol", _tags.SafePeek());
+          tag.AddRange(format.Where(t => !IsSpanElement(t) && !(t is CapitalToken)
+            && (t.Type == TokenType.ParagraphFormat
+              || t.Type == TokenType.CharacterFormat)));
+          WriteTag(tag);
 
           switch (numType)
           {
@@ -202,10 +196,7 @@ namespace RtfPipe
           }
         }
 
-        var tag = new TagContext("li", _tags.SafePeek());
-        tag.AddRange(format.Where(t => (t.Type == TokenType.ParagraphFormat || t.Type == TokenType.CharacterFormat)
-          && !IsSpanElement(t)));
-        WriteTag(tag);
+        WriteTag(ParagraphTag("li", format));
       }
       else if (format.InTable)
       {
@@ -225,10 +216,7 @@ namespace RtfPipe
           WriteTag(tag);
         }
 
-        tag = new TagContext("td", _tags.SafePeek());
-        tag.AddRange(format.Where(t => (t.Type == TokenType.ParagraphFormat || t.Type == TokenType.CharacterFormat)
-          && !IsSpanElement(t)));
-        WriteTag(tag);
+        WriteTag(ParagraphTag("td", format));
       }
       else if (format.TryGetValue<OutlineLevel>(out var outline) && outline.Value >= 0 && outline.Value < 6)
       {
@@ -236,21 +224,39 @@ namespace RtfPipe
         while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == tagName))
           EndTag();
 
-        var tag = new TagContext(tagName, _tags.SafePeek());
-        tag.AddRange(format.Where(t => (t.Type == TokenType.ParagraphFormat || t.Type == TokenType.CharacterFormat)
-          && !IsSpanElement(t)));
-        WriteTag(tag);
+        WriteTag(ParagraphTag(tagName, format));
       }
       else
       {
         while (_tags.Peek().Name != "div")
           EndTag();
 
-        var tag = new TagContext("p", _tags.SafePeek());
-        tag.AddRange(format.Where(t => (t.Type == TokenType.ParagraphFormat || t.Type == TokenType.CharacterFormat)
-          && !IsSpanElement(t)));
-        WriteTag(tag);
+        var newBorders = format.OfType<BorderToken>().ToList();
+        var existingBorders = _tags.Peek().OfType<BorderToken>().ToList();
+        if (newBorders.Count != existingBorders.Count || newBorders.Except(existingBorders).Any())
+        {
+          if (existingBorders.Count > 0)
+            EndTag();
+
+          if (newBorders.Count > 0)
+          {
+            var tag = new TagContext("div", _tags.SafePeek());
+            tag.AddRange(format.OfType<BorderToken>());
+            WriteTag(tag);
+          }
+        }
+
+        WriteTag(ParagraphTag("p", format));
       }
+    }
+
+    private TagContext ParagraphTag(string name, FormatContext format)
+    {
+      var tag = new TagContext(name, _tags.SafePeek());
+      tag.AddRange(format.Where(t => !IsSpanElement(t) && !(t is CapitalToken)
+        && (t.Type == TokenType.ParagraphFormat
+          || t.Type == TokenType.CharacterFormat)));
+      return tag;
     }
 
     private void EnsureSpans(FormatContext format)
@@ -267,11 +273,11 @@ namespace RtfPipe
         return;
       }
 
-      var paragraphFormats = _tags.First(t => t.Type == TagType.Paragraph).ToList();
-      existing = existing.Where(t => !intersection.Contains(t) && !paragraphFormats.Contains(t)).ToList();
+      var paragraphFormats = _tags.Peek().AllParagraph.ToList();
+      existing = existing.Where(t => !intersection.Contains(t)).ToList();
       requested = requested.Where(t => !intersection.Contains(t)).ToList();
 
-      if (existing.Count > 0 && _tags.Peek().Type != TagType.Paragraph)
+      if (_tags.Peek().Type != TagType.Paragraph && existing.Any(t => !paragraphFormats.Contains(t)))
       {
         EndTag();
         EnsureSpans(format);
@@ -364,14 +370,15 @@ namespace RtfPipe
     {
       var tag = new TagContext("span", _tags.SafePeek());
       tag.AddRange(CharacterFormats(format));
-      WriteTag(tag);
+      if (tag.Any())
+        WriteTag(tag);
     }
 
     private List<IToken> CharacterFormats(FormatContext context)
     {
       var tokens = (IEnumerable<IToken>)context;
       if (context is TagContext tag)
-        tokens = tag.AllInherited();
+        tokens = tag.AllInherited;
       return tokens
         .Where(t => t.Type == TokenType.CharacterFormat)
         .ToList();
@@ -420,6 +427,15 @@ namespace RtfPipe
 
     private class TagContext : FormatContext
     {
+      private readonly FormatContext _allParagraph = new FormatContext();
+      private readonly FormatContext _all = new FormatContext();
+
+      private static readonly UnitValue _defaultFontSize = UnitValue.FromHalfPoint(24);
+      private static readonly ColorValue _defaultColor = new ColorValue(0, 0, 0);
+
+      public IEnumerable<IToken> AllInherited { get { return _all; } }
+      public IEnumerable<IToken> AllParagraph { get { return _allParagraph; } }
+
       public string Name { get; }
       public TagContext Parent { get; }
       public TagType Type { get; }
@@ -445,52 +461,42 @@ namespace RtfPipe
         {
           Type = TagType.Span;
         }
+
+        if (parent != null)
+        {
+          _allParagraph.AddRange(parent._allParagraph);
+          _all.AddRange(parent._all);
+        }
       }
 
       protected override void AddInternal(IToken token)
       {
-        if (Parents().FirstOrDefault(t => t.Any(SameTokenPredicate(token)))
-          ?.Contains(token) == true)
-        {
+        if (_all.Contains(token))
           return;
-        }
+
+        // Don't need to set the default font-size
+        if (token is FontSize size && size.Value == _defaultFontSize && !_all.OfType<FontSize>().Any())
+          return;
+
+        // Don't need to set the default color
+        if (token is ForegroundColor foreColor && foreColor.Value == _defaultColor && !_all.OfType<ForegroundColor>().Any())
+          return;
+
         base.AddInternal(token);
-      }
-
-      public IEnumerable<TagContext> Parents()
-      {
-        var curr = this.Parent;
-        while (curr != null)
-        {
-          yield return curr;
-          curr = curr.Parent;
-        }
-      }
-
-      public IEnumerable<TagContext> ParentsAndSelf()
-      {
-        var curr = this;
-        while (curr != null)
-        {
-          yield return curr;
-          curr = curr.Parent;
-        }
-      }
-
-      public IEnumerable<IToken> AllInherited()
-      {
-        var context = new FormatContext();
-        context.AddRange(ParentsAndSelf()
-          .Reverse()
-          .SelectMany(c => c));
-        return context;
+        _all.Add(token);
+        if (Type != TagType.Span)
+          _allParagraph.Add(token);
       }
 
       public override string ToString()
       {
         var builder = new StringBuilder();
         var margins = new UnitValue[4];
+        var borders = new BorderToken[4];
         var underline = false;
+
+        if (Parent == null && !this.OfType<FontSize>().Any())
+          WriteCss(builder, "font-size", _defaultFontSize.ToPt().ToString("0.#") + "pt");
 
         foreach (var token in this)
         {
@@ -514,27 +520,134 @@ namespace RtfPipe
             underline = underlineToken.Value;
           else if (token is PageBreak)
             WriteCss(builder, "page-break-before", "always");
+          else if (token is LeftIndent leftIndent && (leftIndent.Value.ToPx() != 0 || Name == "ul" || Name == "ol"))
+            margins[3] = leftIndent.Value;
+          else if (token is BorderToken border)
+            borders[(int)border.Side] = border;
         }
 
-        if (Type == TagType.Paragraph)
+        if (Name == "ul" || Name == "ol")
+        {
+          if (!this.OfType<LeftIndent>().Any())
+            margins[3] = new UnitValue(720, UnitType.Twip);
           WriteCss(builder, "margin", WriteBoxShort(margins));
+          WriteCss(builder, "padding-left", "0");
+        }
+        else if (Type == TagType.Paragraph && (Name == "p" || !margins.All(v => v.ToPx() == 0)))
+        {
+          WriteCss(builder, "margin", WriteBoxShort(margins));
+        }
         else if (Name == "a")
+        {
           WriteCss(builder, "text-decoration", underline ? "underline" : "none");
+        }
+
+        if (borders.All(b => b != null) && borders.Skip(1).All(b => b.SameBorderStyle(borders[0])))
+        {
+          WriteCss(builder, "border", BorderString(borders[0]));
+        }
+        else
+        {
+          if (borders[0] != null)
+            WriteCss(builder, "border-top", BorderString(borders[0]));
+          if (borders[1] != null)
+            WriteCss(builder, "border-right", BorderString(borders[1]));
+          if (borders[2] != null)
+            WriteCss(builder, "border-bottom", BorderString(borders[2]));
+          if (borders[3] != null)
+            WriteCss(builder, "border-left", BorderString(borders[3]));
+        }
+
+        if (borders.Any(b => b != null))
+          WriteCss(builder, "padding", WriteBoxShort(borders.Select(b => b?.Padding ?? UnitValue.Empty).ToArray()));
 
         return builder.ToString();
       }
 
+      private string PxString(UnitValue value)
+      {
+        var px = value.ToPx().ToString("0.#");
+        if (px == "0")
+          return px;
+        return px + "px";
+      }
+
+      private string BorderString(BorderToken border)
+      {
+        var width = border.Width.ToPx();
+        if (width < 0.5 || border.Style == BorderStyle.Hairline)
+          width = 1;
+        else if (border.Style == BorderStyle.DoubleThick)
+          width *= 2;
+        else if (border.Style == BorderStyle.Triple)
+          width *= 3;
+
+        if (width <= 0 || border.Style == BorderStyle.None)
+          return "none";
+
+        var style = width.ToString("0.#") + "px ";
+
+        switch (border.Style)
+        {
+          case BorderStyle.Dashed:
+          case BorderStyle.DashedSmall:
+          case BorderStyle.DotDashed:
+            style += "dashed";
+            break;
+          case BorderStyle.Dotted:
+          case BorderStyle.DotDotDashed:
+            style += "dotted";
+            break;
+          case BorderStyle.Double:
+          case BorderStyle.DoubleWavy:
+          case BorderStyle.ThickThinLarge:
+          case BorderStyle.ThickThinMedium:
+          case BorderStyle.ThickThinSmall:
+          case BorderStyle.ThinThickLarge:
+          case BorderStyle.ThinThickMedium:
+          case BorderStyle.ThinThickSmall:
+          case BorderStyle.ThinThickThinLarge:
+          case BorderStyle.ThinThickThinMedium:
+          case BorderStyle.ThinThickThinSmall:
+            style += "double";
+            break;
+          case BorderStyle.Outset:
+            style += "outset";
+            break;
+          case BorderStyle.Inset:
+            style += "inset";
+            break;
+          case BorderStyle.Embossed:
+          case BorderStyle.Frame:
+            style += "ridge";
+            break;
+          case BorderStyle.Engraved:
+            style += "groove";
+            break;
+          default:
+            style += "solid";
+            break;
+        }
+
+        var color = border.Color ?? new ColorValue(0, 0, 0);
+        style += " #" + color;
+
+        return style;
+      }
+
       private string WriteBoxShort(params UnitValue[] values)
       {
+        if (values.Distinct().Count() == 1)
+        {
+          return PxString(values[0]);
+        }
+
         var result = new StringBuilder();
         for (var i = 0; i < values.Length; i++)
         {
           if (i > 0)
             result.Append(' ');
-          var value = values[i].ToPx().ToString("0.#");
-          result.Append(value);
-          if (value != "0")
-            result.Append("px");
+          result.Append(PxString(values[i]));
         }
         return result.ToString();
       }

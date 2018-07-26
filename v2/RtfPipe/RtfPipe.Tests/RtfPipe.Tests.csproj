@@ -60,22 +60,19 @@
     <EmbeddedResource Include="Files\RtfParserTest_1.rtf" />
     <EmbeddedResource Include="Files\RtfParserTest_2.rtf" />
     <EmbeddedResource Include="Files\RtfParserTest_3.rtf" />
-    <EmbeddedResource Include="Files\RtfParserTest_4.rtf" />
-    <EmbeddedResource Include="Files\RtfParserTest_5.rtf" />
-    <EmbeddedResource Include="Files\RtfParserTest_6.rtf" />
-    <EmbeddedResource Include="Files\RtfParserTest_7.rtf" />
-    <EmbeddedResource Include="Files\RtfParserTest_8.rtf" />
-    <EmbeddedResource Include="Files\RtfParserTest_fail_0.rtf" />
-    <EmbeddedResource Include="Files\RtfParserTest_fail_1.rtf" />
-    <EmbeddedResource Include="Files\RtfParserTest_fail_2.rtf" />
-    <EmbeddedResource Include="Files\RtfParserTest_fail_3.rtf" />
-    <EmbeddedResource Include="Files\RtfParserTest_fail_4.rtf" />
-    <EmbeddedResource Include="Files\RtfParserTest_fail_5.rtf" />
-    <EmbeddedResource Include="Files\RtfParserTest_fail_6.rtf" />
     <EmbeddedResource Include="Files\List.rtf" />
-    <EmbeddedResource Include="Files\table_simple.rtf" />
     <EmbeddedResource Include="Files\Headings.rtf" />
-    <EmbeddedResource Include="Files\Hyperlink.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\caps_mixed.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\Hyperlink.rtf" />
+    <EmbeddedResource Include="Files\Picture.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\bullet_list.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\char_upper_ranges.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\color.rtf" />
+    <None Include="Files\rtf2xml\char_upper_ranges_hex.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\escaped_text.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\headings_mixed.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\heading_with_section.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\diff_types_border.rtf" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -97,7 +94,27 @@
     <EmbeddedResource Include="Files\RtfParserTest_3.html" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Files\Hyperlink.html" />
+    <EmbeddedResource Include="Files\rtf2xml\Hyperlink.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Files\rtf2xml\caps_mixed.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Files\Picture.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Files\rtf2xml\bullet_list.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Files\rtf2xml\char_upper_ranges.html" />
+    <EmbeddedResource Include="Files\rtf2xml\color.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Files\rtf2xml\char_upper_ranges_hex.html" />
+    <EmbeddedResource Include="Files\rtf2xml\diff_types_border.html" />
+    <EmbeddedResource Include="Files\rtf2xml\escaped_text.html" />
+    <EmbeddedResource Include="Files\rtf2xml\headings_mixed.html" />
+    <EmbeddedResource Include="Files\rtf2xml\heading_with_section.html" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
