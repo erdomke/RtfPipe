@@ -73,7 +73,7 @@ namespace RtfPipe.Tokens
   public class TableBorderSide : ControlWord<BorderPosition>
   {
     public override string Name => "trbrdr" + Value.ToString().ToLowerInvariant()[0];
-    public override TokenType Type => TokenType.CellFormat;
+    public override TokenType Type => TokenType.RowFormat;
 
     public TableBorderSide(BorderPosition value) : base(value) { }
   }
@@ -89,7 +89,7 @@ namespace RtfPipe.Tokens
   public class TablePaddingTop : ControlWord<UnitValue>
   {
     public override string Name => "trpaddt";
-    public override TokenType Type => TokenType.CellFormat;
+    public override TokenType Type => TokenType.RowFormat;
 
     public TablePaddingTop(UnitValue value) : base(value) { }
   }
@@ -97,7 +97,7 @@ namespace RtfPipe.Tokens
   public class TablePaddingRight : ControlWord<UnitValue>
   {
     public override string Name => "trpaddr";
-    public override TokenType Type => TokenType.CellFormat;
+    public override TokenType Type => TokenType.RowFormat;
 
     public TablePaddingRight(UnitValue value) : base(value) { }
   }
@@ -105,7 +105,7 @@ namespace RtfPipe.Tokens
   public class TablePaddingBottom : ControlWord<UnitValue>
   {
     public override string Name => "trpaddb";
-    public override TokenType Type => TokenType.CellFormat;
+    public override TokenType Type => TokenType.RowFormat;
 
     public TablePaddingBottom(UnitValue value) : base(value) { }
   }
@@ -113,7 +113,7 @@ namespace RtfPipe.Tokens
   public class TablePaddingLeft : ControlWord<UnitValue>
   {
     public override string Name => "trpaddl";
-    public override TokenType Type => TokenType.CellFormat;
+    public override TokenType Type => TokenType.RowFormat;
 
     public TablePaddingLeft(UnitValue value) : base(value) { }
   }

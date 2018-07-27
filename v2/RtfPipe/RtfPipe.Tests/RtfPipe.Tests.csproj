@@ -54,6 +54,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Files\rtf2xml\table_simple.rtf" />
     <EmbeddedResource Include="Files\Test01.rtf" />
     <EmbeddedResource Include="Files\minimal.rtf" />
     <EmbeddedResource Include="Files\RtfParserTest_0.rtf" />
@@ -111,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Files\rtf2xml\char_upper_ranges_hex.html" />
+    <EmbeddedResource Include="Files\rtf2xml\table_simple.html" />
     <EmbeddedResource Include="Files\rtf2xml\diff_types_border.html" />
     <EmbeddedResource Include="Files\rtf2xml\escaped_text.html" />
     <EmbeddedResource Include="Files\rtf2xml\headings_mixed.html" />

@@ -418,6 +418,12 @@ namespace RtfPipe
           return new CellWidth(number);
         case "intbl":
           return new InTable();
+        case "clvertalt":
+          return new CellVerticalAlign(VerticalAlignment.Top);
+        case "clvertalc":
+          return new CellVerticalAlign(VerticalAlignment.Center);
+        case "clvertalb":
+          return new CellVerticalAlign(VerticalAlignment.Bottom);
 
         // Borders and Shading
         case "brdrs": return new BorderStyleTag(BorderStyle.SingleThick);

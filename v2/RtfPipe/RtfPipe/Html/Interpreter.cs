@@ -75,7 +75,15 @@ namespace RtfPipe
         }
         else if (processRtf)
         {
-          if (token is ControlWord<BorderPosition> borderSide)
+          if (token.Type == TokenType.CellFormat)
+          {
+            var start = i;
+            while (i < group.Contents.Count && !(group.Contents[i] is RightCellBoundary))
+              i++;
+            var cell = new CellToken(group.Contents.Skip(start).Take(i - start + 1), currStyle.OfType<CellToken>().LastOrDefault());
+            currStyle.Add(cell);
+          }
+          else if (token is ControlWord<BorderPosition> borderSide)
           {
             var border = new BorderToken(borderSide);
             i++;
@@ -160,7 +168,10 @@ namespace RtfPipe
           {
             _html.AddBreak(FixStyles(doc, currStyle), token);
             if (token is RowBreak)
-              currStyle.InTable = false;
+            {
+              foreach (var style in _inputStyle)
+                style.InTable = false;
+            }
             tabCount = 0;
           }
         }

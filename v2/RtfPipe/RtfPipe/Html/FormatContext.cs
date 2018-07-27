@@ -20,7 +20,8 @@ namespace RtfPipe
       }
       else if (token is ParagraphDefault)
       {
-        RemoveWhere(t => t.Type == TokenType.ParagraphFormat);
+        if (!InTable)
+          RemoveWhere(t => t.Type == TokenType.ParagraphFormat);
         InTable = false;
       }
       else if (token is RowDefaults)
@@ -67,7 +68,7 @@ namespace RtfPipe
         return t => t is TextAlign;
       else if (token is Font font)
         return t => t is Font;
-      else if (token is TabPosition || token is TabAlignment)
+      else if (token is TabPosition || token is TabAlignment || token is RightCellBoundary)
         return t => false;
       else if (token is IWord word)
         return t => t is IWord currWord && currWord.Name == word.Name;

@@ -207,6 +207,7 @@ namespace RtfPipe
         if (!(_tags.Peek().Name == "table" || _tags.Peek().Name == "tr"))
         {
           tag = new TagContext("table", _tags.SafePeek());
+          tag.AddRange(format.Where(t => t is CellSpacing || t is RowLeft));
           WriteTag(tag);
         }
 
@@ -255,7 +256,8 @@ namespace RtfPipe
       var tag = new TagContext(name, _tags.SafePeek());
       tag.AddRange(format.Where(t => !IsSpanElement(t) && !(t is CapitalToken)
         && (t.Type == TokenType.ParagraphFormat
-          || t.Type == TokenType.CharacterFormat)));
+          || t.Type == TokenType.CharacterFormat
+          || t.Type == TokenType.RowFormat)));
       return tag;
     }
 
@@ -440,11 +442,15 @@ namespace RtfPipe
       public TagContext Parent { get; }
       public TagType Type { get; }
       public int ChildCount { get; set; }
+      public int CellCount { get; set; }
 
       public TagContext(string name, TagContext parent)
       {
         Name = name;
         Parent = parent;
+
+        if (name == "td")
+          CellCount = parent.CellCount++;
 
         if (name == "div" || name == "table" || name == "tr"
             || name == "ul" || name == "ol")
@@ -493,6 +499,7 @@ namespace RtfPipe
         var builder = new StringBuilder();
         var margins = new UnitValue[4];
         var borders = new BorderToken[4];
+        var padding = new UnitValue[4];
         var underline = false;
 
         if (Parent == null && !this.OfType<FontSize>().Any())
@@ -516,6 +523,8 @@ namespace RtfPipe
             margins[2] = spaceAfter.Value;
           else if (token is SpaceBefore spaceBefore)
             margins[0] = spaceBefore.Value;
+          else if (token is RowLeft rowLeft)
+            margins[3] = rowLeft.Value;
           else if (token is UnderlineToken underlineToken)
             underline = underlineToken.Value;
           else if (token is PageBreak)
@@ -524,6 +533,19 @@ namespace RtfPipe
             margins[3] = leftIndent.Value;
           else if (token is BorderToken border)
             borders[(int)border.Side] = border;
+          else if (token is TablePaddingTop paddingTop)
+            padding[0] = paddingTop.Value;
+          else if (token is TablePaddingRight paddingRight)
+            padding[1] = paddingRight.Value;
+          else if (token is TablePaddingBottom paddingBottom)
+            padding[2] = paddingBottom.Value;
+          else if (token is TablePaddingLeft paddingLeft)
+            padding[3] = paddingLeft.Value;
+        }
+
+        if (Name == "table")
+        {
+          WriteCss(builder, "border-spacing", "0");
         }
 
         if (Name == "ul" || Name == "ol")
@@ -533,13 +555,29 @@ namespace RtfPipe
           WriteCss(builder, "margin", WriteBoxShort(margins));
           WriteCss(builder, "padding-left", "0");
         }
-        else if (Type == TagType.Paragraph && (Name == "p" || !margins.All(v => v.ToPx() == 0)))
+        else if (Name == "p" || !margins.All(v => v.ToPx() == 0))
         {
           WriteCss(builder, "margin", WriteBoxShort(margins));
         }
         else if (Name == "a")
         {
           WriteCss(builder, "text-decoration", underline ? "underline" : "none");
+        }
+
+        var cell = this.OfType<CellToken>().FirstOrDefault(t => t.Index == CellCount);
+        if (cell != null)
+        {
+          for (var i = 0; i < 4; i++)
+            borders[i] = cell.Borders[i] ?? borders[i];
+
+          if (cell.Width > 0 && cell.WidthUnit == CellWidthUnit.Twip)
+            WriteCss(builder, "width", PxString(new UnitValue(cell.Width, UnitType.Twip)));
+          else if (cell.BoundaryDiff.Value > 0)
+            WriteCss(builder, "width", PxString(cell.BoundaryDiff));
+
+          if (cell.VerticalAlignment != VerticalAlignment.Top)
+            WriteCss(builder, "vertical-align"
+              , cell.VerticalAlignment == VerticalAlignment.Center ? "middle" : cell.VerticalAlignment.ToString());
         }
 
         if (borders.All(b => b != null) && borders.Skip(1).All(b => b.SameBorderStyle(borders[0])))
@@ -558,8 +596,14 @@ namespace RtfPipe
             WriteCss(builder, "border-left", BorderString(borders[3]));
         }
 
-        if (borders.Any(b => b != null))
-          WriteCss(builder, "padding", WriteBoxShort(borders.Select(b => b?.Padding ?? UnitValue.Empty).ToArray()));
+        for (var i = 0; i < borders.Length; i++)
+        {
+          if (!padding[i].HasValue && borders[i] != null)
+            padding[i] = borders[i].Padding;
+        }
+
+        if (padding.Any(p => p.Value > 0))
+          WriteCss(builder, "padding", WriteBoxShort(padding));
 
         return builder.ToString();
       }

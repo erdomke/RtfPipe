@@ -28,6 +28,7 @@ namespace RtfPipe.Tests
       TestConvert("RtfPipe.Tests.Files.rtf2xml.escaped_text");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.heading_with_section");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.headings_mixed");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.table_simple");
       //TestConvert("RtfPipe.Tests.Files.Picture");
       TestConvert("RtfPipe.Tests.Files.Test01");
       TestConvert("RtfPipe.Tests.Files.minimal");
