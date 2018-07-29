@@ -101,4 +101,9 @@ namespace RtfPipe.Tokens
     public override string Name => "pagebb";
     public override TokenType Type => TokenType.BreakTag;
   }
+
+  public class Footnote : ControlTag
+  {
+    public override string Name => "footnote";
+  }
 }

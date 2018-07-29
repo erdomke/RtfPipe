@@ -45,15 +45,9 @@ namespace RtfPipe
       {
         RemoveWhere(t => t is BookmarkToken bkmkStart && bkmkStart.Id == bookmark.Id);
       }
-      else if (token.Type == TokenType.CharacterFormat
-        && token is IWord underline
-        && underline.Name.StartsWith("ul")
-        && !(underline is UnderlineColor))
+      else if (IsUnderline(token))
       {
-        RemoveWhere(t => t.Type == TokenType.CharacterFormat
-          && t is IWord ul
-          && ul.Name.StartsWith("ul")
-          && !(t is UnderlineColor));
+        RemoveWhere(IsUnderline);
         if (!(token is ControlWord<bool> ulBool) || ulBool.Value)
           AddInternal(token);
       }
@@ -214,6 +208,14 @@ namespace RtfPipe
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
+    }
+
+    public static bool IsUnderline(IToken token)
+    {
+      return token.Type == TokenType.CharacterFormat
+        && token is IWord underline
+        && underline.Name.StartsWith("ul")
+        && !(underline is UnderlineColor);
     }
   }
 }

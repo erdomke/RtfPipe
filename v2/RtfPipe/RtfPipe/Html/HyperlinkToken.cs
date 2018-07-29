@@ -12,6 +12,8 @@ namespace RtfPipe
     public string Target { get; set; }
     public string Title { get; set; }
 
+    public HyperlinkToken() { }
+
     public HyperlinkToken(string[] args)
     {
       for (var i = 1; i < args.Length; i++)

@@ -66,7 +66,7 @@ namespace RtfPipe.Tokens
 
   public class OffsetToken : ControlWord<UnitValue>
   {
-    public override string Name => Value.Value > 0 ? "up" : "dn";
+    public override string Name => Value.Value > 0 ? "dn" : "up";
     public override TokenType Type => TokenType.CharacterFormat;
 
     public OffsetToken(UnitValue value) : base(value) { }

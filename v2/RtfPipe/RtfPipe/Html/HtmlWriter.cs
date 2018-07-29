@@ -90,6 +90,16 @@ namespace RtfPipe
           EnsureSection(format);
         }
       }
+      else if (token is FootnoteBreak)
+      {
+        EnsureSection(format);
+        while (_tags.Count > 1)
+          EndTag();
+        _writer.WriteStartElement("hr");
+        _writer.WriteAttributeString("style", "width:2in;border:0.5px solid black;margin-left:0");
+        _writer.WriteEndElement();
+        _startOfLine = true;
+      }
       else if (token is CellBreak)
       {
         EnsureParagraph(format);
@@ -381,7 +391,7 @@ namespace RtfPipe
       }
       else if (TryGetValue<SuperStartToken, IToken>(requested, out var super))
       {
-        WriteSpanElement(format, "super", super, requested);
+        WriteSpanElement(format, "sup", super, requested);
       }
       else if (TryGetValue<BookmarkToken, IToken>(requested, out var bookmark))
       {
@@ -420,10 +430,7 @@ namespace RtfPipe
 
     private bool TryGetUnderline(IEnumerable<IToken> tokens, out IToken value)
     {
-      value = tokens.FirstOrDefault(t => t.Type == TokenType.CharacterFormat
-        && t is IWord word
-        && word.Name.StartsWith("ul")
-        && !(t is UnderlineColor));
+      value = tokens.FirstOrDefault(FormatContext.IsUnderline);
       return value != null;
     }
 
@@ -464,7 +471,7 @@ namespace RtfPipe
     {
       return token is BoldToken
         || token is ItalicToken
-        || (token is UnderlineToken && context != "a")
+        || (FormatContext.IsUnderline(token) && context != "a")
         || token is StrikeToken
         || token is StrikeDoubleToken
         || token is SubStartToken
@@ -635,15 +642,20 @@ namespace RtfPipe
             WriteCss(builder, "text-decoration-style", "dashed");
           else if (token is UnderlineDotted || token is UnderlineDashDotDot || token is UnderlineThickDotted || token is UnderlineThickDashDotDot)
             WriteCss(builder, "text-decoration-style", "dotted");
-          else if (token is UnderlineWave || token is UnderlineHeavyWave)
+          else if (token is UnderlineWave || token is UnderlineHeavyWave || token is UnderlineDoubleWave)
             WriteCss(builder, "text-decoration-style", "wavy");
-          else if (token is StrikeDoubleToken)
+          else if (token is StrikeDoubleToken || token is UnderlineDouble)
             WriteCss(builder, "text-decoration-style", "double");
           else if (token is UnderlineColor underlineColor)
             WriteCss(builder, "text-decoration-color", "#" + underlineColor.Value);
           else if (token is UnderlineWord)
             WriteCss(builder, "text-decoration-skip", "spaces");
+          else if (token is OffsetToken offset)
+            WriteCss(builder, "top", PxString(offset.Value)).Append("position:relative;");
         }
+
+        if (this.OfType<OutlineText>().Any() && !this.OfType<ForegroundColor>().Any())
+          WriteCss(builder, "color", "#fff");
 
         var cell = CellToken();
         if (cell != null)
@@ -863,12 +875,13 @@ namespace RtfPipe
         WriteCss(builder, "font-family", name);
       }
 
-      private void WriteCss(StringBuilder builder, string property, string value)
+      private StringBuilder WriteCss(StringBuilder builder, string property, string value)
       {
         builder.Append(property)
           .Append(":")
           .Append(value)
           .Append(";");
+        return builder;
       }
     }
   }

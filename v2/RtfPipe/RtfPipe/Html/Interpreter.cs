@@ -11,6 +11,8 @@ namespace RtfPipe
     private readonly Stack<FormatContext> _inputStyle = new Stack<FormatContext>();
     private IHtmlWriter _html;
     private readonly XmlWriter _xml;
+    private readonly List<Group> _footnotes = new List<Group>();
+    private int _footnoteIdx;
 
     public Interpreter(XmlWriter writer)
     {
@@ -19,6 +21,8 @@ namespace RtfPipe
 
     public void ToHtml(Document doc, RtfHtmlSettings settings)
     {
+      _footnotes.Clear();
+      _footnoteIdx = 0;
       _html = doc.HasHtml ? (IHtmlWriter)new DeencapsulationWriter(_xml) : new HtmlWriter(_xml, settings);
 
       var body = new Group();
@@ -46,6 +50,7 @@ namespace RtfPipe
       }
 
       ToHtmlGroup(doc, body, true);
+      RenderFootnotes(doc);
       _html.Close();
     }
 
@@ -157,6 +162,29 @@ namespace RtfPipe
               _html.AddPicture(style, pict);
               tabCount = 0;
             }
+            else if (dest is Footnote)
+            {
+              _footnotes.Add(childGroup);
+              var linkGroup = new Group();
+              _footnoteIdx++;
+              var title = string.Concat(childGroup.Contents
+                .Select(t =>
+                {
+                  if (t is TextToken txt)
+                    return txt.Value;
+                  if (t.Type == TokenType.BreakTag)
+                    return " ";
+                  return "";
+                }).ToArray());
+              linkGroup.Contents.Add(new HyperlinkToken()
+              {
+                Url = "#" + FootnoteId(_footnoteIdx),
+                Title = title
+              });
+              linkGroup.Contents.Add(new SuperStartToken());
+              linkGroup.Contents.Add(new TextToken() { Value = _footnoteIdx.ToString() });
+              ToHtmlGroup(doc, linkGroup, true);
+            }
             else if (childGroup.Contents.OfType<ParagraphNumbering>().Any())
             {
               foreach (var child in childGroup.Contents.Where(t => t.Type == TokenType.ParagraphFormat))
@@ -181,12 +209,7 @@ namespace RtfPipe
           }
           else if ((token.Type & TokenType.BreakTag) == TokenType.BreakTag)
           {
-            _html.AddBreak(FixStyles(doc, currStyle), token);
-            if (token is RowBreak)
-            {
-              foreach (var style in _inputStyle)
-                style.InTable = false;
-            }
+            AddBreak(doc, token, currStyle);
             tabCount = 0;
           }
         }
@@ -197,6 +220,49 @@ namespace RtfPipe
       }
 
       _inputStyle.Pop();
+    }
+
+    private void AddBreak(Document doc, IToken token, FormatContext currStyle)
+    {
+      if (token is PageBreak || token is SectionBreak)
+        RenderFootnotes(doc);
+      _html.AddBreak(FixStyles(doc, currStyle), token);
+      if (token is RowBreak)
+      {
+        foreach (var style in _inputStyle)
+          style.InTable = false;
+      }
+    }
+
+    private string FootnoteId(int id)
+    {
+      return "footnote" + id.ToString("d2");
+    }
+
+    private void RenderFootnotes(Document doc)
+    {
+      if (_footnotes.Count > 0)
+      {
+        var style = new FormatContext();
+        _html.AddBreak(style, new FootnoteBreak());
+        var start = _footnoteIdx - _footnotes.Count + 1;
+        for (var i = 0; i < _footnotes.Count; i++)
+        {
+          if (i > 0)
+            _html.AddBreak(style, new ParagraphBreak());
+          var group = new Group();
+          var id = FootnoteId(start + i);
+          group.Contents.Add(new BookmarkToken() { Id = id, Start = true });
+          group.Contents.Add(new SuperStartToken());
+          group.Contents.Add(new TextToken() { Value = (start + i) + " " });
+          group.Contents.Add(new NoSuperSubToken());
+          group.Contents.Add(new BookmarkToken() { Id = id, Start = false });
+          group.Contents.AddRange(_footnotes[i].Contents.Where(t => !(t is Footnote)));
+          ToHtmlGroup(doc, group, true);
+        }
+
+        _footnotes.Clear();
+      }
     }
 
     private static FormatContext FixStyles(Document doc, FormatContext style)

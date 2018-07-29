@@ -313,8 +313,8 @@ namespace RtfPipe
           return new ForegroundColor(ColorByIndex(number));
         case "dn":
           if (number > 0)
-            return new OffsetToken(UnitValue.FromHalfPoint(-1 * number));
-          return new OffsetToken(UnitValue.FromHalfPoint(-6));
+            return new OffsetToken(UnitValue.FromHalfPoint(number));
+          return new OffsetToken(UnitValue.FromHalfPoint(6));
         case "embo":
           return new EmbossText(number != 0);
         case "i":
@@ -327,16 +327,14 @@ namespace RtfPipe
           return new OutlineText(number != 0);
         case "plain":
           return new PlainToken();
-        case "up":
-          if (number > 0)
-            return new OffsetToken(UnitValue.FromHalfPoint(number));
-          return new OffsetToken(UnitValue.FromHalfPoint(6));
         case "scaps":
           return new SmallCapitalToken(number != 0);
         case "shad":
           return new ShadowText(number != 0);
         case "strike":
           return new StrikeToken(number != 0);
+        case "striked":
+          return new StrikeDoubleToken(number != 0);
         case "sub":
           return new SubStartToken();
         case "super":
@@ -379,6 +377,10 @@ namespace RtfPipe
           return new UnderlineWave(number != 0);
         case "ulnone":
           return new UnderlineToken(false);
+        case "up":
+          if (number > 0)
+            return new OffsetToken(UnitValue.FromHalfPoint(-1 * number));
+          return new OffsetToken(UnitValue.FromHalfPoint(-6));
         case "v":
           return new HiddenToken(number != 0);
 
@@ -549,6 +551,10 @@ namespace RtfPipe
         case "page":
         case "pagebb":
           return new PageBreak();
+
+        // Other
+        case "footnote":
+          return new Footnote();
 
         default:
           if (number == int.MinValue)

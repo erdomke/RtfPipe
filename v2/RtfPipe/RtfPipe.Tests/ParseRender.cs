@@ -21,7 +21,6 @@ namespace RtfPipe.Tests
     [TestMethod]
     public void RtfToHtml()
     {
-
       TestConvert("RtfPipe.Tests.Files.rtf2xml.bullet_list");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.char_style");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.char_upper_ranges");
@@ -30,6 +29,7 @@ namespace RtfPipe.Tests
       TestConvert("RtfPipe.Tests.Files.rtf2xml.escaped_text");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.heading_with_section");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.headings_mixed");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.inline_mix");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.nested_lists_indents");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.outline_list");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.table_simple");
