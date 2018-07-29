@@ -69,11 +69,14 @@
     <EmbeddedResource Include="Files\rtf2xml\bullet_list.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\char_upper_ranges.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\color.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\char_style.rtf" />
     <None Include="Files\rtf2xml\char_upper_ranges_hex.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\escaped_text.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\headings_mixed.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\heading_with_section.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\diff_types_border.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\nested_lists_indents.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\outline_list.rtf" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -111,7 +114,10 @@
     <EmbeddedResource Include="Files\rtf2xml\color.html" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Files\rtf2xml\char_style.html" />
     <Content Include="Files\rtf2xml\char_upper_ranges_hex.html" />
+    <EmbeddedResource Include="Files\rtf2xml\outline_list.html" />
+    <EmbeddedResource Include="Files\rtf2xml\nested_lists_indents.html" />
     <EmbeddedResource Include="Files\rtf2xml\table_simple.html" />
     <EmbeddedResource Include="Files\rtf2xml\diff_types_border.html" />
     <EmbeddedResource Include="Files\rtf2xml\escaped_text.html" />

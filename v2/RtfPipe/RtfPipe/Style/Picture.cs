@@ -50,6 +50,8 @@ namespace RtfPipe
         return "image/jpeg";
       else if (Type is WmMetafile)
         return "windows/metafile";
+      else if (Type is MacPict)
+        return "image/x-pict";
       else
         return "image/bmp";
     }

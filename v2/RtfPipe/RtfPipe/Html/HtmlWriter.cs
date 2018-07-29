@@ -13,6 +13,9 @@ namespace RtfPipe
     private readonly Stack<TagContext> _tags = new Stack<TagContext>();
     private readonly RtfHtmlSettings _settings;
     private bool _startOfLine = true;
+    private readonly Dictionary<KeyValuePair<int, int>, int> _listPositions = new Dictionary<KeyValuePair<int, int>, int>();
+    private KeyValuePair<int, int> _lastListLevel;
+    private bool _needListEnd;
 
     public Font DefaultFont { get; set; }
     public UnitValue DefaultTabWidth { get; set; }
@@ -65,7 +68,13 @@ namespace RtfPipe
         EnsureParagraph(format);
         while (_tags.Peek().Type != TagType.Paragraph)
           EndTag();
-        EndTag();
+
+        if (_tags.Peek().Name == "td")
+          WriteTag(ParagraphTag("p", format));
+        else if (_tags.Peek().Name == "li")
+          _needListEnd = true;
+        else
+          EndTag();
         _startOfLine = true;
       }
       else if (token is SectionBreak || token is PageBreak)
@@ -156,15 +165,53 @@ namespace RtfPipe
       var firstParaSection = _tags
         .SkipWhile(t => t.Type == TagType.Span)
         .FirstOrDefault();
-      if (firstParaSection?.Type == TagType.Paragraph)
+      if (firstParaSection?.Type == TagType.Paragraph && !_needListEnd)
         return;
 
       EnsureSection(format);
 
       if (format.Any(t => t is ParagraphNumbering || t is ListLevelType))
       {
-        while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == "ul" || _tags.Peek().Name == "ol"))
-          EndTag();
+        var listLevel = new KeyValuePair<int, int>(
+            format.OfType<ListStyleId>().FirstOrDefault()?.Value ?? 1
+          , format.OfType<ListLevelNumber>().FirstOrDefault()?.Value ?? 0);
+
+        if (listLevel.Key == _lastListLevel.Key)
+        {
+          while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == "ul" || _tags.Peek().Name == "ol" || _tags.Peek().Name == "li"))
+            EndTag();
+
+          for (var i = 0; i < _lastListLevel.Value - listLevel.Value; i++)
+          {
+            if (_tags.Peek().Name == "li")
+              EndTag();
+            if (_tags.Peek().Name == "ol" || _tags.Peek().Name == "ul")
+              EndTag();
+          }
+
+          if (_lastListLevel.Value >= listLevel.Value && _tags.Peek().Name == "li" && _needListEnd)
+            EndTag();
+
+          if (_lastListLevel.Value > listLevel.Value)
+          {
+            foreach (var keyToRemove in _listPositions.Keys
+              .Where(k => k.Key == listLevel.Key && k.Value > listLevel.Value)
+              .ToList())
+            {
+              _listPositions.Remove(keyToRemove);
+            }
+          }
+        }
+        else
+        {
+          while (_tags.Peek().Name != "div")
+            EndTag();
+        }
+        _lastListLevel = listLevel;
+
+        if (!_listPositions.TryGetValue(listLevel, out var startAt))
+          startAt = format.OfType<NumberingStart>().FirstOrDefault()?.Value - 1 ?? 0;
+        _listPositions[listLevel] = ++startAt;
 
         if (!(_tags.Peek().Name == "ol" || _tags.Peek().Name == "ul"))
         {
@@ -194,12 +241,16 @@ namespace RtfPipe
               _writer.WriteAttributeString("type", "I");
               break;
           }
+
+          if (startAt > 1 && numType != NumberingType.Bullet)
+            _writer.WriteAttributeString("start", startAt.ToString());
         }
 
         WriteTag(ParagraphTag("li", format));
       }
       else if (format.InTable)
       {
+        _lastListLevel = default;
         while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == "table" || _tags.Peek().Name == "tr"))
           EndTag();
 
@@ -217,10 +268,15 @@ namespace RtfPipe
           WriteTag(tag);
         }
 
-        WriteTag(ParagraphTag("td", format));
+        var cellTag = ParagraphTag("td", format);
+        WriteTag(cellTag);
+        var cellToken = cellTag.CellToken();
+        if (cellToken?.ColSpan > 1)
+          _writer.WriteAttributeString("colspan", cellToken.ColSpan.ToString());
       }
       else if (format.TryGetValue<OutlineLevel>(out var outline) && outline.Value >= 0 && outline.Value < 6)
       {
+        _lastListLevel = default;
         var tagName = "h" + (outline.Value + 1);
         while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == tagName))
           EndTag();
@@ -229,6 +285,7 @@ namespace RtfPipe
       }
       else
       {
+        _lastListLevel = default;
         while (_tags.Peek().Name != "div")
           EndTag();
 
@@ -249,6 +306,8 @@ namespace RtfPipe
 
         WriteTag(ParagraphTag("p", format));
       }
+
+      _needListEnd = false;
     }
 
     private TagContext ParagraphTag(string name, FormatContext format)
@@ -304,13 +363,17 @@ namespace RtfPipe
             w.WriteAttributeString("title", hyperlink.Title);
         });
       }
-      else if (TryGetValue<UnderlineToken, IToken>(requested, out var underline))
+      else if (TryGetUnderline(requested, out var underline))
       {
         WriteSpanElement(format, "u", underline, requested);
       }
       else if (TryGetValue<StrikeToken, IToken>(requested, out var strike))
       {
         WriteSpanElement(format, "s", strike, requested);
+      }
+      else if (TryGetValue<StrikeDoubleToken, IToken>(requested, out var strikeDouble))
+      {
+        WriteSpanElement(format, "s", strikeDouble, requested);
       }
       else if (TryGetValue<SubStartToken, IToken>(requested, out var sub))
       {
@@ -341,6 +404,8 @@ namespace RtfPipe
       if (requested.Any(t => IsSpanElement(t, name) && t != spanToken))
       {
         tag.Add(spanToken);
+        if (name == "u" && format.OfType<UnderlineColor>().Any())
+          tag.AddRange(format.OfType<UnderlineColor>());
         WriteTag(tag);
         attributes?.Invoke(_writer);
         EnsureSpans(format);
@@ -351,6 +416,15 @@ namespace RtfPipe
         WriteTag(tag);
         attributes?.Invoke(_writer);
       }
+    }
+
+    private bool TryGetUnderline(IEnumerable<IToken> tokens, out IToken value)
+    {
+      value = tokens.FirstOrDefault(t => t.Type == TokenType.CharacterFormat
+        && t is IWord word
+        && word.Name.StartsWith("ul")
+        && !(t is UnderlineColor));
+      return value != null;
     }
 
     private bool TryGetValue<T, TParent>(IEnumerable<TParent> list, out T value) where T : TParent
@@ -392,6 +466,7 @@ namespace RtfPipe
         || token is ItalicToken
         || (token is UnderlineToken && context != "a")
         || token is StrikeToken
+        || token is StrikeDoubleToken
         || token is SubStartToken
         || token is SuperStartToken
         || token is HyperlinkToken
@@ -442,7 +517,7 @@ namespace RtfPipe
       public TagContext Parent { get; }
       public TagType Type { get; }
       public int ChildCount { get; set; }
-      public int CellCount { get; set; }
+      public int CellIndex { get; set; }
 
       public TagContext(string name, TagContext parent)
       {
@@ -450,7 +525,7 @@ namespace RtfPipe
         Parent = parent;
 
         if (name == "td")
-          CellCount = parent.CellCount++;
+          CellIndex = parent.CellIndex++;
 
         if (name == "div" || name == "table" || name == "tr"
             || name == "ul" || name == "ol")
@@ -492,6 +567,11 @@ namespace RtfPipe
         _all.Add(token);
         if (Type != TagType.Span)
           _allParagraph.Add(token);
+      }
+
+      public CellToken CellToken()
+      {
+        return this.OfType<CellToken>().FirstOrDefault(t => t.Index == CellIndex);
       }
 
       public override string ToString()
@@ -541,6 +621,46 @@ namespace RtfPipe
             padding[2] = paddingBottom.Value;
           else if (token is TablePaddingLeft paddingLeft)
             padding[3] = paddingLeft.Value;
+          else if (token is EmbossText)
+            WriteCss(builder, "text-shadow", "-1px -1px 1px #999, 1px 1px 1px #000");
+          else if (token is EngraveText)
+            WriteCss(builder, "text-shadow", "-1px -1px 1px #000, 1px 1px 1px #999");
+          else if (token is OutlineText)
+            WriteCss(builder, "text-shadow", "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000");
+          else if (token is ShadowText)
+            WriteCss(builder, "text-shadow", "1px 1px 1px #CCC");
+          else if (token is SmallCapitalToken)
+            WriteCss(builder, "font-variant", "small-caps");
+          else if (token is UnderlineDashed || token is UnderlineDashDot || token is UnderlineLongDash || token is UnderlineThickDash || token is UnderlineThickDashDot || token is UnderlineThickLongDash)
+            WriteCss(builder, "text-decoration-style", "dashed");
+          else if (token is UnderlineDotted || token is UnderlineDashDotDot || token is UnderlineThickDotted || token is UnderlineThickDashDotDot)
+            WriteCss(builder, "text-decoration-style", "dotted");
+          else if (token is UnderlineWave || token is UnderlineHeavyWave)
+            WriteCss(builder, "text-decoration-style", "wavy");
+          else if (token is StrikeDoubleToken)
+            WriteCss(builder, "text-decoration-style", "double");
+          else if (token is UnderlineColor underlineColor)
+            WriteCss(builder, "text-decoration-color", "#" + underlineColor.Value);
+          else if (token is UnderlineWord)
+            WriteCss(builder, "text-decoration-skip", "spaces");
+        }
+
+        var cell = CellToken();
+        if (cell != null)
+        {
+          for (var i = 0; i < 4; i++)
+          {
+            borders[i] = cell.Borders[i] ?? borders[i];
+            padding[i] += margins[i];
+            margins[i] = UnitValue.Empty;
+          }
+
+          if (cell.VerticalAlignment != VerticalAlignment.Center)
+            WriteCss(builder, "vertical-align"
+              , cell.VerticalAlignment == VerticalAlignment.Center ? "middle" : cell.VerticalAlignment.ToString().ToLowerInvariant());
+
+          if (cell.BackgroundColor != null && !this.OfType<BackgroundColor>().Any())
+            WriteCss(builder, "background", "#" + cell.BackgroundColor);
         }
 
         if (Name == "table")
@@ -552,6 +672,15 @@ namespace RtfPipe
         {
           if (!this.OfType<LeftIndent>().Any())
             margins[3] = new UnitValue(720, UnitType.Twip);
+
+          var lastMargin = Parents().FirstOrDefault(t => t.Name == "ol" || t.Name == "ul")
+            ?.OfType<LeftIndent>().FirstOrDefault()?.Value
+            ?? new UnitValue(0, UnitType.Twip);
+          margins[3] -= lastMargin;
+
+          var firstLineIndent = AllInherited.OfType<FirstLineIndent>().FirstOrDefault()?.Value ?? new UnitValue(0, UnitType.Twip);
+          if (firstLineIndent > new UnitValue(-0.125, UnitType.Inch))
+            margins[3] += new UnitValue(0.25, UnitType.Inch);
           WriteCss(builder, "margin", WriteBoxShort(margins));
           WriteCss(builder, "padding-left", "0");
         }
@@ -562,22 +691,6 @@ namespace RtfPipe
         else if (Name == "a")
         {
           WriteCss(builder, "text-decoration", underline ? "underline" : "none");
-        }
-
-        var cell = this.OfType<CellToken>().FirstOrDefault(t => t.Index == CellCount);
-        if (cell != null)
-        {
-          for (var i = 0; i < 4; i++)
-            borders[i] = cell.Borders[i] ?? borders[i];
-
-          if (cell.Width > 0 && cell.WidthUnit == CellWidthUnit.Twip)
-            WriteCss(builder, "width", PxString(new UnitValue(cell.Width, UnitType.Twip)));
-          else if (cell.BoundaryDiff.Value > 0)
-            WriteCss(builder, "width", PxString(cell.BoundaryDiff));
-
-          if (cell.VerticalAlignment != VerticalAlignment.Top)
-            WriteCss(builder, "vertical-align"
-              , cell.VerticalAlignment == VerticalAlignment.Center ? "middle" : cell.VerticalAlignment.ToString());
         }
 
         if (borders.All(b => b != null) && borders.Skip(1).All(b => b.SameBorderStyle(borders[0])))
@@ -602,10 +715,40 @@ namespace RtfPipe
             padding[i] = borders[i].Padding;
         }
 
-        if (padding.Any(p => p.Value > 0))
+        if (padding.Any(p => p.Value > 0) || Name == "td")
           WriteCss(builder, "padding", WriteBoxShort(padding));
 
+        if (cell != null)
+        {
+          var width = UnitValue.Empty;
+          if (cell.Width > 0 && cell.WidthUnit == CellWidthUnit.Twip)
+            width = new UnitValue(cell.Width, UnitType.Twip);
+          else if (cell.BoundaryDiff.Value > 0)
+            width = cell.BoundaryDiff;
+
+          if (width.Value > 0)
+          {
+            if (borders[1] != null)
+              width -= new UnitValue(Math.Round(borders[1].Width.ToPx()), UnitType.Pixel);
+            if (borders[3] != null)
+              width -= new UnitValue(Math.Round(borders[3].Width.ToPx()), UnitType.Pixel);
+            width -= padding[1] + padding[3];
+
+            WriteCss(builder, "width", PxString(width));
+          }
+        }
+
         return builder.ToString();
+      }
+
+      private IEnumerable<TagContext> Parents()
+      {
+        var parent = this.Parent;
+        while (parent != null)
+        {
+          yield return parent;
+          parent = parent.Parent;
+        }
       }
 
       private string PxString(UnitValue value)
@@ -629,7 +772,7 @@ namespace RtfPipe
         if (width <= 0 || border.Style == BorderStyle.None)
           return "none";
 
-        var style = width.ToString("0.#") + "px ";
+        var style = width.ToString("0") + "px ";
 
         switch (border.Style)
         {

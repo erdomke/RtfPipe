@@ -45,6 +45,18 @@ namespace RtfPipe
       {
         RemoveWhere(t => t is BookmarkToken bkmkStart && bkmkStart.Id == bookmark.Id);
       }
+      else if (token.Type == TokenType.CharacterFormat
+        && token is IWord underline
+        && underline.Name.StartsWith("ul")
+        && !(underline is UnderlineColor))
+      {
+        RemoveWhere(t => t.Type == TokenType.CharacterFormat
+          && t is IWord ul
+          && ul.Name.StartsWith("ul")
+          && !(t is UnderlineColor));
+        if (!(token is ControlWord<bool> ulBool) || ulBool.Value)
+          AddInternal(token);
+      }
       else if (token is ControlWord<bool> boolean && !boolean.Value)
       {
         RemoveWhere(t => t is ControlWord<bool> boolStyle && boolStyle.Name == boolean.Name);
@@ -92,6 +104,15 @@ namespace RtfPipe
         _formats.AddRange(tokens);
       else
         AddRange((IEnumerable<IToken>)tokens);
+    }
+
+    /// <summary>
+    /// Adds tokens which haven't been seen before.
+    /// </summary>
+    /// <param name="tokens">The tokens.</param>
+    public void AddNew(IEnumerable<IToken> tokens)
+    {
+      AddRange(tokens.Where(t => !this.Any(SameTokenPredicate(t))));
     }
 
     public void RemoveRange(IEnumerable<IToken> tokens)

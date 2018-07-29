@@ -21,13 +21,17 @@ namespace RtfPipe.Tests
     [TestMethod]
     public void RtfToHtml()
     {
+
       TestConvert("RtfPipe.Tests.Files.rtf2xml.bullet_list");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.char_style");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.char_upper_ranges");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.color");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.diff_types_border");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.escaped_text");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.heading_with_section");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.headings_mixed");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.nested_lists_indents");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.outline_list");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.table_simple");
       //TestConvert("RtfPipe.Tests.Files.Picture");
       TestConvert("RtfPipe.Tests.Files.Test01");
@@ -42,7 +46,9 @@ namespace RtfPipe.Tests
 
     private void TestParse(string path)
     {
-      using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path + ".rtf"))
+      using (var stream = File.Exists(path)
+        ? new FileStream(path, FileMode.Open)
+        : Assembly.GetExecutingAssembly().GetManifestResourceStream(path + ".rtf"))
       {
         var actual = Rtf.ToHtml(stream);
         Assert.Fail();

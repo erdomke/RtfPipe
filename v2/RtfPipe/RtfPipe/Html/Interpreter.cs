@@ -75,12 +75,20 @@ namespace RtfPipe
         }
         else if (processRtf)
         {
-          if (token.Type == TokenType.CellFormat)
+          if (token is RowDefaults && !(group is Row))
+          {
+            var table = Table.Create(group.Contents, ref i);
+            foreach (var child in table.Contents.OfType<Group>())
+              ToHtmlGroup(doc, child, processRtf);
+          }
+          else if (token.Type == TokenType.CellFormat)
           {
             var start = i;
             while (i < group.Contents.Count && !(group.Contents[i] is RightCellBoundary))
               i++;
-            var cell = new CellToken(group.Contents.Skip(start).Take(i - start + 1), currStyle.OfType<CellToken>().LastOrDefault());
+            var cell = new CellToken(group.Contents.Skip(start).Take(i - start + 1)
+              , group as Row
+              , currStyle.OfType<CellToken>().LastOrDefault());
             currStyle.Add(cell);
           }
           else if (token is ControlWord<BorderPosition> borderSide)
@@ -110,6 +118,13 @@ namespace RtfPipe
               var instructions = childGroup.Contents
                 .OfType<Group>().LastOrDefault(g => g.Destination == null && g.Contents.OfType<TextToken>().Any())
                 ?.Contents.OfType<TextToken>().FirstOrDefault()?.Value?.Trim();
+              if (string.IsNullOrEmpty(instructions)
+                && !childGroup.Contents.OfType<Group>().Any()
+                && childGroup.Contents.Count == 3)
+              {
+                instructions = (childGroup.Contents[2] as TextToken)?.Value;
+              }
+
               if (!string.IsNullOrEmpty(instructions))
               {
                 var args = instructions.Split(' ');
@@ -189,8 +204,13 @@ namespace RtfPipe
       var styleId = style.RemoveFirstOfType<ListStyleId>();
       if (styleId != null && doc.ListStyles.TryGetValue(styleId.Value, out var listStyle))
       {
-        var level = style.RemoveFirstOfType<ListLevelNumber>()?.Value ?? 0;
-        style.AddRange(listStyle.Style.Levels[level].Where(t => t.Type == TokenType.ParagraphFormat));
+        var levelNum = style.RemoveFirstOfType<ListLevelNumber>() ?? new ListLevelNumber(0);
+        var level = levelNum.Value;
+        style.AddNew(listStyle.Style.Levels[level]
+          .Where(t => t.Type == TokenType.ParagraphFormat
+            && !(t is FirstLineIndent || t is LeftIndent)));
+        style.Add(styleId);
+        style.Add(levelNum);
       }
       return style;
     }

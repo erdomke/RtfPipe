@@ -12,5 +12,21 @@ namespace RtfPipe
         return default;
       return stack.Peek();
     }
+
+    public static IEnumerable<IToken> Flatten(this Group group)
+    {
+      foreach (var token in group.Contents)
+      {
+        if (token is Group child)
+        {
+          foreach (var childToken in child.Flatten())
+            yield return childToken;
+        }
+        else
+        {
+          yield return token;
+        }
+      }
+    }
   }
 }

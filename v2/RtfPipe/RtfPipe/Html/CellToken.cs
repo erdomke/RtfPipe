@@ -10,8 +10,10 @@ namespace RtfPipe
   [DebuggerDisplay("Cell {Index}, {Width} {WidthUnit}")]
   internal class CellToken : IWord
   {
+    public ColorValue BackgroundColor { get; }
     public BorderToken[] Borders { get; } = new BorderToken[4];
     public UnitValue BoundaryDiff { get; }
+    public int ColSpan { get; } = 1;
     public int Index { get; }
     public UnitValue RightBoundary { get; }
     public int Width { get; }
@@ -21,7 +23,7 @@ namespace RtfPipe
     public TokenType Type => TokenType.ParagraphFormat;
     public string Name => "CellToken" + Index;
 
-    public CellToken(IEnumerable<IToken> tokens, CellToken previous)
+    public CellToken(IEnumerable<IToken> tokens, Row row, CellToken previous)
     {
       Index = (previous?.Index ?? -1) + 1;
       var arr = tokens.ToList();
@@ -52,9 +54,21 @@ namespace RtfPipe
         {
           RightBoundary = rightBoundary.Value;
         }
+        else if (arr[i] is CellBackgroundColor backgroundColor)
+        {
+          BackgroundColor = backgroundColor.Value;
+        }
       }
 
       BoundaryDiff = RightBoundary - (previous?.RightBoundary ?? new UnitValue(0, UnitType.Twip));
+      if (row != null && RightBoundary.Value > 0)
+      {
+        var idx = row.AllBoundaries[RightBoundary];
+        var prevIdx = -1;
+        if (previous != null)
+          prevIdx = row.AllBoundaries[previous.RightBoundary];
+        ColSpan = idx - prevIdx;
+      }
     }
   }
 }

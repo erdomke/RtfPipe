@@ -214,8 +214,10 @@ namespace RtfPipe
         case "fi":
           return new FirstLineIndent(new UnitValue(number, UnitType.Twip));
         case "li":
+        case "lin":
           return new LeftIndent(new UnitValue(number, UnitType.Twip));
         case "ri":
+        case "rin":
           return new RightIndent(new UnitValue(number, UnitType.Twip));
         case "sa":
           return new SpaceAfter(new UnitValue(number, UnitType.Twip));
@@ -241,6 +243,7 @@ namespace RtfPipe
           return new NumberingIndent(number);
         case "pntxtb":
           return new BulletText();
+        case "levelstartat":
         case "pnstart":
           return new NumberingStart(number);
         case "pncard":
@@ -312,16 +315,26 @@ namespace RtfPipe
           if (number > 0)
             return new OffsetToken(UnitValue.FromHalfPoint(-1 * number));
           return new OffsetToken(UnitValue.FromHalfPoint(-6));
+        case "embo":
+          return new EmbossText(number != 0);
         case "i":
           return new ItalicToken(number != 0);
+        case "impr":
+          return new EngraveText(number != 0);
         case "nosupersub":
           return new NoSuperSubToken();
+        case "outl":
+          return new OutlineText(number != 0);
         case "plain":
           return new PlainToken();
         case "up":
           if (number > 0)
             return new OffsetToken(UnitValue.FromHalfPoint(number));
           return new OffsetToken(UnitValue.FromHalfPoint(6));
+        case "scaps":
+          return new SmallCapitalToken(number != 0);
+        case "shad":
+          return new ShadowText(number != 0);
         case "strike":
           return new StrikeToken(number != 0);
         case "sub":
@@ -330,6 +343,40 @@ namespace RtfPipe
           return new SuperStartToken();
         case "ul":
           return new UnderlineToken(number != 0);
+        case "ulc":
+          return new UnderlineColor(ColorByIndex(number));
+        case "uld":
+          return new UnderlineDotted(number != 0);
+        case "uldash":
+          return new UnderlineDashed(number != 0);
+        case "uldashd":
+          return new UnderlineDashDot(number != 0);
+        case "uldashdd":
+          return new UnderlineDashDotDot(number != 0);
+        case "uldb":
+          return new UnderlineDouble(number != 0);
+        case "ulhwave":
+          return new UnderlineHeavyWave(number != 0);
+        case "ulldash":
+          return new UnderlineLongDash(number != 0);
+        case "ulth":
+          return new UnderlineThick(number != 0);
+        case "ulthd":
+          return new UnderlineThickDotted(number != 0);
+        case "ulthdash":
+          return new UnderlineThickDash(number != 0);
+        case "ulthdashd":
+          return new UnderlineThickDashDot(number != 0);
+        case "ulthdashdd":
+          return new UnderlineThickDashDotDot(number != 0);
+        case "ulthldash":
+          return new UnderlineThickLongDash(number != 0);
+        case "ululdbwave":
+          return new UnderlineDoubleWave(number != 0);
+        case "ulw":
+          return new UnderlineWord(number != 0);
+        case "ulwave":
+          return new UnderlineWave(number != 0);
         case "ulnone":
           return new UnderlineToken(false);
         case "v":
@@ -424,6 +471,8 @@ namespace RtfPipe
           return new CellVerticalAlign(VerticalAlignment.Center);
         case "clvertalb":
           return new CellVerticalAlign(VerticalAlignment.Bottom);
+        case "clcbpat":
+          return new CellBackgroundColor(ColorByIndex(number));
 
         // Borders and Shading
         case "brdrs": return new BorderStyleTag(BorderStyle.SingleThick);

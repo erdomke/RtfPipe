@@ -39,7 +39,7 @@ namespace RtfPipe.Tokens
   public class RightCellBoundary : ControlWord<UnitValue>
   {
     public override string Name => "cellx";
-    public override TokenType Type => TokenType.RowFormat;
+    public override TokenType Type => TokenType.CellFormat;
 
     public RightCellBoundary(UnitValue value) : base(value) { }
   }
@@ -151,5 +151,13 @@ namespace RtfPipe.Tokens
   {
     public override string Name => "intbl";
     public override TokenType Type => TokenType.RowFormat;
+  }
+
+  public class CellBackgroundColor : ControlWord<ColorValue>
+  {
+    public override string Name => "clcbpat";
+    public override TokenType Type => TokenType.CellFormat;
+
+    public CellBackgroundColor(ColorValue value) : base(value) { }
   }
 }
