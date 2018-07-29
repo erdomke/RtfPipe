@@ -33,7 +33,19 @@ namespace RtfPipe
       _startOfLine = false;
       EnsureSpans(format);
       _tags.Peek().ChildCount++;
-      _writer.WriteValue(text);
+
+      _writer.WriteValue(AddNonBreaking(text));
+    }
+
+    private string AddNonBreaking(string text)
+    {
+      var output = text.ToCharArray();
+      for (var i = 1; i < text.Length; i++)
+      {
+        if (text[i] == text[i - 1] && text[i] == ' ')
+          output[i] = '\u00a0';
+      }
+      return new string(output);
     }
 
     public void AddPicture(FormatContext format, Picture picture)
@@ -89,6 +101,7 @@ namespace RtfPipe
           format.Add(token);
           EnsureSection(format);
         }
+        _needListEnd = false;
       }
       else if (token is FootnoteBreak)
       {
@@ -99,14 +112,26 @@ namespace RtfPipe
         _writer.WriteAttributeString("style", "width:2in;border:0.5px solid black;margin-left:0");
         _writer.WriteEndElement();
         _startOfLine = true;
+        _needListEnd = false;
       }
       else if (token is CellBreak)
       {
-        EnsureParagraph(format);
+        if (_needListEnd)
+        {
+          while (_tags.Peek().Name != "td")
+            EndTag();
+          WriteTag(ParagraphTag("p", format));
+        }
+        else
+        {
+          EnsureParagraph(format);
+        }
+
         while (_tags.Peek().Name != "td")
           EndTag();
         EndTag();
         _startOfLine = true;
+        _needListEnd = false;
       }
       else if (token is RowBreak)
       {
@@ -114,6 +139,7 @@ namespace RtfPipe
           EndTag();
         EndTag();
         _startOfLine = true;
+        _needListEnd = false;
       }
       else if (token is LineBreak)
       {
@@ -180,6 +206,32 @@ namespace RtfPipe
 
       EnsureSection(format);
 
+      if (format.InTable && !_tags.Any(t => t.Name == "td"))
+      {
+        while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == "table" || _tags.Peek().Name == "tr"))
+          EndTag();
+
+        var tag = default(TagContext);
+        if (!(_tags.Peek().Name == "table" || _tags.Peek().Name == "tr"))
+        {
+          tag = new TagContext("table", _tags.SafePeek());
+          tag.AddRange(format.Where(t => t is CellSpacing || t is RowLeft));
+          WriteTag(tag);
+        }
+
+        if (_tags.Peek().Name == "table")
+        {
+          tag = new TagContext("tr", _tags.SafePeek());
+          WriteTag(tag);
+        }
+
+        var cellTag = ParagraphTag("td", format);
+        WriteTag(cellTag);
+        var cellToken = cellTag.CellToken();
+        if (cellToken?.ColSpan > 1)
+          _writer.WriteAttributeString("colspan", cellToken.ColSpan.ToString());
+      }
+
       if (format.Any(t => t is ParagraphNumbering || t is ListLevelType))
       {
         var listLevel = new KeyValuePair<int, int>(
@@ -188,7 +240,7 @@ namespace RtfPipe
 
         if (listLevel.Key == _lastListLevel.Key)
         {
-          while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == "ul" || _tags.Peek().Name == "ol" || _tags.Peek().Name == "li"))
+          while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == "ul" || _tags.Peek().Name == "ol" || _tags.Peek().Name == "li" || _tags.Peek().Name == "td"))
             EndTag();
 
           for (var i = 0; i < _lastListLevel.Value - listLevel.Value; i++)
@@ -214,7 +266,7 @@ namespace RtfPipe
         }
         else
         {
-          while (_tags.Peek().Name != "div")
+          while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == "td"))
             EndTag();
         }
         _lastListLevel = listLevel;
@@ -258,42 +310,16 @@ namespace RtfPipe
 
         WriteTag(ParagraphTag("li", format));
       }
-      else if (format.InTable)
-      {
-        _lastListLevel = default;
-        while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == "table" || _tags.Peek().Name == "tr"))
-          EndTag();
-
-        var tag = default(TagContext);
-        if (!(_tags.Peek().Name == "table" || _tags.Peek().Name == "tr"))
-        {
-          tag = new TagContext("table", _tags.SafePeek());
-          tag.AddRange(format.Where(t => t is CellSpacing || t is RowLeft));
-          WriteTag(tag);
-        }
-
-        if (_tags.Peek().Name == "table")
-        {
-          tag = new TagContext("tr", _tags.SafePeek());
-          WriteTag(tag);
-        }
-
-        var cellTag = ParagraphTag("td", format);
-        WriteTag(cellTag);
-        var cellToken = cellTag.CellToken();
-        if (cellToken?.ColSpan > 1)
-          _writer.WriteAttributeString("colspan", cellToken.ColSpan.ToString());
-      }
       else if (format.TryGetValue<OutlineLevel>(out var outline) && outline.Value >= 0 && outline.Value < 6)
       {
         _lastListLevel = default;
         var tagName = "h" + (outline.Value + 1);
-        while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == tagName))
+        while (!(_tags.Peek().Name == "div" || _tags.Peek().Name == tagName || _tags.Peek().Name == "td"))
           EndTag();
 
         WriteTag(ParagraphTag(tagName, format));
       }
-      else
+      else if (_tags.Peek().Name != "td")
       {
         _lastListLevel = default;
         while (_tags.Peek().Name != "div")
@@ -652,18 +678,22 @@ namespace RtfPipe
             WriteCss(builder, "text-decoration-skip", "spaces");
           else if (token is OffsetToken offset)
             WriteCss(builder, "top", PxString(offset.Value)).Append("position:relative;");
+          else if (token is FirstLineIndent firstIndent && Name == "p")
+            WriteCss(builder, "text-indent", PxString(firstIndent.Value));
         }
 
         if (this.OfType<OutlineText>().Any() && !this.OfType<ForegroundColor>().Any())
           WriteCss(builder, "color", "#fff");
 
         var cell = CellToken();
+        var isList = this.Any(t => t is ParagraphNumbering || t is ListLevelType);
         if (cell != null)
         {
           for (var i = 0; i < 4; i++)
           {
             borders[i] = cell.Borders[i] ?? borders[i];
-            padding[i] += margins[i];
+            if (!isList)
+              padding[i] += margins[i];
             margins[i] = UnitValue.Empty;
           }
 

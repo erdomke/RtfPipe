@@ -20,7 +20,9 @@ namespace RtfPipe
       }
       else if (token is ParagraphDefault)
       {
-        if (!InTable)
+        if (InTable)
+          RemoveWhere(t => t is ParagraphNumbering || t is ListLevelType || t is ListStyleId);
+        else
           RemoveWhere(t => t.Type == TokenType.ParagraphFormat);
         InTable = false;
       }

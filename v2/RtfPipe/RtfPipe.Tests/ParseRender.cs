@@ -30,6 +30,9 @@ namespace RtfPipe.Tests
       TestConvert("RtfPipe.Tests.Files.rtf2xml.heading_with_section");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.headings_mixed");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.inline_mix");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.inline_over_para");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.italics_plain");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.list_in_table");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.nested_lists_indents");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.outline_list");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.table_simple");

@@ -20,6 +20,7 @@ namespace RtfPipe
     Html = 0x80,
     Row = 0x100,
     Cell = 0x200,
+    Table = 0x400,
 
     CharacterFormat = Word | Character | Format,
     ParagraphFormat = Word | Paragraph | Format,
