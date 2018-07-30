@@ -8,7 +8,7 @@ var configuration = Argument("configuration", "Release");
 var versionSuffix = string.Format(".{0}.{1}"
 	, (int)((DateTime.UtcNow - new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalDays)
 	, (int)((DateTime.UtcNow - DateTime.UtcNow.Date).TotalSeconds / 2));
-var version = "0.7" + versionSuffix;
+var version = "1.0" + versionSuffix;
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -25,10 +25,6 @@ Task("Restore-NuGet-Packages")
   .IsDependentOn("Clean")
   .Does(() =>
 {
-	DeleteFiles("./**/project.json");
-	DeleteFiles("./**/project.lock.json");
-	DeleteFiles("./**/global.json");
-  
   DotNetCoreRestore("./RtfPipe/RtfPipe.csproj");
 });
 

@@ -1,19 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;netstandard1.0</TargetFrameworks>
-    <Version>0.7$(VersionSuffix)</Version>
+    <TargetFrameworks>net35;net40;net45;netstandard1.0</TargetFrameworks>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Version>1.0$(VersionSuffix)</Version>
     <Authors>Eric Domke</Authors>
     <Company />
     <Product />
     <Description>RtfPipe is a .NET library for parsing Rich Text Format (RTF) streams and converting them to HTML</Description>
+    <PackageId>RtfPipe</PackageId>
     <PackageProjectUrl>https://github.com/erdomke/RtfPipe</PackageProjectUrl>
     <PackageTags>html,rtf,rich text</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>git://github.com/erdomke/RtfPipe</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_0</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
+    <DefineConstants>$(DefineConstants);NETFULL</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
+    <DefineConstants>$(DefineConstants);NETFULL;TASKS</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <DefineConstants>$(DefineConstants);NETFULL;TASKS;ASYNC</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
+    <DefineConstants>$(DefineConstants);TASKS;ASYNC</DefineConstants>
+  </PropertyGroup>
 </Project>
