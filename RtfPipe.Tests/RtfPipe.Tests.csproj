@@ -69,6 +69,9 @@
     <EmbeddedResource Include="Files\rtf2xml\char_upper_ranges.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\color.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\char_style.rtf" />
+    <EmbeddedResource Include="Files\nested_table_report.rtf" />
+    <EmbeddedResource Include="Files\phprtflite\merged_cells.rtf" />
+    <EmbeddedResource Include="Files\phprtflite\nested_tables.rtf" />
     <None Include="Files\rtf2xml\char_upper_ranges_hex.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\escaped_text.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\headings_mixed.rtf" />
@@ -80,6 +83,11 @@
     <EmbeddedResource Include="Files\rtf2xml\inline_over_para.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\italics_plain.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\list_in_table.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\lists_with_breaks.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\simplest.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\table_different_cell_widths.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\table_empty_row.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\table_with_header.rtf" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -114,11 +122,19 @@
     <EmbeddedResource Include="Files\rtf2xml\color.html" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Files\rtf2xml\table_with_header.html" />
+    <EmbeddedResource Include="Files\rtf2xml\simplest.html" />
+    <EmbeddedResource Include="Files\rtf2xml\table_different_cell_widths.html" />
+    <EmbeddedResource Include="Files\rtf2xml\table_empty_row.html" />
+    <EmbeddedResource Include="Files\rtf2xml\lists_with_breaks.html" />
     <EmbeddedResource Include="Files\rtf2xml\list_in_table.html" />
     <EmbeddedResource Include="Files\rtf2xml\inline_over_para.html" />
     <EmbeddedResource Include="Files\rtf2xml\italics_plain.html" />
     <EmbeddedResource Include="Files\rtf2xml\inline_mix.html" />
     <EmbeddedResource Include="Files\rtf2xml\char_style.html" />
+    <EmbeddedResource Include="Files\nested_table_report.html" />
+    <EmbeddedResource Include="Files\phprtflite\merged_cells.html" />
+    <EmbeddedResource Include="Files\phprtflite\nested_tables.html" />
     <Content Include="Files\rtf2xml\char_upper_ranges_hex.html" />
     <EmbeddedResource Include="Files\rtf2xml\outline_list.html" />
     <EmbeddedResource Include="Files\rtf2xml\nested_lists_indents.html" />

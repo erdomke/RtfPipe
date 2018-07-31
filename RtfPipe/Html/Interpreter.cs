@@ -70,6 +70,8 @@ namespace RtfPipe
       else
         _inputStyle.Push(new FormatContext());
       var currStyle = _inputStyle.Peek();
+      if (group is Row)
+        currStyle.RemoveWhere(t => t is CellToken || t is NestingLevel);
 
       for (var i = 0; i < group.Contents.Count; i++)
       {
@@ -114,9 +116,20 @@ namespace RtfPipe
             var dest = childGroup.Destination;
             if (dest is NumberingTextFallback
               || dest is ListTextFallback
-              || dest?.Type == TokenType.HeaderTag)
+              || dest?.Type == TokenType.HeaderTag
+              || dest is NoNestedTables)
             {
               // skip
+            }
+            else if (dest is Header
+              || dest is HeaderEven
+              || dest is HeaderFirst
+              || dest is HeaderOdd
+              || dest is Footer
+              || dest is FooterFirst
+              || dest is FooterOdd)
+            {
+              // skip for now
             }
             else if (dest is FieldInstructions)
             {
@@ -192,6 +205,8 @@ namespace RtfPipe
             }
             else
             {
+              if (childGroup is Table)
+                (_html as HtmlWriter)?.EnsureCell(currStyle);
               ToHtmlGroup(doc, childGroup, processRtf);
             }
           }

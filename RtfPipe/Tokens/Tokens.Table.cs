@@ -67,7 +67,7 @@ namespace RtfPipe.Tokens
 
     public RowAlign(TextAlignment value) : base(value) { }
 
-    public override string ToString() => Name;
+    public override string ToString() => "\\" + Name;
   }
 
   public class TableBorderSide : ControlWord<BorderPosition>
@@ -141,10 +141,7 @@ namespace RtfPipe.Tokens
 
     public CellVerticalAlign(VerticalAlignment value) : base(value) { }
 
-    public override string ToString()
-    {
-      return Name;
-    }
+    public override string ToString() => "\\" + Name;
   }
 
   public class InTable : ControlTag
@@ -159,5 +156,41 @@ namespace RtfPipe.Tokens
     public override TokenType Type => TokenType.CellFormat;
 
     public CellBackgroundColor(ColorValue value) : base(value) { }
+  }
+
+  public class HeaderRow : ControlTag
+  {
+    public override string Name => "trhdr";
+    public override TokenType Type => TokenType.RowFormat;
+  }
+
+  public class NestTableProperties : ControlTag
+  {
+    public override string Name => "nesttableprops";
+  }
+
+  public class NoNestedTables : ControlTag
+  {
+    public override string Name => "nonesttables";
+  }
+
+  public class NestCell : ControlTag
+  {
+    public override string Name => "nestcell";
+    public override TokenType Type => TokenType.BreakTag;
+  }
+
+  public class NestRow : ControlTag
+  {
+    public override string Name => "nestrow";
+    public override TokenType Type => TokenType.BreakTag;
+  }
+
+  public class NestingLevel : ControlWord<int>
+  {
+    public override string Name => "itap";
+    public override TokenType Type => TokenType.ParagraphFormat;
+
+    public NestingLevel(int value) : base(value) { }
   }
 }

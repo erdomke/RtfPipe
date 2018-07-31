@@ -6,7 +6,7 @@ namespace RtfPipe
 {
   internal static class Utils
   {
-    public static T SafePeek<T>(this Stack<T> stack)
+    public static T PeekOrDefault<T>(this Stack<T> stack)
     {
       if (stack.Count < 1)
         return default;
@@ -26,6 +26,33 @@ namespace RtfPipe
         {
           yield return token;
         }
+      }
+    }
+
+    public static int IndexOf<T>(this IEnumerable<T> items, Func<T, bool> predicate)
+    {
+      using (var enumerator = items.GetEnumerator())
+      {
+        var idx = 0;
+        while (enumerator.MoveNext())
+        {
+          if (predicate(enumerator.Current))
+            return idx;
+          idx++;
+        }
+      }
+      return -1;
+    }
+
+    public static void RemoveWhere<T>(this IList<T> items, Func<T, bool> predicate)
+    {
+      var i = 0;
+      while (i < items.Count)
+      {
+        if (predicate(items[i]))
+          items.RemoveAt(i);
+        else
+          i++;
       }
     }
   }

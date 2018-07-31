@@ -6,6 +6,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace RtfPipe.Tests
 {
+  /// <summary>
+  /// Additional examples in https://github.com/phprtflite/PHPRtfLite/tree/master/samples/generated
+  /// </summary>
   [TestClass]
   public class ParseRender
   {
@@ -22,6 +25,7 @@ namespace RtfPipe.Tests
     public void RtfToHtml()
     {
       TestConvert("RtfPipe.Tests.Files.rtf2xml.bullet_list");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.caps_mixed");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.char_style");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.char_upper_ranges");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.color");
@@ -29,21 +33,29 @@ namespace RtfPipe.Tests
       TestConvert("RtfPipe.Tests.Files.rtf2xml.escaped_text");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.heading_with_section");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.headings_mixed");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.Hyperlink");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.inline_mix");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.inline_over_para");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.italics_plain");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.list_in_table");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.lists_with_breaks");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.nested_lists_indents");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.outline_list");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.simplest");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.table_different_cell_widths");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.table_empty_row");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.table_simple");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.table_with_header");
+
+      TestConvert("RtfPipe.Tests.Files.phprtflite.nested_tables");
+
       TestConvert("RtfPipe.Tests.Files.Test01");
       TestConvert("RtfPipe.Tests.Files.minimal");
+      TestConvert("RtfPipe.Tests.Files.nested_table_report");
       TestConvert("RtfPipe.Tests.Files.RtfParserTest_0");
       TestConvert("RtfPipe.Tests.Files.RtfParserTest_1");
       TestConvert("RtfPipe.Tests.Files.RtfParserTest_2");
       TestConvert("RtfPipe.Tests.Files.RtfParserTest_3");
-      TestConvert("RtfPipe.Tests.Files.rtf2xml.Hyperlink");
-      TestConvert("RtfPipe.Tests.Files.rtf2xml.caps_mixed");
     }
 
     private void TestParse(string path)

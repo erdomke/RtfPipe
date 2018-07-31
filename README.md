@@ -9,9 +9,10 @@ can also be used to convert RTF streams to various text format such as Markdown 
 
 ## Usage
 
-Below is a simple example of converting an RTF string to an HTML string. When using this in .Net Core, 
-be sure to include the NuGet package `System.Text.Encoding.CodePages`.  Also call the line marked in the
-region before calling any functions in the library.
+Below is a simple example of converting an RTF string to an HTML string. 
+
+> NOTE: When using this in .Net Core, be sure to include the NuGet package `System.Text.Encoding.CodePages`.
+> Also call the line marked in the region before calling any functions in the library.
 
 ```csharp
 #if NETCORE
@@ -35,14 +36,23 @@ Run `build.ps1` from the root of the project to build it.  The NuGet package wil
 ## RTF Support
 
 This library attempts to support the core RTF features documented in the 
-[RTF Specification 1.9.1](https://www.microsoft.com/en-us/download/details.aspx?id=10725). 
+[RTF Specification 1.9.1](https://www.microsoft.com/en-us/download/details.aspx?id=10725). These 
+features include:
 
+- Character formatting (bold, italics, color, ...)
+- Tables (including nested tables)
+- Lists
+- Hyperlinks
+- Pictures
+- Heading levels
+- HTML encapsulation (e.g. as performed by Outlook)
+
+With that said, there are numerous cases for non-trivial documents where the library will not 
+produce the "correct" visual representation when compared to other RTF readers (such as MS Word).
 
 ## Frameworks
 
 The NuGet package can be used with the following frameworks
 
-- .Net 3.5
-- .Net 4.0
-- .Net 4.5
+- .Net 3.5+
 - .Net Standard 1.0

@@ -189,7 +189,7 @@ namespace RtfPipe
               }
               break;
             case '{':
-              if (Depth < _ignoreDepth && _context.SafePeek()?.ValueBuffer.Length > 0)
+              if (Depth < _ignoreDepth && _context.PeekOrDefault()?.ValueBuffer.Length > 0)
                 yield return ConsumeTextBuffer();
 
               if (Depth < _ignoreDepth)
@@ -245,7 +245,7 @@ namespace RtfPipe
         }
       }
 
-      if (_context.SafePeek()?.ValueBuffer.Length > 0)
+      if (_context.PeekOrDefault()?.ValueBuffer.Length > 0)
         yield return ConsumeTextBuffer();
     }
 

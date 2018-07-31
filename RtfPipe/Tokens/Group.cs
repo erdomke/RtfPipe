@@ -8,7 +8,7 @@ namespace RtfPipe
 {
   public class Group : IToken
   {
-    public List<IToken> Contents { get; } = new List<IToken>();
+    public List<IToken> Contents { get; }
     public TokenType Type => TokenType.Group;
 
     public IWord Destination
@@ -25,6 +25,16 @@ namespace RtfPipe
         }
         return null;
       }
+    }
+
+    public Group()
+    {
+      Contents = new List<IToken>();
+    }
+
+    public Group(IEnumerable<IToken> contents)
+    {
+      Contents = new List<IToken>(contents);
     }
 
     public override string ToString()

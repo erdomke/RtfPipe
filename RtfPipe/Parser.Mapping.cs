@@ -131,6 +131,23 @@ namespace RtfPipe
         case "nofcharsws":
           return new NumCharsWs(number);
 
+        // Page Setup
+        case "header":
+          return new Header();
+        case "headerf":
+          return new HeaderFirst();
+        case "headerl":
+          return new HeaderEven();
+        case "headerr":
+          return new HeaderOdd();
+        case "footer":
+          return new Footer();
+        case "footerf":
+          return new FooterFirst();
+        case "footerl":
+          return new FooterEven();
+        case "footerr":
+          return new FooterOdd();
 
         // Font Tags
         case "f":
@@ -429,6 +446,8 @@ namespace RtfPipe
           return new RightCellBoundary(new UnitValue(number, UnitType.Twip));
         case "trautofit":
           return new RowAutoFit(number == 1);
+        case "trhdr":
+          return new HeaderRow();
         case "trleft":
           return new RowLeft(new UnitValue(number, UnitType.Twip));
         case "trqc":
@@ -475,6 +494,16 @@ namespace RtfPipe
           return new CellVerticalAlign(VerticalAlignment.Bottom);
         case "clcbpat":
           return new CellBackgroundColor(ColorByIndex(number));
+        case "nesttableprops":
+          return new NestTableProperties();
+        case "nonesttables":
+          return new NoNestedTables();
+        case "nestcell":
+          return new NestCell();
+        case "nestrow":
+          return new NestRow();
+        case "itap":
+          return new NestingLevel(number >= 0 ? number : 1);
 
         // Borders and Shading
         case "brdrs": return new BorderStyleTag(BorderStyle.SingleThick);
