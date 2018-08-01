@@ -445,7 +445,10 @@ namespace RtfPipe
           if (newBorders.Count > 0)
           {
             var tag = new TagContext("div", _tags.PeekOrDefault());
-            tag.AddRange(format.OfType<BorderToken>().OfType<IToken>());
+            tag.AddRange(format.Where(t => t is BorderToken
+              || t is ParaBackgroundColor
+              || t is LeftIndent
+              || t is RightIndent));
             WriteTag(tag);
           }
         }
@@ -742,6 +745,7 @@ namespace RtfPipe
         var borders = new BorderToken[4];
         var padding = new UnitValue[4];
         var underline = false;
+        const double DefaultBrowserLineHeight = 1.2;
 
         if (!this.OfType<FontSize>().Any())
         {
@@ -769,6 +773,8 @@ namespace RtfPipe
             WriteCss(builder, "font-size", fontSize.Value.ToPt().ToString("0.#") + "pt");
           else if (token is BackgroundColor background)
             WriteCss(builder, "background", "#" + background.Value);
+          else if (token is ParaBackgroundColor backgroundPara)
+            WriteCss(builder, "background", "#" + backgroundPara.Value);
           else if (token is CapitalToken)
             WriteCss(builder, "text-transform", "uppercase");
           else if (token is ForegroundColor color)
@@ -785,8 +791,10 @@ namespace RtfPipe
             underline = underlineToken.Value;
           else if (token is PageBreak)
             WriteCss(builder, "page-break-before", "always");
-          else if (token is LeftIndent leftIndent && (leftIndent.Value.ToPx() != 0 || Name == "ul" || Name == "ol"))
+          else if (token is LeftIndent leftIndent && (leftIndent.Value.Value != 0 || Name == "ul" || Name == "ol"))
             margins[3] = leftIndent.Value;
+          else if (token is RightIndent rightIndent && rightIndent.Value.Value != 0)
+            margins[1] = rightIndent.Value;
           else if (token is BorderToken border)
             borders[(int)border.Side] = border;
           else if (token is TablePaddingTop paddingTop)
@@ -823,6 +831,8 @@ namespace RtfPipe
             WriteCss(builder, "top", PxString(offset.Value)).Append("position:relative;");
           else if (token is FirstLineIndent firstIndent && Name == "p")
             WriteCss(builder, "text-indent", PxString(firstIndent.Value));
+          else if (token is SpaceBetweenLines lineSpace && lineSpace.Value > int.MinValue && lineSpace.Value != 0 && (Math.Abs(lineSpace.Value) / 240.0).ToString("0.#") != "1")
+            WriteCss(builder, "line-height", (Math.Abs(lineSpace.Value) * DefaultBrowserLineHeight / 240.0).ToString("0.#"));
         }
 
         if (this.OfType<OutlineText>().Any() && !this.OfType<ForegroundColor>().Any())

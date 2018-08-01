@@ -8,6 +8,14 @@ namespace RtfPipe.Tokens
     public BackgroundColor(ColorValue value) : base(value) { }
   }
 
+  public class ParaBackgroundColor : ControlWord<ColorValue>
+  {
+    public override string Name => "cbpat";
+    public override TokenType Type => TokenType.ParagraphFormat;
+
+    public ParaBackgroundColor(ColorValue value) : base(value) { }
+  }
+
   public class BoldToken : ControlWord<bool>
   {
     public override string Name => "b";

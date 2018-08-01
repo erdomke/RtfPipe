@@ -72,6 +72,9 @@
     <EmbeddedResource Include="Files\nested_table_report.rtf" />
     <EmbeddedResource Include="Files\phprtflite\merged_cells.rtf" />
     <EmbeddedResource Include="Files\phprtflite\nested_tables.rtf" />
+    <EmbeddedResource Include="Files\phprtflite\images.rtf" />
+    <EmbeddedResource Include="Files\phprtflite\image_from_strings.rtf" />
+    <EmbeddedResource Include="Files\phprtflite\paragraphs_fonts.rtf" />
     <None Include="Files\rtf2xml\char_upper_ranges_hex.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\escaped_text.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\headings_mixed.rtf" />
@@ -135,6 +138,9 @@
     <EmbeddedResource Include="Files\nested_table_report.html" />
     <EmbeddedResource Include="Files\phprtflite\merged_cells.html" />
     <EmbeddedResource Include="Files\phprtflite\nested_tables.html" />
+    <EmbeddedResource Include="Files\phprtflite\images.html" />
+    <EmbeddedResource Include="Files\phprtflite\image_from_strings.html" />
+    <EmbeddedResource Include="Files\phprtflite\paragraphs_fonts.html" />
     <Content Include="Files\rtf2xml\char_upper_ranges_hex.html" />
     <EmbeddedResource Include="Files\rtf2xml\outline_list.html" />
     <EmbeddedResource Include="Files\rtf2xml\nested_lists_indents.html" />

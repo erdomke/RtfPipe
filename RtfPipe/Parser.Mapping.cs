@@ -37,6 +37,9 @@ namespace RtfPipe
         case "rdblquote":
           _textBuffer.Append('\u201D');
           return null;
+        case "bullet":
+          _textBuffer.Append('\u2022');
+          return null;
         case "-":
           _textBuffer.Append('\u00AD'); // soft hyphen
           return null;
@@ -56,6 +59,19 @@ namespace RtfPipe
           return null;
         case "ud":
           return new UnicodeTextTag();
+        case "chdate":
+          _textBuffer.Append(Clock().ToString("d"));
+          return null;
+        case "chdpl":
+          _textBuffer.Append(Clock().ToString("D"));
+          return null;
+        case "chdpa":
+          var pattern = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern.Replace("dddd", "ddd").Replace("MMMM", "MMM");
+          _textBuffer.Append(Clock().ToString(pattern));
+          return null;
+        case "chtime":
+          _textBuffer.Append(Clock().ToString("t"));
+          return null;
 
         // General
         case "*":
@@ -322,10 +338,15 @@ namespace RtfPipe
           return new BoldToken(number != 0);
         case "caps":
           return new CapitalToken(number != 0);
+        case "cbpat":
+          return new ParaBackgroundColor(ColorByIndex(number));
         case "cb":
         case "chcbpat":
         case "highlight":
           return new BackgroundColor(ColorByIndex(number));
+        case "shading":
+          var shade = (byte)(255 - Math.Min(Math.Max(0, number * 255 / 10000), 255));
+          return new ParaBackgroundColor(new ColorValue(shade, shade, shade));
         case "cf":
           return new ForegroundColor(ColorByIndex(number));
         case "dn":

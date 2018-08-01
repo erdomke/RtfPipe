@@ -35,6 +35,13 @@ namespace RtfPipe
       return this;
     }
 
+    public IValueBuffer Append(string value)
+    {
+      FlushBuffer();
+      _chars.Append(value);
+      return this;
+    }
+
     private void FlushBuffer()
     {
       if (_position > 0)

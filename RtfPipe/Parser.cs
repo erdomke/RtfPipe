@@ -10,6 +10,8 @@ namespace RtfPipe
 {
   public partial class Parser
   {
+    internal static Func<DateTime> Clock { get; set; } = () => DateTime.Now;
+
     private readonly TextReader _reader;
     private readonly StringBuilder _controlBuffer = new StringBuilder();
     private readonly StringBuffer _textBuffer = new StringBuffer();

@@ -24,6 +24,7 @@ namespace RtfPipe.Tests
     [TestMethod]
     public void RtfToHtml()
     {
+      Parser.Clock = () => new DateTime(2018, 7, 1);
 
       TestConvert("RtfPipe.Tests.Files.rtf2xml.bullet_list");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.caps_mixed");
@@ -49,6 +50,7 @@ namespace RtfPipe.Tests
       TestConvert("RtfPipe.Tests.Files.rtf2xml.table_with_header");
 
       TestConvert("RtfPipe.Tests.Files.phprtflite.nested_tables");
+      TestConvert("RtfPipe.Tests.Files.phprtflite.paragraphs_fonts");
 
       TestConvert("RtfPipe.Tests.Files.Test01");
       TestConvert("RtfPipe.Tests.Files.minimal");
@@ -202,7 +204,7 @@ ffc001ffffffffffffc001ffffffffffffc001ffffffffffffc001040000002701ffff03000000
 \pard\sa200\sl276\slmult1\par
 }";
       var html = Rtf.ToHtml(rtf);
-      const string expected = "<div style=\"font-size:12pt;font-family:Calibri;\"><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><img width=\"50\" height=\"10\" src=\"data:windows/metafile;base64,AQAJAAAD9gAAAAAAzQAAAAAABAAAAAMBCAAFAAAACwIAAAAABQAAAAwCCgAyAAMAAAAeAAQAAAAHAQQABAAAAAcBBADNAAAAQQsgAMwACgAyAAAAAAAKADIAAAAAACgAAAAyAAAACgAAAAEABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////ADMA/wAAM/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIgICAiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiICAgIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiAgICIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIgICAiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiICAgIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiAgICIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIgICAiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiICAgIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiAgICIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiMgICAgQAAAAnAf//AwAAAAAA\"></p><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><br></p><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><br></p><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><img width=\"50\" height=\"10\" src=\"data:windows/metafile;base64,AQAJAAADdgAAAAAATQAAAAAABAAAAAMBCAAFAAAACwIAAAAABQAAAAwCCgAyAAMAAAAeAAQAAAAHAQQABAAAAAcBBABNAAAAQQsgAMwACgAyAAAAAAAKADIAAAAAACgAAAAyAAAACgAAAAEAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AP///////8AB////////wAH////////AAf///////8AB////////wAH////////AAf///////8AB////////wAH////////AAf///////8ABBAAAACcB//8DAAAAAAA=\"></p><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><br></p></div>";
+      const string expected = "<div style=\"font-size:12pt;font-family:Calibri;\"><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><img width=\"50\" height=\"10\" src=\"data:windows/metafile;base64,AQAJAAAD9gAAAAAAzQAAAAAABAAAAAMBCAAFAAAACwIAAAAABQAAAAwCCgAyAAMAAAAeAAQAAAAHAQQABAAAAAcBBADNAAAAQQsgAMwACgAyAAAAAAAKADIAAAAAACgAAAAyAAAACgAAAAEABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////ADMA/wAAM/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIgICAiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiICAgIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiAgICIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIgICAiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiICAgIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiAgICIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIgICAiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiICAgIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiAgICIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiMgICAgQAAAAnAf//AwAAAAAA\"></p><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><br></p><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><br></p><p style=\"font-size:11pt;margin:0 0 13.3px 0;\"><img width=\"50\" height=\"10\" src=\"data:windows/metafile;base64,AQAJAAADdgAAAAAATQAAAAAABAAAAAMBCAAFAAAACwIAAAAABQAAAAwCCgAyAAMAAAAeAAQAAAAHAQQABAAAAAcBBABNAAAAQQsgAMwACgAyAAAAAAAKADIAAAAAACgAAAAyAAAACgAAAAEAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AP///////8AB////////wAH////////AAf///////8AB////////wAH////////AAf///////8AB////////wAH////////AAf///////8ABBAAAACcB//8DAAAAAAA=\"></p><p style=\"font-size:11pt;line-height:1.4;margin:0 0 13.3px 0;\"><br></p></div>";
       Assert.AreEqual(expected, html);
     }
 
