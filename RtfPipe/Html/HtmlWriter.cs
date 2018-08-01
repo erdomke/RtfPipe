@@ -886,6 +886,8 @@ namespace RtfPipe
         else if (Name == "a")
         {
           WriteCss(builder, "text-decoration", underline ? "underline" : "none");
+          if (!this.OfType<ForegroundColor>().Any() && _all.TryGetValue<ForegroundColor>(out var foreColor))
+            WriteCss(builder, "color", "#" + foreColor.Value);
         }
 
         if (borders.All(b => b != null) && borders.Skip(1).All(b => b.SameBorderStyle(borders[0])))
