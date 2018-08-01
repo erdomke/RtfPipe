@@ -15,7 +15,7 @@ namespace RtfPipe
 
     public void Process()
     {
-      var boundaries = this.Flatten()
+      var boundaries = this.Flatten(g => !(g is Table))
         .OfType<RightCellBoundary>()
         .Select(b => b.Value)
         .Distinct()
@@ -33,13 +33,12 @@ namespace RtfPipe
         i++;
       }
 
-      var allBoundaries = boundaries
-        .ToDictionary(c => c.Value, c => c.Index);
+      var allBoundaries = new ColumnBoundaries();
+      foreach (var boundary in boundaries)
+        allBoundaries[boundary.Value] = boundary.Index;
 
       foreach (var row in Contents.OfType<Row>())
-      {
         row.AllBoundaries = allBoundaries;
-      }
     }
 
     public static Table Create(IList<IToken> tokens, ref int idx)
@@ -60,8 +59,10 @@ namespace RtfPipe
       {
         if (tokens[i] is RowDefaults || tokens[i] is InTable)
           return true;
-        else if (tokens[i] is TextToken)
+        else if (tokens[i] is TextToken || tokens[i] is SectionBreak || tokens[i] is PageBreak || tokens[i] is ParagraphBreak)
           return false;
+        else if (tokens[i] is NestingLevel nestLevel)
+          return nestLevel.Value > 0;
       }
       return false;
     }

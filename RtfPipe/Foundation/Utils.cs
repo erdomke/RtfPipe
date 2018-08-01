@@ -13,14 +13,17 @@ namespace RtfPipe
       return stack.Peek();
     }
 
-    public static IEnumerable<IToken> Flatten(this Group group)
+    public static IEnumerable<IToken> Flatten(this Group group, Func<Group, bool> predicate)
     {
       foreach (var token in group.Contents)
       {
         if (token is Group child)
         {
-          foreach (var childToken in child.Flatten())
-            yield return childToken;
+          if (predicate(child))
+          {
+            foreach (var childToken in child.Flatten(predicate))
+              yield return childToken;
+          }
         }
         else
         {

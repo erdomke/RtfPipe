@@ -9,8 +9,16 @@ namespace RtfPipe
 {
   internal class Row : Group
   {
-    public Dictionary<UnitValue, int> AllBoundaries { get; set; }
-    public int NestLevel { get; private set; } = 1;
+    public ColumnBoundaries AllBoundaries
+    {
+      get { return Contents.OfType<ColumnBoundaries>().FirstOrDefault(); }
+      set
+      {
+        Contents.RemoveWhere(t => t is ColumnBoundaries);
+        if (value != null)
+          Contents.Insert(0, value);
+      }
+    }
 
     private Row() { }
     private Row(IEnumerable<IToken> contents) : base(contents) { }

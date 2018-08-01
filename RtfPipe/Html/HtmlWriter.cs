@@ -272,6 +272,38 @@ namespace RtfPipe
             tag.AddRange(format.Where(t => t is CellSpacing || t is RowLeft));
             WriteTag(tag);
             tableLevel++;
+            var boundaries = format.OfType<ColumnBoundaries>().FirstOrDefault();
+            if (boundaries != null)
+            {
+              _writer.WriteStartElement("colgroup");
+              var rightBorders = boundaries
+                .GroupBy(v => v.Value)
+                .OrderBy(g => g.Key)
+                .Select(g => UnitValue.Average(g.Select(k => k.Key)))
+                .ToList();
+              var widths = new UnitValue[rightBorders.Count];
+              for (var i = 0; i < rightBorders.Count; i++)
+              {
+                widths[i] = i == 0
+                  ? rightBorders[i]
+                  : rightBorders[i] - rightBorders[i - 1];
+              }
+
+              var cells = format.OfType<CellToken>().ToList();
+              var everyCell = cells.Count == widths.Length || cells.Count == (widths.Length * 2);
+              for (var i = 0; i < widths.Length; i++)
+              {
+                if (everyCell && cells[i].WidthUnit == CellWidthUnit.Twip)
+                  widths[i] = new UnitValue(cells[i].Width, UnitType.Twip);
+
+                _writer.WriteStartElement("col");
+                _writer.WriteAttributeString("style", "width:" + TagContext.PxString(widths[i]));
+                _writer.WriteEndElement();
+
+              }
+
+              _writer.WriteEndElement();
+            }
           }
 
           if (format.OfType<HeaderRow>().Any())
@@ -310,7 +342,7 @@ namespace RtfPipe
         }
       }
 
-      if (format.Any(t => t is ParagraphNumbering || t is ListLevelType))
+      if (format.Any(IsListMarker))
       {
         var listLevel = new KeyValuePair<int, int>(
             format.OfType<ListStyleId>().FirstOrDefault()?.Value ?? 1
@@ -588,6 +620,11 @@ namespace RtfPipe
         || token is BookmarkToken;
     }
 
+    private static bool IsListMarker(IToken token)
+    {
+      return token is ParagraphNumbering || token is ListLevelType;
+    }
+
     private void WriteTag(TagContext tag)
     {
       _writer.WriteStartElement(tag.Name);
@@ -716,6 +753,11 @@ namespace RtfPipe
           {
             var fontSize = _all.OfType<FontSize>().FirstOrDefault()?.Value ?? _defaultFontSize;
             WriteCss(builder, "font-size", fontSize.ToPt().ToString("0.#") + "pt");
+            WriteCss(builder, "box-sizing", "border-box");
+            if (!this.OfType<TextAlign>().Any() && _all.TryGetValue<TextAlign>(out var align) && align.Value != TextAlignment.Left)
+            {
+              WriteCss(builder, "text-align", align.Value.ToString().ToLowerInvariant());
+            }
           }
         }
 
@@ -852,34 +894,25 @@ namespace RtfPipe
             WriteCss(builder, "border-left", BorderString(borders[3]));
         }
 
+        if (Name == "td" && !this.Any(IsListMarker) && TryGetValue<FirstLineIndent>(out var firstLine))
+        {
+          var indent = firstLine.Value;
+          if (padding[3].Value < 0)
+            indent += padding[3];
+          if (indent.Value > 0)
+            WriteCss(builder, "text-indent", PxString(indent));
+        }
+
         for (var i = 0; i < borders.Length; i++)
         {
           if (!padding[i].HasValue && borders[i] != null)
             padding[i] = borders[i].Padding;
+          if (padding[i].Value < 0)
+            padding[i] = UnitValue.Empty;
         }
 
         if (padding.Any(p => p.Value > 0) || Name == "td")
           WriteCss(builder, "padding", WriteBoxShort(padding));
-
-        if (cell != null)
-        {
-          var width = UnitValue.Empty;
-          if (cell.Width > 0 && cell.WidthUnit == CellWidthUnit.Twip)
-            width = new UnitValue(cell.Width, UnitType.Twip);
-          else if (cell.BoundaryDiff.Value > 0)
-            width = cell.BoundaryDiff;
-
-          if (width.Value > 0)
-          {
-            if (borders[1] != null)
-              width -= GetThickness(borders[1]);
-            if (borders[3] != null)
-              width -= GetThickness(borders[3]);
-            width -= padding[1] + padding[3];
-
-            WriteCss(builder, "width", PxString(width));
-          }
-        }
 
         return builder.ToString();
       }
@@ -894,7 +927,7 @@ namespace RtfPipe
         }
       }
 
-      private string PxString(UnitValue value)
+      internal static string PxString(UnitValue value)
       {
         var px = value.ToPx().ToString("0.#");
         if (px == "0")

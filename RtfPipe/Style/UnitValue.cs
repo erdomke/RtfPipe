@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace RtfPipe
@@ -137,5 +138,25 @@ namespace RtfPipe
     }
 
     public static UnitValue Empty { get; } = new UnitValue();
+
+    public static UnitValue Average(IEnumerable<UnitValue> values)
+    {
+      var result = UnitValue.Empty;
+      var count = 0;
+
+      foreach (var value in values)
+      {
+        if (value.HasValue)
+        {
+          if (!result.HasValue)
+            result = value;
+          else
+            result += value;
+          count++;
+        }
+      }
+
+      return result / count;
+    }
   }
 }

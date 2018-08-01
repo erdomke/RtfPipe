@@ -21,7 +21,7 @@ namespace RtfPipe
       else if (token is ParagraphDefault)
       {
         if (InTable)
-          RemoveWhere(t => t is ParagraphNumbering || t is ListLevelType || t is ListStyleId);
+          RemoveWhere(TableFormatsToReset);
         else
           RemoveWhere(t => t.Type == TokenType.ParagraphFormat);
         InTable = false;
@@ -68,6 +68,16 @@ namespace RtfPipe
       }
     }
 
+    private bool TableFormatsToReset(IToken token)
+    {
+      return token is ParagraphNumbering
+        || token is ListLevelType
+        || token is ListStyleId
+        || token is TextAlign
+        || token is LeftIndent
+        || token is FirstLineIndent;
+    }
+
     protected virtual Func<IToken, bool> SameTokenPredicate(IToken token)
     {
       if (token is OffsetToken)
@@ -109,6 +119,21 @@ namespace RtfPipe
     public void AddNew(IEnumerable<IToken> tokens)
     {
       AddRange(tokens.Where(t => !this.Any(SameTokenPredicate(t))));
+    }
+
+    public void ReplaceToken<T>(Func<T, IEnumerable<IToken>> replace)
+    {
+      var idx = _formats.IndexOf(t => t is T);
+      if (idx >= 0)
+      {
+        var newList = _formats.Take(idx)
+          .Concat(replace((T)_formats[idx]))
+          .Concat(_formats.Skip(idx + 1))
+          .ToList();
+        _formats.Clear();
+        foreach (var token in newList)
+          Add(token);
+      }
     }
 
     public void RemoveRange(IEnumerable<IToken> tokens)

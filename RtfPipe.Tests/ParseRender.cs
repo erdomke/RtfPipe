@@ -15,7 +15,7 @@ namespace RtfPipe.Tests
     //[TestMethod]
     //public void Prototype()
     //{
-    //  TestParse("RtfPipe.Tests.Files.Hyperlink");
+    //  TestParse(@"Casdfasdf");
     //}
 
     /// <summary>
@@ -24,6 +24,7 @@ namespace RtfPipe.Tests
     [TestMethod]
     public void RtfToHtml()
     {
+
       TestConvert("RtfPipe.Tests.Files.rtf2xml.bullet_list");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.caps_mixed");
       TestConvert("RtfPipe.Tests.Files.rtf2xml.char_style");
@@ -61,7 +62,7 @@ namespace RtfPipe.Tests
     private void TestParse(string path)
     {
       using (var stream = File.Exists(path)
-        ? new FileStream(path, FileMode.Open)
+        ? new FileStream(path, FileMode.Open, FileAccess.Read)
         : Assembly.GetExecutingAssembly().GetManifestResourceStream(path + ".rtf"))
       {
         var actual = Rtf.ToHtml(stream);

@@ -282,17 +282,26 @@ namespace RtfPipe
 
     private static FormatContext FixStyles(Document doc, FormatContext style)
     {
-      var styleId = style.RemoveFirstOfType<ListStyleId>();
-      if (styleId != null && doc.ListStyles.TryGetValue(styleId.Value, out var listStyle))
+      style.ReplaceToken<ListStyleId>(styleId =>
       {
-        var levelNum = style.RemoveFirstOfType<ListLevelNumber>() ?? new ListLevelNumber(0);
-        var level = levelNum.Value;
-        style.AddNew(listStyle.Style.Levels[level]
-          .Where(t => t.Type == TokenType.ParagraphFormat
-            && !(t is FirstLineIndent || t is LeftIndent)));
-        style.Add(styleId);
-        style.Add(levelNum);
-      }
+        var list = new List<IToken>();
+        if (doc.ListStyles.TryGetValue(styleId.Value, out var listStyle))
+        {
+          var levelNum = style.RemoveFirstOfType<ListLevelNumber>() ?? new ListLevelNumber(0);
+          var level = levelNum.Value;
+          list.AddRange(listStyle.Style.Levels[level]
+            .Where(t =>
+            {
+              // This is a bit of a hack, but not sure how MS Word is interpreting this
+              if (t is FirstLineIndent firstLine)
+                return firstLine.Value > new UnitValue(-1, UnitType.Inch);
+              return t.Type == TokenType.ParagraphFormat;
+            }));
+          list.Add(styleId);
+          list.Add(levelNum);
+        }
+        return list;
+      });
       return style;
     }
   }
