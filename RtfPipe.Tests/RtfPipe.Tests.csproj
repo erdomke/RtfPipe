@@ -52,6 +52,7 @@
     <Compile Include="ParseRender.cs" />
     <Compile Include="PindariExamples.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="GitHubIssues.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Files\rtf2xml\table_simple.rtf" />

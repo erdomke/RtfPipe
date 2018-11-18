@@ -294,9 +294,10 @@ namespace RtfPipe
           }
         }
       }
-
-      if (_reader.Peek() == ' ')
+      else if (_reader.Peek() == ' ')
+      {
         _reader.Read();
+      }
 
       return GetControlWord(name, number);
     }
