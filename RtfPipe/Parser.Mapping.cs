@@ -343,7 +343,7 @@ namespace RtfPipe
         case "cb":
         case "chcbpat":
         case "highlight":
-          return new BackgroundColor(ColorByIndex(number));
+          return new BackgroundColor(number == 0 ? new ColorValue(255, 255, 255) : ColorByIndex(number));
         case "shading":
           var shade = (byte)(255 - Math.Min(Math.Max(0, number * 255 / 10000), 255));
           return new ParaBackgroundColor(new ColorValue(shade, shade, shade));
