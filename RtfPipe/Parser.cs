@@ -196,10 +196,7 @@ namespace RtfPipe
 
               if (Depth < _ignoreDepth)
               {
-                if (_context.Count > 0)
-                  _context.Push(_context.Peek().Clone());
-                else
-                  _context.Push(new EncodingContext() { ValueBuffer = _textBuffer });
+                _context.Push(new EncodingContext() { ValueBuffer = _textBuffer });
                 yield return new Group();
               }
               break;
