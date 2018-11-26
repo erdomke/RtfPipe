@@ -289,6 +289,12 @@ namespace RtfPipe
             _reader.Read(); // read first nibble of byte
             _reader.Read(); // read second nibble of byte
           }
+          else if (read == ' ' && _reader.Peek() == '?')
+          {
+            // If there is a space and a placeholder character ( ?) following the unicode declaration:
+            // Read past the placeholder
+            _reader.Read();
+          }
         }
       }
       else if (_reader.Peek() == ' ')
