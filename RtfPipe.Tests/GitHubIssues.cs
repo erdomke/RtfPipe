@@ -60,6 +60,29 @@ f9a62f2ee765661012ae583c4da47b7193b0e8f4c595c2620ce212b58b67f0ce5cdc2321396b719d
 }", "<div style=\"font-size:12pt;\"><p style=\"margin:0;\"><img width=\"16\" height=\"16\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAGXRFWHRTb2Z0d2FyZQBNaWNyb3NvZnQgT2ZmaWNlf+01cQAAAwBQTFRFAAAAD3+6Bni2C3q3Cnq3E324A3SzBna0AnOzFX65DXu3AHCyAHKzAG6wAXW0D3y4CXm2AHCxB3i2AG2wAG+xAHS0CXm3B3e1AGyvAHOzAGuvBna1CHi2AnSzAHOyAG6xAGquAGywBHa0DXi0C3m3DXe0Hoq+G4W9EoG7GoW9GoS8HYa9FoC6GIG7H4S8Ioq/JYu/PZfHLpDCLZDCM5PEMZLEM5PFMpPFLZDDL5HDNJTFNJXFNZXFMJHDJI3AJo7BP5vILpHDIovALZHDMZPEJIzAJo3BIozAJY3AMo/CQJnJRpzKSJ7LSJ3LSp7LQJjISJ/LQJvIQ5nIT5/LRJnIUKDNXqnSXKjRUqLNUqPOWaXPX6jQWabOWqXOeLTXerXYebXYeLPXZKrSfrjaebXZe7baZ6vSfbnbYKrTYqvTf7zbaa3Tir/djL/dhbvcgrrcgbrchLvchL7chb3ch77cib/dhL3bhr7cgrzbhr3chbzbj8Pfi8DdisDdjcHemsnjnsrjmsjhmsnisdfpvt3tsNXppM/lptDmvdvsvNvsutrsudrro87lwt/ux+Hwx+LwzeXx1Ojzz+Xy2Or0zuXxzeTxzOTxy+Px2Ov1xODu1+r0+f3/6vT55vL46fT59vv99fr98vj87vb7////AQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDdWbl1wAAAAF0Uk5TAEDm2GYAAAAJcEhZcwAAAEAAAABAAGJDY1sAAAAMY21QUEpDbXAwNzEyAAAAA0gAc7wAAAEFSURBVChTY8iJi49PSICi+MRchqS85JTU/PwCEMjPL0xjCA1L76sPz4CCzAgGQ6/+xbMjvX2AwNfHx8+fwcg4a06ziampmbmFpZW1jS2Dvp29g6OTs4urW0CgmruHAYM6Y9HcFo3WeW0TFs9v19TSZtBhql48kbl38eIFCxcvjmLRZWBlq1k8ib1j8WQ9z0WLizk4Gbi4SxZP4elc3MDLN3VxKTc/gwBv2eJpgl2LG3n5pi8u52VmEBKuWDxNpHtxk7Do9MWVwmIM4hK1i2fwzlzcIyE5a3GdlACDtEhQVTZ3dFWwiGR2VYiIDIOsnLyChKSigrAkj4SCvJwSA4OyChJQjQUAVOJSn5QajuEAAAAASUVORK5CYII=\"></p></div>");
     }
 
+    [TestMethod]
+    public void Issue18()
+    {
+      TestConvert(@"{\rtf1\ansi\ansicpg1252\fromhtml1 \fbidis \deff0{\fonttbl
+{\f0\fswiss\fcharset0 Arial;}
+{\f1\fmodern Courier New;}
+{\f2\fnil\fcharset2 Symbol;}
+{\f3\fmodern\fcharset0 Courier New;}
+{\f4\fswiss\fcharset0 ""Segoe UI Emoji"";}}
+{\colortbl\red0\green0\blue0;\red5\green99\blue193;}
+\uc1\pard\plain\deftab360 \f0\fs24 
+{\*\htmltag18 <html>}
+{\*\htmltag50 <body lang=EN-US link=""#0563C1"" vlink=""#954F72"">}\htmlrtf \lang1033 \htmlrtf0 
+{\*\htmltag96 <div class=WordSection1>}\htmlrtf {\htmlrtf0 
+{\*\htmltag148 <span style='color:#7030A0'>}\htmlrtf {\htmlrtf0 Testing the smiley unicode 
+{\*\htmltag156 </span>}\htmlrtf }\htmlrtf0 
+{\*\htmltag148 <span style='font-family:""Segoe UI Emoji"",sans-serif;color:#7030A0'>}\htmlrtf {\f4 \htmlrtf0 \u-10179 ?\u-8694 ?
+{\*\htmltag156 </span>}\htmlrtf }\htmlrtf0 
+{\*\htmltag104 </div>}\htmlrtf }\htmlrtf0 
+{\*\htmltag58 </body>}
+{\*\htmltag27 </html>}}", @"<html><body lang=EN-US link=""#0563C1"" vlink=""#954F72""><div class=WordSection1><span style='color:#7030A0'>Testing the smiley unicode </span><span style='font-family:""Segoe UI Emoji"",sans-serif;color:#7030A0'>😊</span></div></body></html>");
+    }
+
     private void TestConvert(string rtf, string html)
     {
       var actual = Rtf.ToHtml(rtf);

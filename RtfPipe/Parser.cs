@@ -283,6 +283,9 @@ namespace RtfPipe
         for (var i = 0; i < skip; i++)
         {
           var read = _reader.Read();
+          if (read == ' ' && i == 0)
+            read = _reader.Read();
+
           if (read == '\\' && _reader.Peek() == '\'')
           {
             _reader.Read(); // read single quote
