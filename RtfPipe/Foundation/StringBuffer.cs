@@ -46,7 +46,7 @@ namespace RtfPipe
     {
       if (_position > 0)
       {
-        _chars.Append(Encoding.GetString(_buffer, 0, _position));
+        _chars.Append(Encoding.Default.GetString(_buffer, 0, _position));
         _position = 0;
       }
     }
