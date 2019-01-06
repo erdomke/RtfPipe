@@ -163,6 +163,7 @@ namespace RtfPipe
       }
       else if (token is LineBreak)
       {
+        EnsureSection(format);
         _writer.WriteStartElement("br");
         _writer.WriteEndElement();
         _tags.Peek().ChildCount++;

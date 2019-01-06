@@ -22,6 +22,16 @@ namespace RtfPipe
 
     private int Depth { get { return _context.Count; } }
 
+    public Parser(string rtf)
+    {
+      _reader = new StringReader(rtf);
+    }
+
+    public Parser(Stream stream)
+    {
+      _reader = new StreamReader(stream);
+    }
+
     public Parser(TextReader reader)
     {
       _reader = reader;
