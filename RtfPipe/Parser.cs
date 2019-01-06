@@ -211,7 +211,7 @@ namespace RtfPipe
               }
               break;
             case '}':
-              if (_context.Peek().ValueBuffer.Length > 0)
+              if (_context.Count > 0 && _context.Peek().ValueBuffer.Length > 0)
                 yield return ConsumeTextBuffer();
               yield return new GroupEnd();
 
@@ -314,7 +314,7 @@ namespace RtfPipe
 
     private IToken ConsumeToken(IToken token)
     {
-      if (token is ControlWord<Encoding> ctrlEncode && !(ctrlEncode is FontCharSet))
+      if (token is ControlWord<Encoding> ctrlEncode)
         UpdateEncoding(ctrlEncode.Value);
       else if (token is Font font && font.Encoding != null)
         UpdateEncoding(font.Encoding);

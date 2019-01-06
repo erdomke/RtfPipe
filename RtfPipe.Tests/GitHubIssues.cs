@@ -94,6 +94,33 @@ f9a62f2ee765661012ae583c4da47b7193b0e8f4c595c2620ce212b58b67f0ce5cdc2321396b719d
 {\*\htmltag27 </html>}}", @"<html><body lang=EN-US link=""#0563C1"" vlink=""#954F72""><div class=WordSection1><span style='color:#7030A0'>Testing the smiley unicode </span><span style='font-family:""Segoe UI Emoji"",sans-serif;color:#7030A0'>😊</span></div></body></html>");
     }
 
+    [TestMethod]
+    public void Issue20()
+    {
+      TestConvert(@"{\rtf1\ansi\ansicpg1252\lnbrkrule
+{\fonttbl
+{\f1\fswiss\fcharset0\fprq0 Arial;}
+{\f2\fnil\fcharset134\fprq0 \'cb\'ce\'cc\'e5;}
+{\f3\fnil\fcharset134\fprq0 \'ba\'da\'cc\'e5;}
+{\f4\fswiss\fcharset161\fprq0 Arial;}
+}
+{\colortbl;
+\red0\green0\blue0;
+\red0\green0\blue255;
+}
+{\stylesheet
+{\s1\qc\loch\af1\hich\af1\dbch\f2\fs44\ppscheme-3\lang1033\level1 heading 1;}
+{\s2\li270\fi-270\loch\af1\hich\af1\dbch\f2\fs32\ppscheme-1\lang1033\level2 heading 2;}
+{\s3\li585\fi-225\loch\af1\hich\af1\dbch\f2\fs28\ppscheme-1\lang1033\level3 heading 3;}
+{\s4\li900\fi-180\loch\af1\hich\af1\dbch\f2\fs24\ppscheme-1\lang1033\level4 heading 4;}
+{\s5\li1260\fi-180\loch\af1\hich\af1\dbch\f2\fs20\ppscheme-1\lang1033\level5 heading 5;}
+{\s6\li1620\fi-180\loch\af1\hich\af1\dbch\f2\fs20\ppscheme-1\lang1033\level6 heading 6;}
+}
+\pard\plain\ltrpar\s1\qc\loch\af1\hich\af1\dbch\f2\fs44\ppscheme-3\lang1033 {\b\loch\af1\hich\af1\dbch\f2 \'a1\'b6}{\b\loch\af1\hich\af1\dbch\f2\lang2052\langfe2052 \'b6\'d4\'cd\'e2\'ba\'ba\'d3\'ef\'bd\'cc\'d1\'a7\'b8\'c5\'c2\'db}{\b\loch\af1\hich\af1\dbch\f2 \'a1\'b7}{\b\loch\af1\hich\af1\dbch\f2 \par 
+}
+}", @"<div style=""font-size:12pt;""><p style=""text-align:center;font-size:22pt;font-family:宋体;margin:0;""><strong>《对外汉语教学概论》</strong></p></div>");
+    }
+
     private void TestConvert(string rtf, string html)
     {
       var actual = Rtf.ToHtml(rtf);
