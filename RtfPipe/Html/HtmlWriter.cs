@@ -108,6 +108,7 @@ namespace RtfPipe
           EndTag();
         }
         _startOfLine = true;
+        format.RemoveFirstOfType<SingleLineIndent>();
       }
       else if (token is SectionBreak || token is PageBreak)
       {
@@ -122,6 +123,7 @@ namespace RtfPipe
           EnsureSection(format);
         }
         _state = WriteState.Other;
+        format.RemoveFirstOfType<SingleLineIndent>();
       }
       else if (token is FootnoteBreak)
       {
@@ -152,6 +154,7 @@ namespace RtfPipe
         EndTag();
         _startOfLine = true;
         _state = WriteState.Other;
+        format.RemoveFirstOfType<SingleLineIndent>();
       }
       else if (token is RowBreak || token is NestRow)
       {
@@ -160,6 +163,7 @@ namespace RtfPipe
         EndTag();
         _startOfLine = true;
         _state = WriteState.Other;
+        format.RemoveFirstOfType<SingleLineIndent>();
       }
       else if (token is LineBreak)
       {
@@ -168,6 +172,7 @@ namespace RtfPipe
         _writer.WriteEndElement();
         _tags.Peek().ChildCount++;
         _startOfLine = true;
+        format.RemoveFirstOfType<SingleLineIndent>();
       }
       else if (token is Tab)
       {
@@ -179,7 +184,7 @@ namespace RtfPipe
             if (format.TryGetValue<FirstLineIndent>(out var firstIndent))
               start = firstIndent.Value;
             var tab = format.GetTab(count, DefaultTabWidth, start);
-            format.Add(new FirstLineIndent(tab.Position));
+            format.Add(new SingleLineIndent(tab.Position));
           }
           else
           {
