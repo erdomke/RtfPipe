@@ -29,7 +29,7 @@ namespace RtfPipe
 
     public Parser(Stream stream)
     {
-      _reader = new StreamReader(stream);
+      _reader = new RtfStreamReader(stream);
     }
 
     public Parser(TextReader reader)
@@ -59,8 +59,8 @@ namespace RtfPipe
         }
         else if (token is GroupEnd)
         {
-          var lastGroup = groups.Pop();
-          var dest = lastGroup.Destination;
+          var lastGroup = groups.Count > 0 ? groups.Pop() : default(Group);
+          var dest = lastGroup?.Destination;
           if (dest is ListDefinition)
           {
             var style = new ListStyle(lastGroup);

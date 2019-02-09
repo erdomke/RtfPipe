@@ -47,6 +47,22 @@ namespace RtfPipe
 
     private static Row Process(Row row)
     {
+      ProcessNesting(row);
+      var firstDefault = row.Contents.IndexOf(t => t is RowDefaults);
+      var firstCell = row.Contents.IndexOf(t => t is CellBreak);
+      if (firstDefault >= 0 && firstCell >= 0 && firstDefault > firstCell)
+      {
+        var newOrder = row.Contents.Skip(firstDefault).TakeWhile(t => !(t is RowBreak))
+          .Concat(row.Contents.Take(firstDefault)).ToList();
+        row.Contents.Clear();
+        row.Contents.AddRange(newOrder);
+        row.Contents.Add(new RowBreak());
+      }
+      return row;
+    }
+
+    private static Row ProcessNesting(Row row)
+    {
       var cellIndex = row.Contents.IndexOf(t => t.Type == TokenType.BreakTag
         || t is TextToken
         || t is Table

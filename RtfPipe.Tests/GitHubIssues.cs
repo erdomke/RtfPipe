@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 namespace RtfPipe.Tests
 {
@@ -119,7 +120,7 @@ f9a62f2ee765661012ae583c4da47b7193b0e8f4c595c2620ce212b58b67f0ce5cdc2321396b719d
 }
 }", @"<div style=""font-size:12pt;""><p style=""text-align:center;font-size:22pt;font-family:宋体;margin:0;""><strong>《对外汉语教学概论》</strong></p></div>");
     }
-
+    
     [TestMethod]
     public void Issue25()
     {
@@ -127,7 +128,18 @@ f9a62f2ee765661012ae583c4da47b7193b0e8f4c595c2620ce212b58b67f0ce5cdc2321396b719d
 , @"<div style=""font-size:12pt;font-family:&quot;Courier New&quot;;""><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;""><br></p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;""><br></p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;""><br></p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;""><br></p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;"">28th February, 2007.</p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;""><br></p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;"">Dr Donald Duck</p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;"">Disney General Practice</p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;"">1011 Bourbon Street</p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;"">Random Town VIC 3377</p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;""><br></p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;"">Dear Pete</p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;""><br></p><p style=""text-align:left;line-height:1.4;font-size:10pt;text-indent:48px;margin:0;"">RE: Mr John Smith (DOB: 25/02/39)</p><p style=""text-align:left;line-height:1.4;font-size:10pt;text-indent:48px;margin:0;"">Unit 15/246 Spencer Street Random Town VIC 3377</p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;""><br></p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;"">John is at sixes and sevens. &nbsp;&nbsp;He is very anxious and has a whole load of psychosomatic complaints. &nbsp;&nbsp;None of these are related to his actual prostate cancer.</p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;""><br></p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;"">His bone scan reveals some arthritis in his shoulders and an old rib fracture on the right. &nbsp;&nbsp;There is no evidence of metastatic disease. &nbsp;&nbsp;This is consistent with expectation from his pathology.</p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;""><br></p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;"">His options are watchful waiting or external beam radiotherapy. &nbsp;&nbsp;He is excluded from Brachy therapy because he has elements of Gleason 4 carcinoma. &nbsp;&nbsp;Surgery would not be a good option in him due to a significant CVA seven to eight years ago and this would put his risks of repeat up considerably.</p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;""><br></p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;"">He is due for review by you shortly and I would appreciate it if you could treat him in a general sense. &nbsp;&nbsp;I will catch-up with him for further discussion in two to three weeks time.</p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;""><br></p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;"">Kind regards</p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;""><br></p><p style=""text-align:left;line-height:1.4;font-size:10pt;margin:0;"">David Dodge</p></div>");
     }
 
-      private void TestConvert(string rtf, string html)
+    [TestMethod]
+    public void Issue26()
+    {
+      TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\deflang1033\fs20{\fonttbl{\f0\fswiss\fprq2\fcharset0 Arial;}
+{\f99\froman\fcharset0\fprq2{\*\panose 02020603050405020304}Arial;}{\f100\fnil\fcharset2 Symbol;}{\f101\fnil\fcharset2 Wingdings;}{\f102\fcharset204{\*\fname Courier New;}Courier New CYR;}{\f103\fcharset0 Arial;}}
+{\colortbl ;\red0\green0\blue0;\red51\green102\blue255;}
+\paperw12240\paperh15840\margl1417\margr1134\margt1134\margb1134
+\pard\sb100\sa100\sbauto1\saauto1\fs20\lang1033
+ist Ersatzabruf für 4200028332 warAN 68595 bez 12.261,20- Re 111607-7105658060-ok !!\pard}}", @"<div style=""font-size:12pt;font-family:Arial, sans-serif;""><p style=""font-size:10pt;margin:6.7px 0 6.7px 0;"">ist Ersatzabruf für 4200028332 warAN 68595 bez 12.261,20- Re 111607-7105658060-ok !!</p></div>");
+    }
+
+    private void TestConvert(RtfSource rtf, string html)
     {
       var actual = Rtf.ToHtml(rtf);
       Assert.AreEqual(html, actual);
