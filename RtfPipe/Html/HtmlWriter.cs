@@ -44,17 +44,18 @@ namespace RtfPipe
       EnsureSpans(format);
 
       _tags.Peek().ChildCount++;
-      _writer.WriteValue(AddNonBreaking(text));
+      _writer.WriteValue(AddNonBreaking(text
+        , format.OfType<Font>().Any(f => TextEncoding.IsEastAsian(f.Encoding))));
       _lastTokenType = typeof(TextToken);
     }
 
-    private string AddNonBreaking(string text)
+    private string AddNonBreaking(string text, bool eastAsian = false)
     {
       var output = text.ToCharArray();
       for (var i = 1; i < text.Length; i++)
       {
         if (text[i] == text[i - 1] && text[i] == ' ')
-          output[i] = '\u00a0';
+          output[i] = eastAsian ? '\u2007' : '\u00a0';
       }
       return new string(output);
     }

@@ -553,6 +553,7 @@ namespace RtfPipe
           {
             case '&': WriteInternal("&amp;"); break;
             case '\u00a0': WriteInternal("&nbsp;"); break;
+            case '\u2007': WriteInternal("&#8199;"); break;
             case '>': WriteInternal("&gt;"); break;
             case '<': WriteInternal("&lt;"); break;
             case '"':
@@ -596,6 +597,7 @@ namespace RtfPipe
             {
               case '&': _writer.Write("&amp;"); break;
               case '\u00a0': _writer.Write("&nbsp;"); break;
+              case '\u2007': WriteInternal("&#8199;"); break;
               case '>': _writer.Write("&gt;"); break;
               case '<': _writer.Write("&lt;"); break;
               case '\n': _writer.Write(_settings.NewLineChars); break;

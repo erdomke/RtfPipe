@@ -235,6 +235,24 @@ namespace RtfPipe
       {65001, "utf-8"}
     };
 
+    private static HashSet<string> _eastAsianEncodings = new HashSet<string>()
+    {
+      "windows-874",
+      "shift_jis",
+      "gb2312",
+      "ks_c_5601-1987",
+      "big5",
+      "EUC-JP",
+      "euc-jp",
+      "EUC-CN",
+      "euc-kr",
+    };
+
+    public static bool IsEastAsian(Encoding encoding)
+    {
+      return _eastAsianEncodings.Contains(encoding?.WebName ?? "");
+    }
+
     public static Encoding EncodingFromCharSet(int charSet)
     {
       return EncodingFromCodePage(GetCodePage(charSet));

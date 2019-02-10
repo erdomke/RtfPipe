@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using System.Reflection;
 
 namespace RtfPipe.Tests
 {
@@ -120,7 +121,13 @@ f9a62f2ee765661012ae583c4da47b7193b0e8f4c595c2620ce212b58b67f0ce5cdc2321396b719d
 }
 }", @"<div style=""font-size:12pt;""><p style=""text-align:center;font-size:22pt;font-family:宋体;margin:0;""><strong>《对外汉语教学概论》</strong></p></div>");
     }
-    
+
+    [TestMethod]
+    public void Issue23()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue23");
+    }
+
     [TestMethod]
     public void Issue25()
     {
@@ -143,6 +150,17 @@ ist Ersatzabruf für 4200028332 warAN 68595 bez 12.261,20- Re 111607-7105658060-
     {
       var actual = Rtf.ToHtml(rtf);
       Assert.AreEqual(html, actual);
+    }
+
+    private void TestConvert(string path)
+    {
+      using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path + ".rtf"))
+      using (var expectedReader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(path + ".html")))
+      {
+        var actual = Rtf.ToHtml(stream);
+        var expected = expectedReader.ReadToEnd();
+        Assert.AreEqual(expected, actual);
+      }
     }
   }
 }
