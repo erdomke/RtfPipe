@@ -146,6 +146,17 @@ f9a62f2ee765661012ae583c4da47b7193b0e8f4c595c2620ce212b58b67f0ce5cdc2321396b719d
 ist Ersatzabruf für 4200028332 warAN 68595 bez 12.261,20- Re 111607-7105658060-ok !!\pard}}", @"<div style=""font-size:12pt;font-family:Arial, sans-serif;""><p style=""font-size:10pt;margin:6.7px 0 6.7px 0;"">ist Ersatzabruf für 4200028332 warAN 68595 bez 12.261,20- Re 111607-7105658060-ok !!</p></div>");
     }
 
+    [TestMethod]
+    public void Issue29()
+    {
+      TestConvert(@"{\rtf1\ansi\deff0 {\fonttbl {\f0 Times New Roman;}}
+\f0\fs60 Copies:\par
+Dr G. Smith\par \par
+PELVIS \ LEFT HIP 01/04/2019 Reference: 1234556 NHI: ABC1234\par
+AC Reference: 12312443423\par \par \par
+}", @"<div style=""font-size:12pt;font-family:&quot;Times New Roman&quot;;""><p style=""font-size:30pt;margin:0;"">Copies:</p><p style=""font-size:30pt;margin:0;"">Dr G. Smith</p><p style=""font-size:30pt;margin:0;""><br></p><p style=""font-size:30pt;margin:0;"">PELVIS LEFT HIP 01/04/2019 Reference: 1234556 NHI: ABC1234</p><p style=""font-size:30pt;margin:0;"">AC Reference: 12312443423</p><p style=""font-size:30pt;margin:0;""><br></p><p style=""font-size:30pt;margin:0;""><br></p></div>");
+    }
+
     private void TestConvert(RtfSource rtf, string html)
     {
       var actual = Rtf.ToHtml(rtf);

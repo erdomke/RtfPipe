@@ -188,6 +188,12 @@ namespace RtfPipe
                   }
                   break;
                 default:
+                  if ((char)_reader.Peek() == ' ')
+                  {
+                    _reader.Read();
+                    break;
+                  }
+
                   if (!IsLetter((char)_reader.Peek()))
                     throw new NotSupportedException();
                   var token = ReadControlWord();
