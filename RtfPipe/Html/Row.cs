@@ -106,7 +106,7 @@ namespace RtfPipe
           var segment = segments.Last();
           segment.Length = i - segment.Start + 1;
           segment.BreakToken = breakToken;
-          segments.Add(new Segment() { Start = i + 1 });
+          segments.Add(new Segment() { Start = i + 1, Level = segment.Level });
         }
         else if (row.Contents[i] is NestingLevel nestLevel)
         {

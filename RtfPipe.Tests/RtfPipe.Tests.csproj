@@ -77,6 +77,7 @@
     <EmbeddedResource Include="Files\phprtflite\image_from_strings.rtf" />
     <EmbeddedResource Include="Files\phprtflite\paragraphs_fonts.rtf" />
     <EmbeddedResource Include="Files\Issue23.rtf" />
+    <EmbeddedResource Include="Files\Issue34.rtf" />
     <None Include="Files\rtf2xml\char_upper_ranges_hex.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\escaped_text.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\headings_mixed.rtf" />
@@ -144,6 +145,7 @@
     <EmbeddedResource Include="Files\phprtflite\image_from_strings.html" />
     <EmbeddedResource Include="Files\phprtflite\paragraphs_fonts.html" />
     <EmbeddedResource Include="Files\Issue23.html" />
+    <EmbeddedResource Include="Files\Issue34.html" />
     <Content Include="Files\rtf2xml\char_upper_ranges_hex.html" />
     <EmbeddedResource Include="Files\rtf2xml\outline_list.html" />
     <EmbeddedResource Include="Files\rtf2xml\nested_lists_indents.html" />

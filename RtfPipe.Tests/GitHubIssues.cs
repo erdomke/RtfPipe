@@ -165,6 +165,12 @@ AC Reference: 12312443423\par \par \par
 }", @"<div style=""font-size:12pt;font-family:&quot;Times New Roman&quot;;""><p style=""font-size:30pt;margin:0;"">Hello.brbr, World!</p></div>");
     }
 
+    [TestMethod]
+    public void Issue34()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue34");
+    }
+
     private void TestConvert(RtfSource rtf, string html)
     {
       var actual = Rtf.ToHtml(rtf);

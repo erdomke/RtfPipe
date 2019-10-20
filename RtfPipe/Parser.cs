@@ -139,7 +139,10 @@ namespace RtfPipe
               _reader.Read();
               break;
             case '{':
-              _context.Push(new EncodingContext() { ValueBuffer = _textBuffer });
+              if (_context.Count > 0)
+                _context.Push(_context.Peek().Clone(_textBuffer));
+              else
+                _context.Push(new EncodingContext() { ValueBuffer = _textBuffer });
               break;
             case '}':
               _context.Pop();
@@ -210,7 +213,10 @@ namespace RtfPipe
 
               if (Depth < _ignoreDepth)
               {
-                _context.Push(new EncodingContext() { ValueBuffer = _textBuffer });
+                if (_context.Count > 0)
+                  _context.Push(_context.Peek().Clone(_textBuffer));
+                else
+                  _context.Push(new EncodingContext() { ValueBuffer = _textBuffer });
                 yield return new Group();
               }
               break;
@@ -413,13 +419,13 @@ namespace RtfPipe
       public List<IToken> TokenBuffer { get; } = new List<IToken>();
       public IValueBuffer ValueBuffer { get; set; }
 
-      public EncodingContext Clone()
+      public EncodingContext Clone(IValueBuffer valueBuffer)
       {
         return new EncodingContext()
         {
           Encoding = Encoding,
           AsciiFallbackChars = AsciiFallbackChars,
-          ValueBuffer = ValueBuffer
+          ValueBuffer = valueBuffer ?? ValueBuffer
         };
       }
     }
