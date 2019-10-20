@@ -49,6 +49,8 @@ namespace RtfPipe
           default:
             if (args[i].StartsWith("\""))
               Url = args[i].Trim('"');
+            else
+              Url = args[i];
             break;
         }
       }

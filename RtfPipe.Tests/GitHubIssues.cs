@@ -166,6 +166,17 @@ AC Reference: 12312443423\par \par \par
     }
 
     [TestMethod]
+    public void Issue32_Corrected()
+    {
+      TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang2057{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+{\colortbl ;\red0\green0\blue255;\red0\green0\blue0;}
+{\*\generator Riched20 10.0.18362}\viewkind4\uc1
+\pard {\f0\fs17{\field{\*\fldinst{HYPERLINK http://www.xxxx.co.uk }}{\fldrslt{http://www.xxxx.co.uk\ul0\cf0}}}}\cf2\f0\fs17\par
+\par
+\par}", @"<div style=""font-size:12pt;font-family:&quot;Microsoft Sans Serif&quot;;""><p style=""font-size:8.5pt;margin:0;""><a style=""text-decoration:none;"" href=""http://www.xxxx.co.uk"">http://www.xxxx.co.uk</a></p><p style=""font-size:8.5pt;margin:0;""><br></p><p style=""font-size:8.5pt;margin:0;""><br></p></div>");
+    }
+
+    [TestMethod]
     public void Issue34()
     {
       TestConvert("RtfPipe.Tests.Files.Issue34");
