@@ -93,6 +93,20 @@ namespace RtfPipe.Tokens
     public PictureHeightGoal(UnitValue value) : base(value) { }
   }
 
+  public class PictureScaleX : ControlWord<int>
+  {
+    public override string Name => "picscalex";
+
+    public PictureScaleX(int value) : base(value) { }
+  }
+
+  public class PictureScaleY : ControlWord<int>
+  {
+    public override string Name => "picscaley";
+
+    public PictureScaleY(int value) : base(value) { }
+  }
+
   public class PictureBinaryLength : ControlWord<int>
   {
     public override string Name => "bin";

@@ -177,6 +177,12 @@ AC Reference: 12312443423\par \par \par
     }
 
     [TestMethod]
+    public void Issue33()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue33");
+    }
+
+    [TestMethod]
     public void Issue34()
     {
       TestConvert("RtfPipe.Tests.Files.Issue34");

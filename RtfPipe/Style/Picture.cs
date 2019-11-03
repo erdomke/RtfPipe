@@ -8,31 +8,61 @@ namespace RtfPipe
   public class Picture
   {
     private readonly List<IToken> _tokens = new List<IToken>();
+    private UnitValue _width;
+    private UnitValue _widthGoal;
+    private UnitValue _height;
+    private UnitValue _heightGoal;
+    private int _scaleX = 100;
+    private int _scaleY = 100;
 
     public IEnumerable<IToken> Attributes { get { return _tokens; } }
-    public UnitValue Width { get; }
-    public UnitValue WidthGoal { get; }
-    public UnitValue Height { get; }
-    public UnitValue HeightGoal { get; }
-    public IToken Type { get; }
     public byte[] Bytes { get; }
+    public UnitValue Height
+    {
+      get
+      {
+        var baseUnit = _heightGoal.HasValue ? _heightGoal : _height;
+        if (!baseUnit.HasValue)
+          return UnitValue.Empty;
+        if (_scaleY < 100 && _scaleY > 0)
+          return baseUnit * (_scaleY / 100.0);
+        return baseUnit;
+      }
+    }
+    public IToken Type { get; }
+    public UnitValue Width
+    {
+      get
+      {
+        var baseUnit = _widthGoal.HasValue ? _widthGoal : _width;
+        if (!baseUnit.HasValue)
+          return UnitValue.Empty;
+        if (_scaleX < 100 && _scaleX > 0)
+          return baseUnit * (_scaleX / 100.0);
+        return baseUnit;
+      }
+    }
 
     public Picture(Group group)
     {
       foreach (var token in group.Contents)
       {
         if (token is PictureWidth width)
-          Width = width.Value;
+          _width = width.Value;
         else if (token is PictureHeight height)
-          Height = height.Value;
+          _height = height.Value;
         else if (token is PictureWidthGoal widthGoal)
-          WidthGoal = widthGoal.Value;
+          _widthGoal = widthGoal.Value;
         else if (token is PictureHeightGoal heightGoal)
-          HeightGoal = heightGoal.Value;
+          _heightGoal = heightGoal.Value;
         else if (token is BinaryToken binary)
           Bytes = binary.Value;
         else if (token.Type == TokenType.PictureTypeTag)
           Type = token;
+        else if (token is PictureScaleX scaleX)
+          _scaleX = scaleX.Value;
+        else if (token is PictureScaleY scaleY)
+          _scaleY = scaleY.Value;
         else if (!(token is PictureTag))
           _tokens.Add(token);
       }

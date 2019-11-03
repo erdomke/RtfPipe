@@ -69,14 +69,10 @@ namespace RtfPipe
       {
         _writer.WriteStartElement("img");
 
-        if (picture.WidthGoal.HasValue)
-          _writer.WriteAttributeString("width", picture.WidthGoal.ToPx().ToString("0"));
-        else if (picture.Width.HasValue)
+        if (picture.Width.HasValue)
           _writer.WriteAttributeString("width", picture.Width.ToPx().ToString("0"));
 
-        if (picture.HeightGoal.HasValue)
-          _writer.WriteAttributeString("height", picture.HeightGoal.ToPx().ToString("0"));
-        else if (picture.Height.HasValue)
+        if (picture.Height.HasValue)
           _writer.WriteAttributeString("height", picture.Height.ToPx().ToString("0"));
 
         _writer.WriteAttributeString("src", uri);

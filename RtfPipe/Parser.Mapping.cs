@@ -451,6 +451,10 @@ namespace RtfPipe
           return new PictureHeightGoal(new UnitValue(number, UnitType.Twip));
         case "bin":
           return new PictureBinaryLength(number);
+        case "picscalex":
+          return new PictureScaleX(number);
+        case "picscaley":
+          return new PictureScaleY(number);
 
         // Tables
         case "trowd":
