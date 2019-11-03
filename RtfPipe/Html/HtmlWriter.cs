@@ -471,6 +471,7 @@ namespace RtfPipe
       var tag = new TagContext(name, _tags.PeekOrDefault());
       tag.AddRange(format.Where(t => !IsSpanElement(t) && !(t is CapitalToken)
         && (t.Type == TokenType.ParagraphFormat
+          || t.Type == TokenType.CellFormat
           || t.Type == TokenType.CharacterFormat
           || t.Type == TokenType.RowFormat)));
       return tag;

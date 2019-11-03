@@ -20,7 +20,7 @@ namespace RtfPipe
     public CellWidthUnit WidthUnit { get; }
     public VerticalAlignment VerticalAlignment { get; }
 
-    public TokenType Type => TokenType.ParagraphFormat;
+    public TokenType Type => TokenType.CellFormat;
     public string Name => "CellToken" + Index;
 
     public CellToken(IEnumerable<IToken> tokens, Row row, CellToken previous)

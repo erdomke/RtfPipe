@@ -54,7 +54,7 @@ namespace RtfPipe
       _html.Close();
     }
 
-    private void ToHtmlGroup(Document doc, Group group, bool processRtf)
+    private FormatContext ToHtmlGroup(Document doc, Group group, bool processRtf)
     {
       var tabCount = 0;
 
@@ -62,7 +62,7 @@ namespace RtfPipe
         && group.Contents[0] is IgnoreUnrecognized
         && (group.Contents[1].GetType().Name == "GenericTag" || group.Contents[1].GetType().Name == "GenericWord"))
       {
-        return;
+        return null;
       }
 
       if (_inputStyle.Count > 0)
@@ -71,7 +71,11 @@ namespace RtfPipe
         _inputStyle.Push(new FormatContext());
       var currStyle = _inputStyle.Peek();
       if (group is Row)
-        currStyle.RemoveWhere(t => t is CellToken || t is NestingLevel);
+      {
+        if (group.Contents.OfType<RightCellBoundary>().Any())
+          currStyle.RemoveWhere(t => t is CellToken);
+        currStyle.RemoveWhere(t => t is NestingLevel);
+      }
 
       for (var i = 0; i < group.Contents.Count; i++)
       {
@@ -85,8 +89,16 @@ namespace RtfPipe
           if (token is RowDefaults && !(group is Row))
           {
             var table = Table.Create(group.Contents, ref i);
+            var prevStyle = default(FormatContext);
             foreach (var child in table.Contents.OfType<Group>())
-              ToHtmlGroup(doc, child, processRtf);
+            {
+              var usePrevious = prevStyle != null && !child.Contents.OfType<RowDefaults>().Any();
+              if (usePrevious)
+                _inputStyle.Push(prevStyle);
+              prevStyle = ToHtmlGroup(doc, child, processRtf);
+              if (usePrevious)
+                _inputStyle.Pop();
+            }
           }
           else if (token.Type == TokenType.CellFormat)
           {
@@ -234,7 +246,7 @@ namespace RtfPipe
         }
       }
 
-      _inputStyle.Pop();
+      return _inputStyle.Pop();
     }
 
     private void AddBreak(Document doc, IToken token, FormatContext currStyle)
