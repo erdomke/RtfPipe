@@ -425,6 +425,8 @@ namespace RtfPipe
         // Pictures
         case "pict":
           return new PictureTag();
+        case "shppict":
+          return new ShapePictureTag();
         case "emfblip":
           return new EmfBlip();
         case "pngblip":

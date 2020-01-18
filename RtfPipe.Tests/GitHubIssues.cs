@@ -194,6 +194,12 @@ AC Reference: 12312443423\par \par \par
       TestConvert("RtfPipe.Tests.Files.Issue35");
     }
 
+    [TestMethod]
+    public void Issue37()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue37");
+    }
+
     private void TestConvert(RtfSource rtf, string html)
     {
       var actual = Rtf.ToHtml(rtf);
