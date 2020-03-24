@@ -23,7 +23,7 @@ namespace RtfPipe
         AppendNibble(ch - 'a' + 10);
       else if (ch >= 'A' && ch <= 'Z')
         AppendNibble(ch - 'A' + 10);
-      else
+      else if (!(_bytes.Count == 0 && char.IsWhiteSpace((char)ch)))
         throw new NotSupportedException();
 
       return this;

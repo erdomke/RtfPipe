@@ -29,7 +29,7 @@ namespace RtfPipe.Tokens
 
     public TextAlign(TextAlignment value) : base(value) { }
 
-    public override string ToString() => Name;
+    public override string ToString() => "\\" + Name;
   }
 
   public class FirstLineIndent : ControlWord<UnitValue>

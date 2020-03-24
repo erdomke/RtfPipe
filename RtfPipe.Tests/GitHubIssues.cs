@@ -200,6 +200,19 @@ AC Reference: 12312443423\par \par \par
       TestConvert("RtfPipe.Tests.Files.Issue37");
     }
 
+    //[TestMethod]
+    //public void Issue38()
+    //{
+    //  TestConvert(@"{\rtf1\ansi\ansicpg1252\uc1\htmautsp\deff2{\fonttbl{\f0\fcharset0 Times New Roman;}{\f2\fcharset0 Segoe UI;}{\f3\fcharset0 Arial;}}{\colortbl\red0\green0\blue0;\red255\green255\blue255;}\loch\hich\dbch\pard\plain\ltrpar\itap0{\lang1033\fs20\f3\cf0 \cf0\ql{\f3 {\ltrch Left}\li0\ri0\sa160\sb0\fi0\ql\par} {\f3 {\ltrch Center}\li0\ri0\sa160\sb0\fi0\qc\par} {\f3 {\ltrch Right}\li0\ri0\sa160\sb0\fi0\qr\par} } }"
+    //    , "");
+    //}
+
+    [TestMethod]
+    public void Issue39()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue39");
+    }
+
     private void TestConvert(RtfSource rtf, string html)
     {
       var actual = Rtf.ToHtml(rtf);
