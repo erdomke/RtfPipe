@@ -137,7 +137,7 @@ namespace RtfPipe
       {
         if (_state == WriteState.NeedListEnd)
         {
-          while (_tags.Peek().Name != "td")
+          while (_tags.Count > 0 && _tags.Peek().Name != "td")
             EndTag();
           WriteTag(ParagraphTag("p", format));
         }
@@ -146,7 +146,7 @@ namespace RtfPipe
           EnsureParagraph(format);
         }
 
-        while (_tags.Peek().Name != "td")
+        while (_tags.Count > 1 && _tags.Peek().Name != "td")
           EndTag();
         EndTag();
         _startOfLine = true;
