@@ -472,9 +472,25 @@ namespace RtfPipe
       tag.AddRange(format.Where(t => !IsSpanElement(t) && !(t is CapitalToken)
         && (t.Type == TokenType.ParagraphFormat
           || t.Type == TokenType.CellFormat
-          || t.Type == TokenType.CharacterFormat
+          || IsParagraphCharacterFormat(t)
           || t.Type == TokenType.RowFormat)));
       return tag;
+    }
+
+    private static bool IsParagraphCharacterFormat(IToken token)
+    {
+      return token.Type == TokenType.CharacterFormat
+        && IsSafeCharacterFormatForParagraph(token);
+    }
+
+    /// <summary>
+    /// Background colours in the paragraph tag cannot be overridden properly in spans - the paragraph background colour still seeps through.
+    /// This behaviour is not the same as for RTF.
+    /// So leave them out of the paragraph, they'll be incuded in a span instead.
+    /// </summary>
+    private static bool IsSafeCharacterFormatForParagraph(IToken token)
+    {
+      return !(token is BackgroundColor);
     }
 
     private void EnsureSpans(FormatContext format)

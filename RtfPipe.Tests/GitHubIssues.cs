@@ -213,6 +213,13 @@ AC Reference: 12312443423\par \par \par
       TestConvert("RtfPipe.Tests.Files.Issue39");
     }
 
+    [TestMethod]
+    public void Issue54_LeakingBackgroundColours()
+    {
+      TestConvert("{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Microsoft Sans Serif;}}\n{\\colortbl ;\\red255\\green0\\blue0;\\red0\\green0\\blue255;\\red0\\green255\\blue0;}\n{\\*\\generator Riched20 10.0.18362}\\viewkind4\\uc1 \n\\pard\\qc\\highlight1\\f0\\fs24 Red\\highlight0  \\highlight2 Blue\\highlight0  \\highlight3 Green\\highlight0\\par\n}\n",
+        "<div style=\"font-size:12pt;font-family:&quot;Microsoft Sans Serif&quot;;\"><p style=\"text-align:center;margin:0;\"><span style=\"background:#FF0000;\">Red</span><span style=\"background:#FFFFFF;\"> </span><span style=\"background:#0000FF;\">Blue</span><span style=\"background:#FFFFFF;\"> </span><span style=\"background:#00FF00;\">Green</span></p></div>");
+    }
+
     private void TestConvert(RtfSource rtf, string html)
     {
       var actual = Rtf.ToHtml(rtf);
