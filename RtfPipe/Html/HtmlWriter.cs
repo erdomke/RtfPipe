@@ -133,7 +133,7 @@ namespace RtfPipe
         _startOfLine = true;
         _state = WriteState.Other;
       }
-      else if (token is CellBreak || token is NestCell)
+      else if (token is CellBreak || token is NestedCellBreak)
       {
         if (_state == WriteState.NeedListEnd)
         {
@@ -153,7 +153,7 @@ namespace RtfPipe
         _state = WriteState.Other;
         format.RemoveFirstOfType<SingleLineIndent>();
       }
-      else if (token is RowBreak || token is NestRow)
+      else if (token is RowBreak || token is NestedRowBreak)
       {
         while (_tags.Peek().Name != "tr")
           EndTag();

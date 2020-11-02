@@ -174,13 +174,13 @@ namespace RtfPipe.Tokens
     public override string Name => "nonesttables";
   }
 
-  public class NestCell : ControlTag
+  public class NestedCellBreak : ControlTag
   {
     public override string Name => "nestcell";
     public override TokenType Type => TokenType.BreakTag;
   }
 
-  public class NestRow : ControlTag
+  public class NestedRowBreak : ControlTag
   {
     public override string Name => "nestrow";
     public override TokenType Type => TokenType.BreakTag;

@@ -77,20 +77,20 @@ namespace RtfPipe
       var postStyle = (Group)row.Contents[postStyleIndex];
       if (postStyle.Contents.OfType<RowBreak>().Any())
         row.Contents[postStyleIndex] = new RowBreak();
-      else if (postStyle.Contents.OfType<NestRow>().Any())
-        row.Contents[postStyleIndex] = new NestRow();
+      else if (postStyle.Contents.OfType<NestedRowBreak>().Any())
+        row.Contents[postStyleIndex] = new NestedRowBreak();
       else
         row.Contents.RemoveAt(postStyleIndex);
 
       row.Contents.InsertRange(cellIndex, postStyle.Contents
-        .Where(t => !(t is RowBreak || t is NestRow || t is IgnoreUnrecognized || t is NestTableProperties)));
+        .Where(t => !(t is RowBreak || t is NestedRowBreak || t is IgnoreUnrecognized || t is NestTableProperties)));
       row.Contents.RemoveWhere(t => t is Group group && group.Destination is NoNestedTables);
       return row;
     }
 
     private static Row CreateNestedRows(Row row)
     {
-      if (!row.Contents.Any(t => t is NestCell || (t is Group group && group.Destination is NestTableProperties)))
+      if (!row.Contents.Any(t => t is NestedCellBreak || (t is Group group && group.Destination is NestTableProperties)))
         return row;
 
       var segments = new List<Segment>() { new Segment() { Start = 0 } };
@@ -126,11 +126,11 @@ namespace RtfPipe
 
       for (var i = 0; i < segments.Count; i++)
       {
-        if (segments[i].BreakToken is NestRow)
+        if (segments[i].BreakToken is NestedRowBreak)
         {
           var start = i - 1;
           while (start >= 0
-            && !(segments[start].BreakToken is NestRow && segments[start].Level == segments[i].Level)
+            && !(segments[start].BreakToken is NestedRowBreak && segments[start].Level == segments[i].Level)
             && segments[start].Level >= segments[i].Level)
           {
             start--;
@@ -210,7 +210,7 @@ namespace RtfPipe
 
     private static bool IsNonNestedCellBreak(IToken token)
     {
-      return token.Type == TokenType.BreakTag && !(token is NestCell) && !(token is LineBreak)
+      return token.Type == TokenType.BreakTag && !(token is NestedCellBreak) && !(token is LineBreak)
         || token is RightCellBoundary;
     }
   }

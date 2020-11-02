@@ -526,9 +526,9 @@ namespace RtfPipe
         case "nonesttables":
           return new NoNestedTables();
         case "nestcell":
-          return new NestCell();
+          return new NestedCellBreak();
         case "nestrow":
-          return new NestRow();
+          return new NestedRowBreak();
         case "itap":
           return new NestingLevel(number >= 0 ? number : 1);
 

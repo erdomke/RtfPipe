@@ -1,5 +1,6 @@
 using System.IO;
 using System.Xml;
+using System.Linq;
 
 namespace RtfPipe
 {
@@ -20,8 +21,11 @@ namespace RtfPipe
     public static void ToHtml(RtfSource source, XmlWriter writer, RtfHtmlSettings settings = null)
     {
       var parser = new Parser(source.Reader);
-      var interpreter = new Interpreter(writer);
-      interpreter.ToHtml(parser.Parse(), settings);
+      var doc = parser.Parse();
+      var builder = new Model.Builder();
+      var node = builder.Build(doc);
+      //var interpreter = new Interpreter(writer);
+      //interpreter.ToHtml(doc, settings);
     }
   }
 }
