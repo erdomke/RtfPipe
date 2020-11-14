@@ -1,3 +1,4 @@
+using RtfPipe.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +9,12 @@ namespace RtfPipe.Model
   public class Element : Node
   {
     private Node _content;
+    private IEnumerable<IToken> _styles;
 
-    internal int Level { get; set; }
+    internal int TableLevel => Styles.OfType<NestingLevel>().FirstOrDefault()?.Value ?? 0;
+    internal int ListLevel => Styles.OfType<ListLevelNumber>().FirstOrDefault()?.Value ?? 0;
+
+    public IEnumerable<IToken> Styles => _styles ?? Enumerable.Empty<IToken>();
 
     public ElementType Type { get; set; }
 
@@ -85,9 +90,22 @@ namespace RtfPipe.Model
       node.Parent = null;
       var previous = Nodes().First(n => n.Next == node);
       if (previous == node)
+      {
         _content = null;
+      }
       else
+      {
         previous.Next = node.Next;
+        if (_content == node)
+          _content = previous;
+      }
+    }
+
+    internal void SetStyles(IEnumerable<IToken> styles)
+    {
+      _styles = styles
+        .Where(t => (t.Type & TokenType.Format) > 0)
+        .ToList();
     }
 
     public override void Visit(INodeVisitor visitor)

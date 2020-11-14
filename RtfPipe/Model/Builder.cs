@@ -8,14 +8,15 @@ namespace RtfPipe.Model
 {
   public class Builder
   {
-    public Element Build(Document doc)
+    public Element Build(Document document)
     {
       var body = new List<IToken>();
-      foreach (var token in doc.Contents)
+      var defaultFont = default(Font);
+      foreach (var token in document.Contents)
       {
-        if (token is DefaultFontRef defaultFont)
+        if (token is DefaultFontRef defaultFontRef)
         {
-          //_html.DefaultFont = doc.FontTable.TryGetValue(defaultFont.Value, out var font) ? font : doc.FontTable.FirstOrDefault().Value;
+          defaultFont = document.FontTable.TryGetValue(defaultFontRef.Value, out var font) ? font : document.FontTable.FirstOrDefault().Value;
         }
         else if (token is DefaultTabWidth tabWidth)
         {
@@ -36,8 +37,23 @@ namespace RtfPipe.Model
 
       var result = new Element(ElementType.Document, new Element(ElementType.Section, new Element(ElementType.Paragraph)));
       var paragraph = result.Elements().First().Elements().First();
+
       var groups = new Stack<TokenState>();
-      groups.Push(new TokenState(body));
+      var defaultStyles = new List<IToken>
+      {
+        new FontSize(UnitValue.FromHalfPoint(24))
+      };
+      if (document.ColorTable.Any())
+        defaultStyles.Add(new ForegroundColor(document.ColorTable.First()));
+      else
+        defaultStyles.Add(new ForegroundColor(new ColorValue(0, 0, 0)));
+      if (defaultFont != null)
+        defaultStyles.Add(defaultFont);
+      result.SetStyles(defaultStyles);
+      result.Elements().First().SetStyles(defaultStyles);
+
+      groups.Push(new TokenState(body, defaultStyles));
+
       
       while (groups.Count > 0)
       {
@@ -46,11 +62,32 @@ namespace RtfPipe.Model
           var token = groups.Peek().Tokens.Current;
           if (token is Group childGroup)
           {
+            var dest = childGroup.Destination;
             if (childGroup.Contents.Count > 1
               && childGroup.Contents[0] is IgnoreUnrecognized
               && (childGroup.Contents[1].GetType().Name == "GenericTag" || childGroup.Contents[1].GetType().Name == "GenericWord"))
             {
-              // do nothing
+              // Ignore groups with the "skip if unrecognized" flag
+            }
+            else if (dest is ListTextFallback)
+            {
+              paragraph.Type = ElementType.ListItem;
+            }
+            else if (dest is NumberingTextFallback
+              || dest?.Type == TokenType.HeaderTag
+              || dest is NoNestedTables)
+            {
+              // Ignore fallback content
+            }
+            else if (dest is Header
+              || dest is HeaderEven
+              || dest is HeaderFirst
+              || dest is HeaderOdd
+              || dest is Footer
+              || dest is FooterFirst
+              || dest is FooterOdd)
+            {
+              // skip for now
             }
             else
             {
@@ -59,10 +96,7 @@ namespace RtfPipe.Model
           }
           else if (token is TextToken text)
           {
-            paragraph.Add(new Run()
-            {
-              Value = text.Value
-            });
+            paragraph.Add(new Run(text.Value, groups.Peek().Styles));
           }
           else if (token is LineBreak)
           {
@@ -74,63 +108,69 @@ namespace RtfPipe.Model
           }
           else if (token is ParagraphBreak)
           {
-            if (paragraph.Type == ElementType.Cell)
-            {
-              var nodes = paragraph.Nodes().ToArray();
-              foreach (var node in nodes)
-                node.Remove();
-              var cellParagraph = new Element(ElementType.Paragraph, nodes);
-              paragraph.Add(cellParagraph);
-              paragraph = cellParagraph;
-            }
-            var nextParagraph = groups.Peek().NewParagraph();
+            paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
+
+            var nextParagraph = new Element(ElementType.Paragraph);
             paragraph.Parent.Add(nextParagraph);
             paragraph = nextParagraph;
           }
           else if (token is CellBreak || token is NestedCellBreak)
           {
-            while (paragraph.Type != ElementType.Cell)
-              paragraph = paragraph.Parent;
-            var nextParagraph = groups.Peek().NewParagraph();
-            paragraph.Parent.Add(nextParagraph);
+            paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
+            var parent = paragraph.Parent;
+            var cellContent = parent.Elements().Reverse()
+              .TakeWhile(e => e.Type != ElementType.Cell 
+                && e.Styles.OfType<InTable>().Any()
+                && e.TableLevel == paragraph.TableLevel).Reverse()
+              .ToArray();
+            if (cellContent.Length == 1)
+            {
+              cellContent[0].Type = ElementType.Cell;
+            }
+            else
+            {
+              foreach (var content in cellContent)
+                content.Remove();
+              var cell = new Element(ElementType.Cell, cellContent);
+              cell.SetStyles(groups.Peek().NormalizedStyles(document));
+              parent.Add(cell);
+            }
+            
+            var nextParagraph = new Element(ElementType.Paragraph);
+            parent.Add(nextParagraph);
             paragraph = nextParagraph;
           }
-          else if (token is ListId || token is ListTextFallback)
+          else if (token is ListId)
           {
             paragraph.Type = ElementType.ListItem;
           }
-          else if (token is InTable)
-          {
-            paragraph.Type = ElementType.Cell;
-          }
           else if (token is RowBreak || token is NestedRowBreak)
           {
-            var currLevel = paragraph.Level;
             var parent = paragraph.Parent;
+            if (paragraph.Type == ElementType.Cell)
+            {
+              paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
+            }
+            else
+            {
+              paragraph.Remove();
+              paragraph = parent.Elements().Last();
+            }
+            var currLevel = paragraph.TableLevel;
             var cells = parent.Elements().Reverse()
-              .TakeWhile(e => e.Type == ElementType.Cell && e.Level == currLevel).Reverse()
+              .TakeWhile(e => e.Type == ElementType.Cell && e.TableLevel == currLevel).Reverse()
               .ToArray();
             if (cells.Length > 0)
             {
               foreach (var cell in cells)
                 cell.Remove();
-              parent.Add(new Element(ElementType.Row, cells) { Level = cells[0].Level });
+              var row = new Element(ElementType.Row, cells);
+              row.SetStyles(new IToken[] { new NestingLevel(currLevel - 1), new InTable() });
+              parent.Add(row);
             }
-            var nextParagraph = groups.Peek().NewParagraph();
+            var nextParagraph = new Element(ElementType.Paragraph);
             parent.Add(nextParagraph);
             paragraph = nextParagraph;
-          }
-          else if (token is NestingLevel nestingLevel && nestingLevel.Value > 0)
-          {
-            paragraph.Level = nestingLevel.Value;
-            paragraph.Type = ElementType.Cell;
-            groups.Peek().AddStyle(token);
-          }
-          else if (token is ListLevelNumber listLevelNumber)
-          {
-            paragraph.Type = ElementType.ListItem;
-            paragraph.Level = listLevelNumber.Value;
-            groups.Peek().AddStyle(token);
           }
           else if (token.Type == TokenType.CellFormat
             || token.Type == TokenType.CharacterFormat
@@ -138,43 +178,89 @@ namespace RtfPipe.Model
             || token.Type == TokenType.RowFormat
             || token.Type == TokenType.SectionFormat)
           {
+            if (token is ListLevelNumber listLevelNumber)
+              paragraph.Type = ElementType.ListItem;
             groups.Peek().AddStyle(token);
           }
         }
-        groups.Pop();
+
+        var state = groups.Pop();
+        paragraph.SetStyles(state.NormalizedStyles(document));
       }
 
+      if (!paragraph.Nodes().Any())
+        paragraph.Remove();
+
+      OrganizeTable(result);
       OrganizeLists(result);
       return result;
+    }
+    
+    private void OrganizeTable(Element root)
+    {
+      var parents = root.Descendants()
+        .Where(e => e.Type != ElementType.Table
+          && e.Elements().Any(c => c.Type == ElementType.Row))
+        .ToList();
+
+      foreach (var parent in parents)
+      {
+        var nodeList = new List<Node>();
+        foreach (var node in parent.Nodes().ToList())
+        {
+          node.Remove();
+          if (node is Element element && element.Type == ElementType.Row)
+          {
+            if (!(nodeList.LastOrDefault() is Element table 
+              && table.Type == ElementType.Table))
+            {
+              table = new Element(ElementType.Table);
+              nodeList.Add(table);
+            }
+            
+            table.Add(element);
+          }
+          else
+          {
+            nodeList.Add(node);
+          }
+        }
+
+        foreach (var node in nodeList)
+          parent.Add(node);
+      }
     }
 
     private void OrganizeLists(Element root)
     {
       var parents = root.Descendants()
-        .Where(e => e.Type != ElementType.List && e.Elements().Any(c => c.Type == ElementType.ListItem))
+        .Where(e => e.Type != ElementType.List && e.Type != ElementType.OrderedList 
+          && e.Elements().Any(c => c.Type == ElementType.ListItem))
         .ToList();
 
       foreach (var parent in parents)
       {
-        var newList = new List<Node>();
+        var nodeList = new List<Node>();
         foreach (var node in parent.Nodes().ToList())
         {
           node.Remove();
           if (node is Element element && element.Type == ElementType.ListItem)
           {
-            if (!(newList.LastOrDefault() is Element list && list.Type == ElementType.List))
+            if (!(nodeList.LastOrDefault() is Element list 
+              && (list.Type == ElementType.List || list.Type == ElementType.OrderedList)))
             {
               list = new Element(ElementType.List);
-              newList.Add(list);
+              nodeList.Add(list);
             }
 
-            for (var i = 0; i < element.Level; i++)
+            for (var i = 0; i < element.ListLevel; i++)
             {
               var lastItem = list.Elements().LastOrDefault();
               if (lastItem != null)
               {
                 var lastElement = lastItem.Nodes().LastOrDefault() as Element;
-                if (lastElement?.Type != ElementType.List)
+                if (lastElement?.Type != ElementType.List
+                  && lastElement?.Type != ElementType.OrderedList)
                 {
                   lastElement = new Element(ElementType.List);
                   lastItem.Add(lastElement);
@@ -182,127 +268,71 @@ namespace RtfPipe.Model
                 list = lastElement;
               }
             }
+
+            if (!list.Elements().Any())
+            {
+              var numType = element.Styles.OfType<ListLevelType>().FirstOrDefault()?.Value
+                ?? (element.Styles.OfType<NumberLevelBullet>().Any() ? (NumberingType?)NumberingType.Bullet : null)
+                ?? element.Styles.OfType<NumberingTypeToken>().FirstOrDefault()?.Value
+                ?? NumberingType.Bullet;
+
+              if (numType != NumberingType.Bullet && numType != NumberingType.NoNumber)
+                list.Type = ElementType.OrderedList;
+            }
             list.Add(element);
           }
           else
           {
-            newList.Add(node);
+            nodeList.Add(node);
           }
         }
 
-        foreach (var node in newList)
+        foreach (var node in nodeList)
           parent.Add(node);
       }
     }
     
     private class TokenState
     {
-      private readonly List<IToken> _styles = new List<IToken>();
+      private readonly StyleSet _styles = new StyleSet();
+      private readonly List<IToken> _defaultStyles;
 
       public IEnumerator<IToken> Tokens { get; }
       public IEnumerable<IToken> Styles => _styles;
 
-      public TokenState(IEnumerable<IToken> tokens)
+      public TokenState(IEnumerable<IToken> tokens, List<IToken> defaultStyles)
       {
         Tokens = tokens.GetEnumerator();
+        _defaultStyles = defaultStyles;
+        _styles.AddRange(defaultStyles);
       }
 
-      public TokenState(IEnumerable<IToken> tokens, TokenState previous) : this(tokens)
+      public TokenState(IEnumerable<IToken> tokens, TokenState previous)
       {
+        Tokens = tokens.GetEnumerator();
         _styles.AddRange(previous.Styles);
+        _defaultStyles = previous._defaultStyles;
       }
 
-      public Element NewParagraph()
+      public IEnumerable<IToken> NormalizedStyles(Document document)
       {
-        return new Element(ElementType.Paragraph)
-        {
-          Level = Styles.OfType<ListLevelNumber>().FirstOrDefault()?.Value
-            ?? Styles.OfType<NestingLevel>().FirstOrDefault()?.Value
-            ?? 0
-        };
+        var result = Styles
+          .Where(t => !HtmlVisitor.IsSpanElement(t))
+          .ToList();
+        var styleId = Styles.OfType<ListStyleId>().FirstOrDefault();
+        if (styleId == null || !document.ListStyles.TryGetValue(styleId.Value, out var listStyle))
+          return result;
+
+        var levelNum = Styles.OfType<ListLevelNumber>().FirstOrDefault() ?? new ListLevelNumber(0);
+        result.AddRange(listStyle.Style.Levels[levelNum.Value]);
+        return result;
       }
 
       public void AddStyle(IToken token)
       {
-        if (token is SectionDefault)
-        {
-          RemoveWhere(t => t.Type == TokenType.SectionFormat);
-        }
-        else if (token is ParagraphDefault)
-        {
-          RemoveWhere(t => t.Type == TokenType.ParagraphFormat);
-        }
-        else if (token is RowDefaults)
-        {
-          RemoveWhere(t => t.Type == TokenType.RowFormat);
-        }
-        else if (token is CellDefaults)
-        {
-          RemoveWhere(t => t.Type == TokenType.CellFormat);
-        }
-        else if (token is PlainToken)
-        {
-          RemoveWhere(t => t.Type == TokenType.CharacterFormat);
-        }
-        else if (token is BookmarkToken bookmark && !bookmark.Start)
-        {
-          RemoveWhere(t => t is BookmarkToken bkmkStart && bkmkStart.Id == bookmark.Id);
-        }
-        else if (IsUnderline(token))
-        {
-          RemoveWhere(IsUnderline);
-          if (!(token is ControlWord<bool> ulBool) || ulBool.Value)
-            _styles.Add(token);
-        }
-        else if (token is ControlWord<bool> boolean && !boolean.Value)
-        {
-          RemoveWhere(t => t is ControlWord<bool> boolStyle && boolStyle.Name == boolean.Name);
-        }
-        else if (token is NoSuperSubToken)
-        {
-          RemoveWhere(t => t is SuperStartToken || t is SubStartToken);
-        }
-        else
-        {
-          RemoveWhere(SameTokenPredicate(token));
-          _styles.Add(token);
-        }
-      }
-
-
-      public void RemoveWhere(Func<IToken, bool> predicate)
-      {
-        var i = 0;
-        while (i < _styles.Count)
-        {
-          if (predicate(_styles[i]))
-            _styles.RemoveAt(i);
-          else
-            i++;
-        }
-      }
-
-      protected virtual Func<IToken, bool> SameTokenPredicate(IToken token)
-      {
-        if (token is OffsetToken)
-          return t => t is OffsetToken;
-        else if (token is TextAlign)
-          return t => t is TextAlign;
-        else if (token is Font font)
-          return t => t is Font;
-        else if (token is TabPosition || token is TabAlignment || token is RightCellBoundary)
-          return t => false;
-        else if (token is IWord word)
-          return t => t is IWord currWord && currWord.Name == word.Name;
-        return t => false;
-      }
-
-      public static bool IsUnderline(IToken token)
-      {
-        return token.Type == TokenType.CharacterFormat
-          && token is IWord underline
-          && underline.Name.StartsWith("ul")
-          && !(underline is UnderlineColor);
+        _styles.Add(token);
+        if (token is PlainToken &&_defaultStyles?.Count > 0)
+          _styles.AddRange(_defaultStyles);
       }
     }
   }

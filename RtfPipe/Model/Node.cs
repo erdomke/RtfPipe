@@ -31,7 +31,9 @@ namespace RtfPipe.Model
     {
       using (var writer = new StringWriter())
       {
-        Visit(new HtmlVisitor(writer));
+        var visitor = new HtmlVisitor(writer);
+        Visit(visitor);
+        visitor.Flush();
         return writer.ToString();
       }
     }

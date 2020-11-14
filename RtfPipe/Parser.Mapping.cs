@@ -83,7 +83,7 @@ namespace RtfPipe
         case "fromhtml":
           return new FromHtml(number != 0);
         case "htmltag":
-          return new HtmlTag((HtmlEncapsulation)number);
+          return new HtmlTagToken((HtmlEncapsulation)number);
         case "htmlrtf":
           return new HtmlRtf(number != 0);
 

@@ -1,3 +1,4 @@
+using RtfPipe.Model;
 using RtfPipe.Tokens;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,18 @@ namespace RtfPipe
   public class RtfHtmlSettings : HtmlWriterSettings
   {
     public Action<int, XmlWriter> AttachmentRenderer { get; set; }
+    public Dictionary<ElementType, HtmlTag> ElementTags { get; } = new Dictionary<ElementType, HtmlTag>()
+    {
+      { ElementType.Cell, HtmlTag.Td },
+      { ElementType.Document, HtmlTag.Div },
+      { ElementType.List, HtmlTag.Ul },
+      { ElementType.ListItem, HtmlTag.Li },
+      { ElementType.OrderedList, HtmlTag.Ol },
+      { ElementType.Paragraph, HtmlTag.P },
+      { ElementType.Row, HtmlTag.Tr },
+      { ElementType.Section, HtmlTag.Div },
+      { ElementType.Table, HtmlTag.Table },
+    };
     public Func<Picture, string> ImageUriGetter { get; set; }
 
     public RtfHtmlSettings()

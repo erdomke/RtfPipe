@@ -147,7 +147,7 @@ namespace RtfPipe.Tokens
   public class InTable : ControlTag
   {
     public override string Name => "intbl";
-    public override TokenType Type => TokenType.RowFormat;
+    public override TokenType Type => TokenType.ParagraphFormat;
   }
 
   public class CellBackgroundColor : ControlWord<ColorValue>

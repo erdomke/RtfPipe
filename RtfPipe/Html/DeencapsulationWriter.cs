@@ -27,7 +27,7 @@ namespace RtfPipe
 
     public void AddText(FormatContext format, string text)
     {
-      if (format.OfType<HtmlTag>().Any())
+      if (format.OfType<HtmlTagToken>().Any())
         _writer.WriteRaw(text);
       else
         _writer.WriteValue(text);

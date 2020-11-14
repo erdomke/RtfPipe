@@ -23,7 +23,7 @@ This line is the default color\line
 This line is red\line
 \cf1
 This line is the default color
-}", "<div style=\"font-size:12pt;\"><p style=\"margin:0;\">This line is the default color<br><span style=\"color:#FF0000;\">This line is red<br></span>This line is the default color</p></div>");
+}", "<div style=\"font-size:12pt;\"><p style=\"margin:0;\">This line is the default color<br><span style=\"color:#FF0000;\">This line is red</span><br>This line is the default color</p></div>");
     }
 
     [TestMethod()]

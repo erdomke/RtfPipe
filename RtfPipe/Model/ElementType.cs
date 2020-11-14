@@ -14,6 +14,7 @@ namespace RtfPipe.Model
     Row,
     Table,
     List,
+    OrderedList,
     ListItem,
   }
 }
