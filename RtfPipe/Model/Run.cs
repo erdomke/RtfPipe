@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace RtfPipe.Model
 {
-  public class Run : Node
+  internal class Run : Node
   {
     private IEnumerable<IToken> _styles;
 
@@ -22,7 +20,7 @@ namespace RtfPipe.Model
         .ToList();
     }
 
-    public override void Visit(INodeVisitor visitor)
+    internal override void Visit(INodeVisitor visitor)
     {
       visitor.Visit(this);
     }

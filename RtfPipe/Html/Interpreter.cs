@@ -73,7 +73,7 @@ namespace RtfPipe
       if (group is Row)
       {
         if (group.Contents.OfType<RightCellBoundary>().Any())
-          currStyle.RemoveWhere(t => t is CellToken);
+          currStyle.RemoveWhere(t => t is CellToken_Orig);
         currStyle.RemoveWhere(t => t is NestingLevel);
       }
 
@@ -105,9 +105,9 @@ namespace RtfPipe
             var start = i;
             while (i < group.Contents.Count && !(group.Contents[i] is RightCellBoundary))
               i++;
-            var cell = new CellToken(group.Contents.Skip(start).Take(i - start + 1)
+            var cell = new CellToken_Orig(group.Contents.Skip(start).Take(i - start + 1)
               , group as Row
-              , currStyle.OfType<CellToken>().LastOrDefault());
+              , currStyle.OfType<CellToken_Orig>().LastOrDefault());
             currStyle.Add(cell);
           }
           else if (token is ControlWord<BorderPosition> borderSide)
@@ -180,7 +180,7 @@ namespace RtfPipe
             }
             else if (dest is PictureTag)
             {
-              var pict = new Picture(childGroup);
+              var pict = new Picture_Orig(childGroup);
               var style = FixStyles(doc, currStyle);
               if (tabCount > 0)
                 _html.AddBreak(style, new Tab(), tabCount);

@@ -28,12 +28,44 @@ namespace RtfPipe.Tokens
     public override TokenType Type => TokenType.BreakTag;
   }
 
-  public class CellSpacing : ControlWord<UnitValue>
+  public class HalfCellPadding : ControlWord<UnitValue>
   {
-    public override string Name => "trgraph";
+    public override string Name => "trgaph";
     public override TokenType Type => TokenType.RowFormat;
 
-    public CellSpacing(UnitValue value) : base(value) { }
+    public HalfCellPadding(UnitValue value) : base(value) { }
+  }
+
+  public class BottomCellSpacing : ControlWord<UnitValue>
+  {
+    public override string Name => "trspdb";
+    public override TokenType Type => TokenType.CellFormat;
+
+    public BottomCellSpacing(UnitValue value) : base(value) { }
+  }
+
+  public class LeftCellSpacing : ControlWord<UnitValue>
+  {
+    public override string Name => "trspdl";
+    public override TokenType Type => TokenType.CellFormat;
+
+    public LeftCellSpacing(UnitValue value) : base(value) { }
+  }
+
+  public class RightCellSpacing : ControlWord<UnitValue>
+  {
+    public override string Name => "trspdr";
+    public override TokenType Type => TokenType.CellFormat;
+
+    public RightCellSpacing(UnitValue value) : base(value) { }
+  }
+
+  public class TopCellSpacing : ControlWord<UnitValue>
+  {
+    public override string Name => "trspdt";
+    public override TokenType Type => TokenType.CellFormat;
+
+    public TopCellSpacing(UnitValue value) : base(value) { }
   }
 
   public class RightCellBoundary : ControlWord<UnitValue>
@@ -76,6 +108,20 @@ namespace RtfPipe.Tokens
     public override TokenType Type => TokenType.RowFormat;
 
     public TableBorderSide(BorderPosition value) : base(value) { }
+  }
+
+  public class ParagraphBorderSide : ControlWord<BorderPosition>
+  {
+    public override string Name => "brdr" + Value.ToString().ToLowerInvariant()[0];
+    public override TokenType Type => TokenType.ParagraphFormat;
+
+    public ParagraphBorderSide(BorderPosition value) : base(value) { }
+  }
+
+  public class ParagraphBorderBetween : ControlTag
+  {
+    public override string Name => "brdrbtw";
+    public override TokenType Type => TokenType.ParagraphFormat;
   }
 
   public class CellBorderSide : ControlWord<BorderPosition>

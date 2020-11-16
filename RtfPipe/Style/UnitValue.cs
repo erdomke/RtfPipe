@@ -48,6 +48,11 @@ namespace RtfPipe
       return ToPx() * 72.0 / 96;
     }
 
+    public int ToTwip()
+    {
+      return (int)(ToPx() * 1440.0 / 96);
+    }
+
     public override bool Equals(object obj)
     {
       if (obj is UnitValue unitValue)

@@ -5,9 +5,9 @@ using System.Text;
 
 namespace RtfPipe.Model
 {
-  public enum ControlCharacterType
+  internal class RtfHtml
   {
-    LineBreak,
-    Tab
+    public UnitValue DefaultTabWidth { get; set; }
+    public Element Root { get; set; }
   }
 }

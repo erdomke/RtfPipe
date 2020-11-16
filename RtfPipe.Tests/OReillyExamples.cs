@@ -32,7 +32,7 @@ namespace RtfPipe.Tests
     private void TestConvert(string rtf, string html)
     {
       var actual = Rtf.ToHtml(rtf);
-      Assert.AreEqual(html, actual);
+      ParseRender.AssertEqual(html, actual);
     }
   }
 }

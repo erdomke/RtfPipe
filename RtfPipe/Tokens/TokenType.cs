@@ -31,7 +31,7 @@ namespace RtfPipe
 
     BreakTag = 0x2000 | Word,
 
-    HeaderTag = 0x100008,
-    PictureTypeTag = 0x200008,
+    HeaderTag = 0x100000 | Word,
+    PictureTypeTag = 0x200000 | Word,
   }
 }

@@ -5,10 +5,11 @@ using System.Text;
 
 namespace RtfPipe.Model
 {
-  public interface INodeVisitor
+  internal interface INodeVisitor
   {
+    void Visit(Attachment attachment);
     void Visit(Element element);
     void Visit(Run run);
-    void Visit(ControlCharacter controlCharacter);
+    void Visit(Picture image);
   }
 }

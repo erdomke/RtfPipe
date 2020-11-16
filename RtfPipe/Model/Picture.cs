@@ -1,11 +1,10 @@
+using RtfPipe.Model;
 using RtfPipe.Tokens;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace RtfPipe
 {
-  public class Picture
+  public class Picture : Node
   {
     private readonly List<IToken> _tokens = new List<IToken>();
     private UnitValue _width;
@@ -84,6 +83,11 @@ namespace RtfPipe
         return "image/x-pict";
       else
         return "image/bmp";
+    }
+
+    internal override void Visit(INodeVisitor visitor)
+    {
+      visitor.Visit(this);
     }
   }
 }

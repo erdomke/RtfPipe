@@ -60,11 +60,11 @@ namespace RtfPipe
       return new string(output);
     }
 
-    public void AddPicture(FormatContext format, Picture picture)
+    public void AddPicture(FormatContext format, Picture_Orig picture)
     {
       _startOfLine = false;
       EnsureParagraph(format);
-      var uri = _settings?.ImageUriGetter(picture);
+      var uri = default(string); //_settings?.ImageUriGetter(picture);
       if (!string.IsNullOrEmpty(uri))
       {
         _writer.WriteStartElement("img");
@@ -78,7 +78,7 @@ namespace RtfPipe
         _writer.WriteAttributeString("src", uri);
         _writer.WriteEndElement();
         _tags.Peek().ChildCount++;
-        _lastTokenType = typeof(Picture);
+        _lastTokenType = typeof(Picture_Orig);
       }
     }
 
@@ -272,7 +272,7 @@ namespace RtfPipe
           if (!(_tags.Peek().Name == "table" || _tags.Peek().Name == "tr" || _tags.Peek().Name == "tbody" || _tags.Peek().Name == "thead"))
           {
             tag = new TagContext("table", _tags.PeekOrDefault());
-            tag.AddRange(format.Where(t => t is CellSpacing || t is RowLeft));
+            tag.AddRange(format.Where(t => t is HalfCellPadding || t is RowLeft));
             WriteTag(tag);
             tableLevel++;
             var boundaries = format.OfType<ColumnBoundaries>().FirstOrDefault();
@@ -292,7 +292,7 @@ namespace RtfPipe
                   : rightBorders[i] - rightBorders[i - 1];
               }
 
-              var cells = format.OfType<CellToken>().ToList();
+              var cells = format.OfType<CellToken_Orig>().ToList();
               var everyCell = cells.Count == widths.Length || cells.Count == (widths.Length * 2);
               for (var i = 0; i < widths.Length; i++)
               {
@@ -737,9 +737,9 @@ namespace RtfPipe
           _allParagraph.Add(token);
       }
 
-      public CellToken CellToken()
+      public CellToken_Orig CellToken()
       {
-        return this.OfType<CellToken>().FirstOrDefault(t => t.Index == CellIndex);
+        return this.OfType<CellToken_Orig>().FirstOrDefault(t => t.Index == CellIndex);
       }
 
       public override string ToString()

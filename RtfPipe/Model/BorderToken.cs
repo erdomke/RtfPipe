@@ -1,14 +1,15 @@
 using RtfPipe.Tokens;
 using System;
 using System.Diagnostics;
+using System.Text;
 
 namespace RtfPipe
 {
-  [DebuggerDisplay("{Side} {Width} {Style} {Color}")]
+  [DebuggerDisplay("{DebuggerDisplay,nq}")]
   internal class BorderToken : IWord, IEquatable<BorderToken>
   {
     public string Name => "border" + Side;
-    public TokenType Type => TokenType.ParagraphFormat;
+    public TokenType Type { get; } = TokenType.ParagraphFormat;
 
     public ColorValue Color { get; private set; }
     public UnitValue Padding { get; private set; }
@@ -17,9 +18,20 @@ namespace RtfPipe
     public BorderStyle Style { get; private set; }
     public UnitValue Width { get; private set; }
 
+    private string DebuggerDisplay
+    {
+      get
+      {
+        return new StringBuilder().Append(Side).Append(" ")
+          .Append(Width.Value).Append(Width.Unit).Append(" ")
+          .Append(Style).Append(" ").Append(Color).ToString();
+      }
+    }
+
     public BorderToken(ControlWord<BorderPosition> side)
     {
       Side = side.Value;
+      Type = side.Type;
     }
 
     public bool Add(IToken token)

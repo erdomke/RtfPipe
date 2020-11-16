@@ -82,7 +82,7 @@ namespace RtfPipe.Tokens
         case NumberingType.UpperRoman:
           return "ucrm";
         default:
-          throw new NotSupportedException();
+          return Value.ToString().ToLowerInvariant();
       }
     }
   }

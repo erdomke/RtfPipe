@@ -7,7 +7,7 @@ namespace RtfPipe
 
     void AddBreak(FormatContext format, IToken token, int count = 1);
     void AddText(FormatContext format, string text);
-    void AddPicture(FormatContext format, Picture picture);
+    void AddPicture(FormatContext format, Picture_Orig picture);
     void Close();
   }
 }

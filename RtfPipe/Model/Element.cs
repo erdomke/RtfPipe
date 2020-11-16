@@ -2,11 +2,10 @@ using RtfPipe.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace RtfPipe.Model
 {
-  public class Element : Node
+  internal class Element : Node
   {
     private Node _content;
     private IEnumerable<IToken> _styles;
@@ -14,8 +13,8 @@ namespace RtfPipe.Model
     internal int TableLevel => Styles.OfType<NestingLevel>().FirstOrDefault()?.Value ?? 0;
     internal int ListLevel => Styles.OfType<ListLevelNumber>().FirstOrDefault()?.Value ?? 0;
 
+    public Dictionary<string, string> Attributes { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     public IEnumerable<IToken> Styles => _styles ?? Enumerable.Empty<IToken>();
-
     public ElementType Type { get; set; }
 
     public Element(ElementType type, params Node[] nodes)
@@ -108,7 +107,7 @@ namespace RtfPipe.Model
         .ToList();
     }
 
-    public override void Visit(INodeVisitor visitor)
+    internal override void Visit(INodeVisitor visitor)
     {
       visitor.Visit(this);
     }

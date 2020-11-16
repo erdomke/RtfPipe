@@ -467,8 +467,16 @@ namespace RtfPipe
           return new CellDefaults();
         case "cell":
           return new CellBreak();
-        case "trgraph":
-          return new CellSpacing(new UnitValue(number, UnitType.Twip));
+        case "trgaph":
+          return new HalfCellPadding(new UnitValue(number, UnitType.Twip));
+        case "trspdb":
+          return new BottomCellSpacing(new UnitValue(number, UnitType.Twip));
+        case "trspdl":
+          return new LeftCellSpacing(new UnitValue(number, UnitType.Twip));
+        case "trspdr":
+          return new RightCellSpacing(new UnitValue(number, UnitType.Twip));
+        case "trspdt":
+          return new TopCellSpacing(new UnitValue(number, UnitType.Twip));
         case "cellx":
           return new RightCellBoundary(new UnitValue(number, UnitType.Twip));
         case "trautofit":
@@ -571,13 +579,15 @@ namespace RtfPipe
         case "brdrcf":
           return new BorderColor(ColorByIndex(number));
         case "brdrt":
-          return new TableBorderSide(BorderPosition.Top);
+          return new ParagraphBorderSide(BorderPosition.Top);
         case "brdrr":
-          return new TableBorderSide(BorderPosition.Right);
+          return new ParagraphBorderSide(BorderPosition.Right);
         case "brdrb":
-          return new TableBorderSide(BorderPosition.Bottom);
+          return new ParagraphBorderSide(BorderPosition.Bottom);
         case "brdrl":
-          return new TableBorderSide(BorderPosition.Left);
+          return new ParagraphBorderSide(BorderPosition.Left);
+        case "brdrbtw":
+          return new ParagraphBorderBetween();
         case "brsp":
           return new BorderSpacing(new UnitValue(number, UnitType.Twip));
 

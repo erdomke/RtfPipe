@@ -18,14 +18,33 @@ namespace RtfPipe
       }
     }
 
+    public static void ToHtml(RtfSource source, TextWriter writer, RtfHtmlSettings settings = null)
+    {
+      using (var xmlWriter = new HtmlTextWriter(writer, settings))
+      {
+        ToHtml(source, xmlWriter, settings);
+      }
+    }
+
     public static void ToHtml(RtfSource source, XmlWriter writer, RtfHtmlSettings settings = null)
     {
       var parser = new Parser(source.Reader);
-      var node = new Model.Builder().Build(parser.Parse());
-
-      var visitor = new Model.HtmlVisitor(writer);
-      node.Visit(visitor);
-      visitor.Flush();
+      var doc = parser.Parse();
+      if (doc.HasHtml)
+      {
+        new Model.RawBuilder().Build(doc, writer);
+      }
+      else
+      {
+        var html = new Model.Builder().Build(parser.Parse());
+        var visitor = new Model.HtmlVisitor(writer)
+        {
+          DefaultTabWidth = html.DefaultTabWidth,
+          Settings = settings ?? new RtfHtmlSettings()
+        };
+        html.Root.Visit(visitor);
+      }
+      writer.Flush();
       
       //var interpreter = new Interpreter(writer);
       //interpreter.ToHtml(doc, settings);

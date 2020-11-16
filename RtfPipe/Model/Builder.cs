@@ -2,25 +2,38 @@ using RtfPipe.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace RtfPipe.Model
 {
-  public class Builder
+  internal class Builder
   {
-    public Element Build(Document document)
+    public RtfHtml Build(Document document)
     {
+      var attachmentIndex = 0;
+      var result = new RtfHtml();
       var body = new List<IToken>();
-      var defaultFont = default(Font);
+      var defaultStyles = new List<IToken>
+      {
+        new FontSize(UnitValue.FromHalfPoint(24))
+      };
+      var stylesBeforeReset = default(List<IToken>);
+
+      if (document.ColorTable.Any())
+        defaultStyles.Add(new ForegroundColor(document.ColorTable.First()));
+      else
+        defaultStyles.Add(new ForegroundColor(new ColorValue(0, 0, 0)));
+
       foreach (var token in document.Contents)
       {
         if (token is DefaultFontRef defaultFontRef)
         {
-          defaultFont = document.FontTable.TryGetValue(defaultFontRef.Value, out var font) ? font : document.FontTable.FirstOrDefault().Value;
+          var defaultFont = document.FontTable.TryGetValue(defaultFontRef.Value, out var font) ? font : document.FontTable.FirstOrDefault().Value;
+          if (defaultFont != null)
+            defaultStyles.Add(defaultFont);
         }
         else if (token is DefaultTabWidth tabWidth)
         {
-          //_html.DefaultTabWidth = tabWidth.Value;
+          result.DefaultTabWidth = tabWidth.Value;
         }
         else if (token is Group group)
         {
@@ -35,22 +48,12 @@ namespace RtfPipe.Model
         }
       }
 
-      var result = new Element(ElementType.Document, new Element(ElementType.Section, new Element(ElementType.Paragraph)));
-      var paragraph = result.Elements().First().Elements().First();
+      result.Root = new Element(ElementType.Document, new Element(ElementType.Section, new Element(ElementType.Paragraph)));
+      var paragraph = result.Root.Elements().First().Elements().First();
 
       var groups = new Stack<TokenState>();
-      var defaultStyles = new List<IToken>
-      {
-        new FontSize(UnitValue.FromHalfPoint(24))
-      };
-      if (document.ColorTable.Any())
-        defaultStyles.Add(new ForegroundColor(document.ColorTable.First()));
-      else
-        defaultStyles.Add(new ForegroundColor(new ColorValue(0, 0, 0)));
-      if (defaultFont != null)
-        defaultStyles.Add(defaultFont);
-      result.SetStyles(defaultStyles);
-      result.Elements().First().SetStyles(defaultStyles);
+      result.Root.SetStyles(defaultStyles);
+      result.Root.Elements().First().SetStyles(defaultStyles);
 
       groups.Push(new TokenState(body, defaultStyles));
 
@@ -75,7 +78,8 @@ namespace RtfPipe.Model
             }
             else if (dest is NumberingTextFallback
               || dest?.Type == TokenType.HeaderTag
-              || dest is NoNestedTables)
+              || dest is NoNestedTables
+              || dest is BookmarkEnd)
             {
               // Ignore fallback content
             }
@@ -89,6 +93,37 @@ namespace RtfPipe.Model
             {
               // skip for now
             }
+            else if (dest is FieldInstructions)
+            {
+              var instructions = childGroup.Contents
+                .OfType<Group>().LastOrDefault(g => g.Destination == null && g.Contents.OfType<TextToken>().Any())
+                ?.Contents.OfType<TextToken>().FirstOrDefault()?.Value?.Trim();
+              if (string.IsNullOrEmpty(instructions)
+                && !childGroup.Contents.OfType<Group>().Any()
+                && childGroup.Contents.Count == 3)
+              {
+                instructions = (childGroup.Contents[2] as TextToken)?.Value;
+              }
+
+              if (!string.IsNullOrEmpty(instructions))
+              {
+                var args = instructions.Split(' ');
+                if (args[0] == "HYPERLINK")
+                  groups.Peek().AddStyle(new HyperlinkToken(args));
+              }
+            }
+            else if (dest is BookmarkStart)
+            {
+              groups.Peek().AddStyle(new BookmarkToken()
+              {
+                Start = true,
+                Id = childGroup.Contents.OfType<TextToken>().FirstOrDefault()?.Value
+              });
+            }
+            else if (dest is PictureTag)
+            {
+              paragraph.Add(new Picture(childGroup));
+            }
             else
             {
               groups.Push(new TokenState(childGroup.Contents, groups.Peek()));
@@ -96,20 +131,60 @@ namespace RtfPipe.Model
           }
           else if (token is TextToken text)
           {
-            paragraph.Add(new Run(text.Value, groups.Peek().Styles));
+            var newRun = new Run(text.Value, groups.Peek().Styles);
+            if (paragraph.Nodes().LastOrDefault() is Run run
+              && run.Styles.CollectionEquals(newRun.Styles))
+            {
+              run.Value += text.Value;
+            }
+            else
+            {
+              paragraph.Add(newRun);
+            }
           }
           else if (token is LineBreak)
           {
-            paragraph.Add(new ControlCharacter(ControlCharacterType.LineBreak));
+            if (paragraph.Nodes().LastOrDefault() is Run run
+              && run.Styles.OfType<FontSize>().FirstOrDefault()?.Value
+                == groups.Peek().Styles.OfType<FontSize>().FirstOrDefault()?.Value)
+            {
+              run.Value += "\n";
+            }
+            else
+            {
+              paragraph.Add(new Run("\n", groups.Peek().Styles));
+            }
           }
           else if (token is Tab)
           {
-            paragraph.Add(new ControlCharacter(ControlCharacterType.Tab));
+            if (paragraph.Nodes().LastOrDefault() is Run run
+              && run.Styles.OfType<FontSize>().FirstOrDefault()?.Value
+                == groups.Peek().Styles.OfType<FontSize>().FirstOrDefault()?.Value)
+            {
+              run.Value += "\t";
+            }
+            else
+            {
+              paragraph.Add(new Run("\t", groups.Peek().Styles));
+            }
+          }
+          else if (token is PageBreak || token is SectionBreak)
+          {
+            paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
+            stylesBeforeReset = null;
+
+            paragraph = new Element(ElementType.Paragraph);
+            var section = new Element(ElementType.Section, paragraph);
+            section.SetStyles(groups.Peek().NormalizedStyles(document)
+              .Where(t => t.Type != TokenType.ParagraphFormat && t.Type != TokenType.RowFormat && t.Type != TokenType.CellFormat));
+            result.Root.Add(section);
           }
           else if (token is ParagraphBreak)
           {
-            paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
-
+            if (!paragraph.Styles.Any())
+              paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
+            stylesBeforeReset = null;
+            
             var nextParagraph = new Element(ElementType.Paragraph);
             paragraph.Parent.Add(nextParagraph);
             paragraph = nextParagraph;
@@ -117,21 +192,23 @@ namespace RtfPipe.Model
           else if (token is CellBreak || token is NestedCellBreak)
           {
             paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
+            stylesBeforeReset = null;
+
             var parent = paragraph.Parent;
             var cellContent = parent.Elements().Reverse()
-              .TakeWhile(e => e.Type != ElementType.Cell 
+              .TakeWhile(e => e.Type != ElementType.TableCell 
                 && e.Styles.OfType<InTable>().Any()
                 && e.TableLevel == paragraph.TableLevel).Reverse()
               .ToArray();
             if (cellContent.Length == 1)
             {
-              cellContent[0].Type = ElementType.Cell;
+              cellContent[0].Type = ElementType.TableCell;
             }
             else
             {
               foreach (var content in cellContent)
                 content.Remove();
-              var cell = new Element(ElementType.Cell, cellContent);
+              var cell = new Element(ElementType.TableCell, cellContent);
               cell.SetStyles(groups.Peek().NormalizedStyles(document));
               parent.Add(cell);
             }
@@ -147,9 +224,10 @@ namespace RtfPipe.Model
           else if (token is RowBreak || token is NestedRowBreak)
           {
             var parent = paragraph.Parent;
-            if (paragraph.Type == ElementType.Cell)
+            if (paragraph.Type == ElementType.TableCell)
             {
               paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
+              stylesBeforeReset = null;
             }
             else
             {
@@ -158,19 +236,57 @@ namespace RtfPipe.Model
             }
             var currLevel = paragraph.TableLevel;
             var cells = parent.Elements().Reverse()
-              .TakeWhile(e => e.Type == ElementType.Cell && e.TableLevel == currLevel).Reverse()
+              .TakeWhile(e => e.Type == ElementType.TableCell && e.TableLevel == currLevel).Reverse()
               .ToArray();
             if (cells.Length > 0)
             {
               foreach (var cell in cells)
                 cell.Remove();
-              var row = new Element(ElementType.Row, cells);
-              row.SetStyles(new IToken[] { new NestingLevel(currLevel - 1), new InTable() });
+              var row = new Element(ElementType.TableRow, cells);
+              var rowStyles = new StyleList(groups.Peek().Styles);
+              rowStyles.Merge(new NestingLevel(Math.Max(currLevel - 1, 0)));
+              var cellFormats = rowStyles.OfType<CellToken>().ToList();
+              if (cellFormats.Count >= cells.Length)
+              {
+                for (var i = 0; i < cells.Length; i++)
+                  cells[i].SetStyles(cells[i].Styles.Where(t => !(t is CellToken)).Concat(new[] { cellFormats[i] }));
+              }
+              rowStyles.RemoveWhere(t => t is HalfCellPadding);
+              row.SetStyles(rowStyles);
               parent.Add(row);
             }
             var nextParagraph = new Element(ElementType.Paragraph);
             parent.Add(nextParagraph);
             paragraph = nextParagraph;
+          }
+          else if (token is ObjectAttachment)
+          {
+            paragraph.Add(new Attachment(attachmentIndex));
+            attachmentIndex++;
+          }
+          else if (token is OutlineLevel outlineLevel && outlineLevel.Value >= 0 && outlineLevel.Value < 6)
+          {
+            switch (outlineLevel.Value + 1)
+            {
+              case 2:
+                paragraph.Type = ElementType.Header2;
+                break;
+              case 3:
+                paragraph.Type = ElementType.Header3;
+                break;
+              case 4:
+                paragraph.Type = ElementType.Header4;
+                break;
+              case 5:
+                paragraph.Type = ElementType.Header5;
+                break;
+              case 6:
+                paragraph.Type = ElementType.Header6;
+                break;
+              default:
+                paragraph.Type = ElementType.Header1;
+                break;
+            }
           }
           else if (token.Type == TokenType.CellFormat
             || token.Type == TokenType.CharacterFormat
@@ -178,21 +294,25 @@ namespace RtfPipe.Model
             || token.Type == TokenType.RowFormat
             || token.Type == TokenType.SectionFormat)
           {
-            if (token is ListLevelNumber listLevelNumber)
+            if ((token is ParagraphDefault || token is SectionDefault) && paragraph.Nodes().Any())
+              paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
+            //stylesBeforeReset = groups.Peek().Styles.ToList();
+            else if (token is ListLevelNumber listLevelNumber)
               paragraph.Type = ElementType.ListItem;
             groups.Peek().AddStyle(token);
           }
         }
 
         var state = groups.Pop();
-        paragraph.SetStyles(state.NormalizedStyles(document));
+        if (!paragraph.Styles.Any() && paragraph.Nodes().Any())
+          paragraph.SetStyles(stylesBeforeReset ?? state.NormalizedStyles(document));
       }
 
       if (!paragraph.Nodes().Any())
         paragraph.Remove();
 
-      OrganizeTable(result);
-      OrganizeLists(result);
+      OrganizeTable(result.Root);
+      OrganizeLists(result.Root);
       return result;
     }
     
@@ -200,16 +320,16 @@ namespace RtfPipe.Model
     {
       var parents = root.Descendants()
         .Where(e => e.Type != ElementType.Table
-          && e.Elements().Any(c => c.Type == ElementType.Row))
+          && e.Elements().Any(c => c.Type == ElementType.TableRow))
         .ToList();
-
+      
       foreach (var parent in parents)
       {
         var nodeList = new List<Node>();
         foreach (var node in parent.Nodes().ToList())
         {
           node.Remove();
-          if (node is Element element && element.Type == ElementType.Row)
+          if (node is Element row && row.Type == ElementType.TableRow)
           {
             if (!(nodeList.LastOrDefault() is Element table 
               && table.Type == ElementType.Table))
@@ -218,7 +338,10 @@ namespace RtfPipe.Model
               nodeList.Add(table);
             }
             
-            table.Add(element);
+            table.Add(row);
+            if (!table.Styles.Any())
+              table.SetStyles(row.Styles.Where(t => t.Type != TokenType.CellFormat 
+                && t.Type != TokenType.RowFormat));
           }
           else
           {
@@ -244,7 +367,7 @@ namespace RtfPipe.Model
         foreach (var node in parent.Nodes().ToList())
         {
           node.Remove();
-          if (node is Element element && element.Type == ElementType.ListItem)
+          if (node is Element listItem && listItem.Type == ElementType.ListItem)
           {
             if (!(nodeList.LastOrDefault() is Element list 
               && (list.Type == ElementType.List || list.Type == ElementType.OrderedList)))
@@ -253,7 +376,7 @@ namespace RtfPipe.Model
               nodeList.Add(list);
             }
 
-            for (var i = 0; i < element.ListLevel; i++)
+            for (var i = 0; i < listItem.ListLevel; i++)
             {
               var lastItem = list.Elements().LastOrDefault();
               if (lastItem != null)
@@ -271,15 +394,18 @@ namespace RtfPipe.Model
 
             if (!list.Elements().Any())
             {
-              var numType = element.Styles.OfType<ListLevelType>().FirstOrDefault()?.Value
-                ?? (element.Styles.OfType<NumberLevelBullet>().Any() ? (NumberingType?)NumberingType.Bullet : null)
-                ?? element.Styles.OfType<NumberingTypeToken>().FirstOrDefault()?.Value
+              var numType = listItem.Styles.OfType<ListLevelType>().FirstOrDefault()?.Value
+                ?? (listItem.Styles.OfType<NumberLevelBullet>().Any() ? (NumberingType?)NumberingType.Bullet : null)
+                ?? listItem.Styles.OfType<NumberingTypeToken>().FirstOrDefault()?.Value
                 ?? NumberingType.Bullet;
 
               if (numType != NumberingType.Bullet && numType != NumberingType.NoNumber)
                 list.Type = ElementType.OrderedList;
             }
-            list.Add(element);
+
+            list.Add(listItem);
+            if (!list.Styles.Any())
+              list.SetStyles(listItem.Styles);
           }
           else
           {
@@ -294,7 +420,7 @@ namespace RtfPipe.Model
     
     private class TokenState
     {
-      private readonly StyleSet _styles = new StyleSet();
+      private readonly StyleList _styles = new StyleList();
       private readonly List<IToken> _defaultStyles;
 
       public IEnumerator<IToken> Tokens { get; }
@@ -316,23 +442,29 @@ namespace RtfPipe.Model
 
       public IEnumerable<IToken> NormalizedStyles(Document document)
       {
-        var result = Styles
-          .Where(t => !HtmlVisitor.IsSpanElement(t))
-          .ToList();
+        var result = new StyleList(Styles
+          .Where(t => !HtmlVisitor.IsSpanElement(t)));
         var styleId = Styles.OfType<ListStyleId>().FirstOrDefault();
         if (styleId == null || !document.ListStyles.TryGetValue(styleId.Value, out var listStyle))
           return result;
 
         var levelNum = Styles.OfType<ListLevelNumber>().FirstOrDefault() ?? new ListLevelNumber(0);
-        result.AddRange(listStyle.Style.Levels[levelNum.Value]);
+        result.MergeRange(listStyle.Style.Levels[levelNum.Value]
+          .Where(t =>
+          {
+            // This is a bit of a hack, but not sure how MS Word is interpreting this
+            if (t is FirstLineIndent firstLine)
+              return firstLine.Value > new UnitValue(-1, UnitType.Inch);
+            return t.Type == TokenType.ParagraphFormat;
+          }));
         return result;
       }
 
       public void AddStyle(IToken token)
       {
-        _styles.Add(token);
-        if (token is PlainToken &&_defaultStyles?.Count > 0)
-          _styles.AddRange(_defaultStyles);
+        _styles.Merge(token);
+        if (token is PlainToken && _defaultStyles?.Count > 0)
+          _styles.MergeRange(_defaultStyles);
       }
     }
   }

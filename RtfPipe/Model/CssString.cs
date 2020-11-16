@@ -6,17 +6,21 @@ using System.Text;
 
 namespace RtfPipe.Model
 {
-  class CssString
+  internal class CssString
   {
     private StringBuilder _builder = new StringBuilder();
 
     public int Length => _builder.Length;
 
-    public CssString(IEnumerable<IToken> tokens)
+    public CssString() { }
+
+    public CssString(IEnumerable<IToken> tokens, ElementType elementType)
     {
       var margins = new UnitValue[4];
       var borders = new BorderToken[4];
       var padding = new UnitValue[4];
+      var cellSpacing = new UnitValue[4];
+
       var underline = false;
       const double DefaultBrowserLineHeight = 1.2;
       
@@ -30,8 +34,10 @@ namespace RtfPipe.Model
           Append("background", "#" + background.Value);
         else if (token is ParaBackgroundColor backgroundPara)
           Append("background", "#" + backgroundPara.Value);
-        else if (token is CapitalToken)
-          Append("text-transform", "uppercase");
+        else if (token is CellBackgroundColor backgroundCell)
+          Append("background", "#" + backgroundCell.Value);
+        else if (token is CapitalToken capitalToken)
+          Append("text-transform", capitalToken.Value ? "uppercase" : "none");
         else if (token is ForegroundColor color)
           Append("color", "#" + color.Value);
         else if (token is TextAlign align)
@@ -84,12 +90,27 @@ namespace RtfPipe.Model
           Append("text-decoration-skip", "spaces");
         else if (token is OffsetToken offset)
           Append("top", offset.Value).Append("position", "relative");
-        else if (token is FirstLineIndent firstIndent) //Name == "p"
+        else if (token is FirstLineIndent firstIndent && elementType != ElementType.ListItem && elementType != ElementType.List && elementType != ElementType.OrderedList)
           Append("text-indent", firstIndent.Value);
         else if (token is SpaceBetweenLines lineSpace && lineSpace.Value > int.MinValue && lineSpace.Value != 0 && (Math.Abs(lineSpace.Value) / 240.0).ToString("0.#") != "1")
           Append("line-height", (Math.Abs(lineSpace.Value) * DefaultBrowserLineHeight / 240.0).ToString("0.#"));
+        else if (token is CellVerticalAlign cellVerticalAlign)
+          Append("vertical-align", cellVerticalAlign.Value == VerticalAlignment.Center ? "middle" : cellVerticalAlign.Value.ToString().ToLowerInvariant());
+        else if (token is TopCellSpacing topCellSpacing)
+          cellSpacing[0] = topCellSpacing.Value;
+        else if (token is RightCellSpacing rightCellSpacing)
+          cellSpacing[1] = rightCellSpacing.Value;
+        else if (token is BottomCellSpacing bottomCellSpacing)
+          cellSpacing[2] = bottomCellSpacing.Value;
+        else if (token is LeftCellSpacing leftCellSpacing)
+          cellSpacing[3] = leftCellSpacing.Value;
+        else if (token is HalfCellPadding halfCellPadding)
+          padding[1] = padding[3] = halfCellPadding.Value;
       }
 
+      if (cellSpacing.Any(v => v.HasValue) && elementType == ElementType.Table)
+        Append("border-spacing", UnitValue.Average(new[] { cellSpacing[0] + cellSpacing[2], cellSpacing[1] + cellSpacing[3] }));
+      
       if (tokens.OfType<OutlineText>().Any() && !tokens.OfType<ForegroundColor>().Any())
         Append("color", "#fff");
 
@@ -105,20 +126,9 @@ namespace RtfPipe.Model
             padding[i] += margins[i];
           margins[i] = UnitValue.Empty;
         }
-
-        if (cell.VerticalAlignment != VerticalAlignment.Center)
-          WriteCss(builder, "vertical-align"
-            , cell.VerticalAlignment == VerticalAlignment.Center ? "middle" : cell.VerticalAlignment.ToString().ToLowerInvariant());
-
-        if (cell.BackgroundColor != null && !this.OfType<BackgroundColor>().Any())
-          WriteCss(builder, "background", "#" + cell.BackgroundColor);
+        
       }
-
-      if (Name == "table")
-      {
-        WriteCss(builder, "border-spacing", "0");
-      }
-
+      
       if (Name == "ul" || Name == "ol")
       {
         if (!this.OfType<LeftIndent>().Any())
@@ -135,29 +145,34 @@ namespace RtfPipe.Model
         WriteCss(builder, "margin", WriteBoxShort(margins));
         WriteCss(builder, "padding-left", "0");
       }
-      else if (Name == "a")
-      {
-        WriteCss(builder, "text-decoration", underline ? "underline" : "none");
-        if (!this.OfType<ForegroundColor>().Any() && _all.TryGetValue<ForegroundColor>(out var foreColor))
-          WriteCss(builder, "color", "#" + foreColor.Value);
-      }*/
+      */
 
-      /*
+      if (elementType == ElementType.List || elementType == ElementType.OrderedList)
+      {
+        if (!tokens.OfType<LeftIndent>().Any())
+          margins[3] = new UnitValue(720, UnitType.Twip);
+
+        var firstLineIndent = tokens.OfType<FirstLineIndent>().FirstOrDefault()?.Value ?? new UnitValue(0, UnitType.Twip);
+        if (firstLineIndent > new UnitValue(-0.125, UnitType.Inch))
+          margins[3] += new UnitValue(0.25, UnitType.Inch);
+        Append("padding-left", "0");
+      }
+
       if (borders.All(b => b != null) && borders.Skip(1).All(b => b.SameBorderStyle(borders[0])))
       {
-        Append("border", BorderString(borders[0]));
+        Append("border", borders[0]);
       }
       else
       {
         if (borders[0] != null)
-          WriteCss(builder, "border-top", BorderString(borders[0]));
+          Append("border-top", borders[0]);
         if (borders[1] != null)
-          WriteCss(builder, "border-right", BorderString(borders[1]));
+          Append("border-right", borders[1]);
         if (borders[2] != null)
-          WriteCss(builder, "border-bottom", BorderString(borders[2]));
+          Append("border-bottom", borders[2]);
         if (borders[3] != null)
-          WriteCss(builder, "border-left", BorderString(borders[3]));
-      }*/
+          Append("border-left", borders[3]);
+      }
 
       /*
       if (Name == "td" && !this.Any(IsListMarker) && TryGetValue<FirstLineIndent>(out var firstLine))
@@ -168,6 +183,13 @@ namespace RtfPipe.Model
         if (indent.Value > 0)
           WriteCss(builder, "text-indent", PxString(indent));
       }*/
+      
+      if (elementType == ElementType.Table)
+      {
+        if (!tokens.OfType<FontSize>().Any())
+          Append("font-size", "inherit");
+        Append("box-sizing", "border-box");
+      }
 
       if (margins.Any(v => v.HasValue))
         Append("margin", margins);
@@ -180,10 +202,8 @@ namespace RtfPipe.Model
           padding[i] = UnitValue.Empty;
       }
 
-      /*
-      if (padding.Any(p => p.Value > 0) || Name == "td")
-        WriteCss(builder, "padding", WriteBoxShort(padding));
-        */
+      if (padding.Any(p => p.Value > 0) || elementType == ElementType.TableCell)
+        Append("padding", padding);
     }
 
     public CssString Append(Font font)
@@ -210,7 +230,110 @@ namespace RtfPipe.Model
       return Append("font-family", name);
     }
 
-    private CssString Append(string property, params UnitValue[] values)
+    public CssString Append(string property, BorderToken border)
+    {
+      _builder.Append(property).Append(":");
+      var width = GetThickness(border).ToPx();
+
+      if (width <= 0 || border.Style == BorderStyle.None)
+      {
+        _builder.Append("none");
+      }
+      else
+      {
+        _builder.Append(width.ToString("0")).Append("px ");
+        
+        switch (border.Style)
+        {
+          case BorderStyle.Dashed:
+          case BorderStyle.DashedSmall:
+          case BorderStyle.DotDashed:
+            _builder.Append("dashed");
+            break;
+          case BorderStyle.Dotted:
+          case BorderStyle.DotDotDashed:
+            _builder.Append("dotted");
+            break;
+          case BorderStyle.Double:
+          case BorderStyle.DoubleWavy:
+          case BorderStyle.ThickThinLarge:
+          case BorderStyle.ThickThinMedium:
+          case BorderStyle.ThickThinSmall:
+          case BorderStyle.ThinThickLarge:
+          case BorderStyle.ThinThickMedium:
+          case BorderStyle.ThinThickSmall:
+          case BorderStyle.ThinThickThinLarge:
+          case BorderStyle.ThinThickThinMedium:
+          case BorderStyle.ThinThickThinSmall:
+          case BorderStyle.Triple:
+            _builder.Append("double");
+            break;
+          case BorderStyle.Outset:
+            _builder.Append("outset");
+            break;
+          case BorderStyle.Inset:
+            _builder.Append("inset");
+            break;
+          case BorderStyle.Embossed:
+          case BorderStyle.Frame:
+            _builder.Append("ridge");
+            break;
+          case BorderStyle.Engraved:
+            _builder.Append("groove");
+            break;
+          default:
+            _builder.Append("solid");
+            break;
+        }
+
+        if (border.Color != null)
+          _builder.Append(" #").Append(border.Color);
+      }
+
+      _builder.Append(";");
+      return this;
+    }
+
+    private UnitValue GetThickness(BorderToken border)
+    {
+      if (border.Style == BorderStyle.None)
+        return UnitValue.Empty;
+
+      var width = border.Width.ToPx();
+      if ((width > 0 && width < 0.5) || border.Style == BorderStyle.Hairline)
+        width = 1;
+      else if (border.Style == BorderStyle.DoubleThick)
+        width *= 2;
+
+      if (border.Width.Value > 0)
+        return new UnitValue(Math.Round(width), UnitType.Pixel);
+
+      switch (border.Style)
+      {
+        case BorderStyle.Double:
+        case BorderStyle.DoubleWavy:
+        case BorderStyle.ThickThinLarge:
+        case BorderStyle.ThickThinMedium:
+        case BorderStyle.ThickThinSmall:
+        case BorderStyle.ThinThickLarge:
+        case BorderStyle.ThinThickMedium:
+        case BorderStyle.ThinThickSmall:
+        case BorderStyle.ThinThickThinLarge:
+        case BorderStyle.ThinThickThinMedium:
+        case BorderStyle.ThinThickThinSmall:
+        case BorderStyle.Triple:
+        case BorderStyle.Outset:
+        case BorderStyle.Inset:
+        case BorderStyle.Embossed:
+        case BorderStyle.Frame:
+        case BorderStyle.Engraved:
+          return new UnitValue(3, UnitType.Pixel);
+        default:
+          return new UnitValue(1, UnitType.Pixel);
+      }
+    }
+
+    public CssString Append(string property, params UnitValue[] values)
     {
       if (values.Length < 1)
         return this;

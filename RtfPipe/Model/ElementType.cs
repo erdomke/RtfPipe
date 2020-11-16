@@ -1,20 +1,26 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace RtfPipe.Model
 {
   public enum ElementType
   {
     Document,
+    Emphasis,
+    Header1,
+    Header2,
+    Header3,
+    Header4,
+    Header5,
+    Header6,
+    Hyperlink,
+    List,
+    ListItem,
+    OrderedList,
     Paragraph,
     Section,
-    Cell,
-    Row,
+    Span,
+    Strong,
     Table,
-    List,
-    OrderedList,
-    ListItem,
+    TableCell,
+    TableRow,
+    Underline,
   }
 }

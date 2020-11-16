@@ -38,7 +38,7 @@ namespace RtfPipe
 
     }
 
-    public void AddPicture(FormatContext format, Picture picture)
+    public void AddPicture(FormatContext format, Picture_Orig picture)
     {
       throw new NotSupportedException();
     }

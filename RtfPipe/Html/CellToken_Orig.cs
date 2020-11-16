@@ -8,7 +8,7 @@ using RtfPipe.Tokens;
 namespace RtfPipe
 {
   [DebuggerDisplay("Cell {Index}, {Width} {WidthUnit}")]
-  internal class CellToken : IWord
+  internal class CellToken_Orig : IWord
   {
     public ColorValue BackgroundColor { get; }
     public BorderToken[] Borders { get; } = new BorderToken[4];
@@ -23,7 +23,7 @@ namespace RtfPipe
     public TokenType Type => TokenType.CellFormat;
     public string Name => "CellToken" + Index;
 
-    public CellToken(IEnumerable<IToken> tokens, Row row, CellToken previous)
+    public CellToken_Orig(IEnumerable<IToken> tokens, Row row, CellToken_Orig previous)
     {
       Index = (previous?.Index ?? -1) + 1;
       var arr = tokens.ToList();

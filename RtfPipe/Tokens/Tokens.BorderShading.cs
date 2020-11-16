@@ -7,6 +7,7 @@ namespace RtfPipe.Tokens
   public class BorderStyleTag : ControlWord<BorderStyle>
   {
     public override string Name => "brdr" + GetName();
+    public override TokenType Type => TokenType.ParagraphFormat;
 
     public BorderStyleTag(BorderStyle value) : base(value) { }
 
@@ -44,11 +45,17 @@ namespace RtfPipe.Tokens
         default: return "none";
       }
     }
+
+    public override string ToString()
+    {
+      return "\\" + Name;
+    }
   }
 
   public class BorderWidth : ControlWord<UnitValue>
   {
     public override string Name => "brdrw";
+    public override TokenType Type => TokenType.ParagraphFormat;
 
     public BorderWidth(UnitValue value) : base(value) { }
   }
@@ -56,6 +63,7 @@ namespace RtfPipe.Tokens
   public class BorderColor : ControlWord<ColorValue>
   {
     public override string Name => "brdrcf";
+    public override TokenType Type => TokenType.ParagraphFormat;
 
     public BorderColor(ColorValue value) : base(value) { }
   }
@@ -63,13 +71,20 @@ namespace RtfPipe.Tokens
   public class BorderSide : ControlWord<BorderPosition>
   {
     public override string Name => "brdr" + Value.ToString().ToLowerInvariant()[0];
+    public override TokenType Type => TokenType.ParagraphFormat;
 
     public BorderSide(BorderPosition value) : base(value) { }
+
+    public override string ToString()
+    {
+      return "\\" + Name;
+    }
   }
 
   public class BorderSpacing : ControlWord<UnitValue>
   {
     public override string Name => "brsp";
+    public override TokenType Type => TokenType.ParagraphFormat;
 
     public BorderSpacing(UnitValue value) : base(value) { }
   }
@@ -77,5 +92,6 @@ namespace RtfPipe.Tokens
   public class BorderShadow : ControlTag
   {
     public override string Name => "brdrsh";
+    public override TokenType Type => TokenType.ParagraphFormat;
   }
 }

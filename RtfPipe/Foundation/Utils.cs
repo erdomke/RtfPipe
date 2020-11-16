@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace RtfPipe
@@ -57,6 +58,13 @@ namespace RtfPipe
         else
           i++;
       }
+    }
+
+    public static bool CollectionEquals<T>(this IEnumerable<T> source, IEnumerable<T> destination)
+    {
+      var intersection = source.Intersect(destination).ToList();
+      return intersection.Count == source.Count()
+        && intersection.Count == destination.Count();
     }
   }
 }
