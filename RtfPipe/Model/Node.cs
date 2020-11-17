@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace RtfPipe.Model
@@ -13,6 +14,16 @@ namespace RtfPipe.Model
       if (Parent == null)
         throw new InvalidOperationException("This node does not have a parent");
       Parent.InsertAfter(this, node);
+    }
+
+    internal IEnumerable<Element> Parents()
+    {
+      var parent = Parent;
+      while (parent != null)
+      {
+        yield return parent;
+        parent = parent.Parent;
+      }
     }
 
     internal void Remove()

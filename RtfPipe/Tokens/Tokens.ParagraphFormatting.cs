@@ -106,4 +106,9 @@ namespace RtfPipe.Tokens
   {
     public override string Name => "footnote";
   }
+
+  public class FootnoteReference : ControlTag
+  {
+    public override string Name => "chftn";
+  }
 }

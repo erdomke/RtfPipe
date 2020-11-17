@@ -9,14 +9,12 @@ namespace RtfPipe.Model
   {
     public RtfHtml Build(Document document)
     {
-      var attachmentIndex = 0;
-      var result = new RtfHtml();
       var body = new List<IToken>();
       var defaultStyles = new List<IToken>
       {
         new FontSize(UnitValue.FromHalfPoint(24))
       };
-      var stylesBeforeReset = default(List<IToken>);
+      var result = new RtfHtml();
 
       if (document.ColorTable.Any())
         defaultStyles.Add(new ForegroundColor(document.ColorTable.First()));
@@ -48,15 +46,24 @@ namespace RtfPipe.Model
         }
       }
 
-      result.Root = new Element(ElementType.Document, new Element(ElementType.Section, new Element(ElementType.Paragraph)));
-      var paragraph = result.Root.Elements().First().Elements().First();
+      result.Root = Build(body, document, defaultStyles);
+      return result;
+    }
+
+    private Element Build(List<IToken> body, Document document, List<IToken> defaultStyles)
+    {
+      var attachmentIndex = 0;
+      var footnotes = new List<IToken>();
+      var footnoteIndex = 0;
+      var lastParagraphStyle = default(TokenState);
+
+      var root = new Element(ElementType.Document, new Element(ElementType.Section, new Element(ElementType.Paragraph)));
+      var paragraph = root.Elements().First().Elements().First();
+      root.SetStyles(defaultStyles);
+      root.Elements().First().SetStyles(defaultStyles);
 
       var groups = new Stack<TokenState>();
-      result.Root.SetStyles(defaultStyles);
-      result.Root.Elements().First().SetStyles(defaultStyles);
-
       groups.Push(new TokenState(body, defaultStyles));
-
       
       while (groups.Count > 0)
       {
@@ -124,6 +131,15 @@ namespace RtfPipe.Model
             {
               paragraph.Add(new Picture(childGroup));
             }
+            else if (dest is Footnote)
+            {
+              var footnoteId = "footnote" + footnoteIndex.ToString("D2");
+
+              if (footnotes.Count > 0)
+                footnotes.Add(new ParagraphBreak());
+
+              ProcessFootnoteGroups(childGroup.Contents, footnotes, footnoteIndex);
+            }
             else
             {
               groups.Push(new TokenState(childGroup.Contents, groups.Peek()));
@@ -141,6 +157,16 @@ namespace RtfPipe.Model
             {
               paragraph.Add(newRun);
             }
+          }
+          else if (token is FootnoteReference)
+          {
+            footnoteIndex++;
+            var styleList = new StyleList(groups.Peek().Styles);
+            styleList.Merge(new HyperlinkToken()
+            {
+              Url = $"#footnote{footnoteIndex:d2}"
+            });
+            paragraph.Add(new Run(footnoteIndex.ToString(), styleList));
           }
           else if (token is LineBreak)
           {
@@ -170,20 +196,22 @@ namespace RtfPipe.Model
           }
           else if (token is PageBreak || token is SectionBreak)
           {
+            lastParagraphStyle = null;
             paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
-            stylesBeforeReset = null;
+
+            AddFootnotes(root, footnotes, document, defaultStyles);
 
             paragraph = new Element(ElementType.Paragraph);
             var section = new Element(ElementType.Section, paragraph);
             section.SetStyles(groups.Peek().NormalizedStyles(document)
               .Where(t => t.Type != TokenType.ParagraphFormat && t.Type != TokenType.RowFormat && t.Type != TokenType.CellFormat));
-            result.Root.Add(section);
+            root.Add(section);
           }
           else if (token is ParagraphBreak)
           {
+            lastParagraphStyle = null;
             if (!paragraph.Styles.Any())
               paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
-            stylesBeforeReset = null;
             
             var nextParagraph = new Element(ElementType.Paragraph);
             paragraph.Parent.Add(nextParagraph);
@@ -191,8 +219,8 @@ namespace RtfPipe.Model
           }
           else if (token is CellBreak || token is NestedCellBreak)
           {
+            lastParagraphStyle = null;
             paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
-            stylesBeforeReset = null;
 
             var parent = paragraph.Parent;
             var cellContent = parent.Elements().Reverse()
@@ -223,11 +251,11 @@ namespace RtfPipe.Model
           }
           else if (token is RowBreak || token is NestedRowBreak)
           {
+            lastParagraphStyle = null;
             var parent = paragraph.Parent;
             if (paragraph.Type == ElementType.TableCell)
             {
               paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
-              stylesBeforeReset = null;
             }
             else
             {
@@ -249,9 +277,18 @@ namespace RtfPipe.Model
               if (cellFormats.Count >= cells.Length)
               {
                 for (var i = 0; i < cells.Length; i++)
-                  cells[i].SetStyles(cells[i].Styles.Where(t => !(t is CellToken)).Concat(new[] { cellFormats[i] }));
+                {
+                  cells[i].Styles.RemoveWhere(t => t is CellToken);
+                  cells[i].Styles.Add(cellFormats[i]);
+                }
               }
-              rowStyles.RemoveWhere(t => t is HalfCellPadding);
+              rowStyles.RemoveWhere(t => t is HalfCellPadding || t is BorderToken);
+              if (rowStyles.TryRemoveMany(t => t is TablePaddingBottom || t is TablePaddingLeft
+                || t is TablePaddingRight || t is TablePaddingTop, out var paddings))
+              {
+                foreach (var cell in cells)
+                  cell.Styles.MergeRange(paddings);
+              }
               row.SetStyles(rowStyles);
               parent.Add(row);
             }
@@ -304,24 +341,73 @@ namespace RtfPipe.Model
         }
 
         var state = groups.Pop();
-        if (!paragraph.Styles.Any() && paragraph.Nodes().Any())
-          paragraph.SetStyles(stylesBeforeReset ?? state.NormalizedStyles(document));
+        lastParagraphStyle = lastParagraphStyle ?? state;
       }
 
-      if (!paragraph.Nodes().Any())
+      if (paragraph.Nodes().Any())
+      {
+        if (!paragraph.Styles.Any())
+          paragraph.SetStyles(lastParagraphStyle.NormalizedStyles(document));
+      }
+      else
+      {
         paragraph.Remove();
+      }
 
-      OrganizeTable(result.Root);
-      OrganizeLists(result.Root);
-      return result;
+      AddFootnotes(root, footnotes, document, defaultStyles);
+
+      OrganizeTable(root);
+      OrganizeLists(root);
+      OrganizeParagraphBorders(root);
+      return root;
     }
-    
+
+    private void AddFootnotes(Element root, List<IToken> footnoteGroup, Document document, List<IToken> defaultStyles)
+    {
+      if (footnoteGroup.Count < 1)
+        return;
+      var section = root.Elements().Last();
+      section.Add(new HorizontalRule());
+      var footnoteParas = Build(footnoteGroup, document, defaultStyles).Elements().First().Elements().ToList();
+      foreach (var paragraph in footnoteParas)
+      {
+        paragraph.Remove();
+        section.Add(paragraph);
+      }
+      footnoteGroup.Clear();
+    }
+
+    private void ProcessFootnoteGroups(List<IToken> footnote, List<IToken> clone, int footnoteIndex)
+    {
+      foreach (var token in footnote)
+      {
+        if (token is Group group)
+        {
+          var cloneGroup = new Group();
+          ProcessFootnoteGroups(group.Contents, cloneGroup.Contents, footnoteIndex);
+          clone.Add(cloneGroup);
+        }
+        else if (token is FootnoteReference)
+        {
+          var footnoteId = "footnote" + footnoteIndex.ToString("D2");
+          clone.Add(new BookmarkToken() { Id = footnoteId, Start = true });
+          clone.Add(new TextToken() { Value = footnoteIndex.ToString() + " " });
+          clone.Add(new BookmarkToken() { Id = footnoteId, Start = false });
+        }
+        else if (!(token is Footnote))
+        {
+          clone.Add(token);
+        }
+      }
+    }
+      
     private void OrganizeTable(Element root)
     {
       var parents = root.Descendants()
         .Where(e => e.Type != ElementType.Table
           && e.Elements().Any(c => c.Type == ElementType.TableRow))
         .ToList();
+      var tables = new List<Element>();
       
       foreach (var parent in parents)
       {
@@ -335,6 +421,7 @@ namespace RtfPipe.Model
               && table.Type == ElementType.Table))
             {
               table = new Element(ElementType.Table);
+              tables.Add(table);
               nodeList.Add(table);
             }
             
@@ -352,6 +439,76 @@ namespace RtfPipe.Model
         foreach (var node in nodeList)
           parent.Add(node);
       }
+
+      foreach (var table in tables)
+      {
+        if (table.Elements().All(r => r.Styles.OfType<RowLeft>().Any()))
+          table.Styles.Merge(table.Elements().First().Styles.OfType<RowLeft>().First());
+      }
+    }
+
+    private void OrganizeParagraphBorders(Element root)
+    {
+      foreach (var section in root.Elements()
+        .Where(s => s.Elements()
+          .Where(e => e.Styles.OfType<BorderToken>().Any() && e.Type != ElementType.Table)
+          .Skip(1).Any()
+        ))
+      {
+        var nodeList = new List<Node>();
+        foreach (var node in section.Nodes().ToList())
+        {
+          node.Remove();
+          if (node is Element paragraph)
+          {
+            var last = nodeList.Count > 0 ? nodeList[nodeList.Count - 1] as Element : null;
+            var previous = last?.Type == ElementType.Container ? last.Elements().Last() : last;
+            if (previous != null && SameBorders(previous, paragraph))
+            {
+              if (last.Type == ElementType.Container)
+              {
+                last.Add(paragraph);
+              }
+              else
+              {
+                var container = new Element(ElementType.Container, previous, paragraph);
+                container.Styles.AddRange(previous.Styles);
+                nodeList[nodeList.Count - 1] = container;
+              }
+            }
+            else
+            {
+              nodeList.Add(paragraph);
+            }
+          }
+          else
+          {
+            nodeList.Add(node);
+          }
+        }
+
+        foreach (var node in nodeList)
+          section.Add(node);
+      }
+    }
+
+    private bool SameBorders(Element x, Element y)
+    {
+      if (x.Type != y.Type || x.Type == ElementType.Table || y.Type == ElementType.Table
+        || x.Styles.OfType<ParagraphBorderBetween>().Any()
+        || y.Styles.OfType<ParagraphBorderBetween>().Any())
+        return false;
+
+      var xBorders = x.Styles.OfType<BorderToken>().OrderBy(b => b.Side).ToList();
+      var yBorders = y.Styles.OfType<BorderToken>().OrderBy(b => b.Side).ToList();
+      if (xBorders.Count < 1 || yBorders.Count < 1 || xBorders.Count != yBorders.Count)
+        return false;
+      for (var i = 0; i < xBorders.Count; i++)
+      {
+        if (!xBorders[i].Equals(yBorders[i]))
+          return false;
+      }
+      return true;
     }
 
     private void OrganizeLists(Element root)
@@ -405,7 +562,22 @@ namespace RtfPipe.Model
 
             list.Add(listItem);
             if (!list.Styles.Any())
+            {
               list.SetStyles(listItem.Styles);
+
+              var parentIndexPx = list.Parents()
+                .Where(e => e.Type == ElementType.List || e.Type == ElementType.OrderedList)
+                .SelectMany(e => e.Styles.OfType<LeftIndent>())
+                .Select(i => i.Value.ToPx())
+                .Sum();
+              if (parentIndexPx > 0)
+              {
+                var newIndent = (listItem.Styles.OfType<LeftIndent>().FirstOrDefault()?.Value.ToPx() ?? 0)
+                  - parentIndexPx;
+                list.Styles.Merge(new LeftIndent(new UnitValue(newIndent, UnitType.Pixel)));
+              }
+            }
+            listItem.Styles.RemoveWhere(t => t is LeftIndent || t is RightIndent);
           }
           else
           {

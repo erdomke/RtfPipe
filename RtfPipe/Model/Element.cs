@@ -8,13 +8,13 @@ namespace RtfPipe.Model
   internal class Element : Node
   {
     private Node _content;
-    private IEnumerable<IToken> _styles;
-
-    internal int TableLevel => Styles.OfType<NestingLevel>().FirstOrDefault()?.Value ?? 0;
+    
+    internal int TableLevel => Styles.OfType<NestingLevel>().FirstOrDefault()?.Value 
+      ?? (Styles.OfType<InTable>().Any() ? 1 : 0);
     internal int ListLevel => Styles.OfType<ListLevelNumber>().FirstOrDefault()?.Value ?? 0;
 
     public Dictionary<string, string> Attributes { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-    public IEnumerable<IToken> Styles => _styles ?? Enumerable.Empty<IToken>();
+    public StyleList Styles { get; } = new StyleList();
     public ElementType Type { get; set; }
 
     public Element(ElementType type, params Node[] nodes)
@@ -102,9 +102,7 @@ namespace RtfPipe.Model
 
     internal void SetStyles(IEnumerable<IToken> styles)
     {
-      _styles = styles
-        .Where(t => (t.Type & TokenType.Format) > 0)
-        .ToList();
+      Styles.Set(styles.Where(t => (t.Type & TokenType.Format) > 0).ToList());
     }
 
     internal override void Visit(INodeVisitor visitor)

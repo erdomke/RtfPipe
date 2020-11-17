@@ -47,6 +47,7 @@ namespace RtfPipe
 
     internal static Dictionary<ElementType, HtmlTag> DefaultTags { get; } = new Dictionary<ElementType, HtmlTag>()
     {
+      { ElementType.Container, HtmlTag.Div },
       { ElementType.Document, HtmlTag.Div },
       { ElementType.Emphasis, HtmlTag.Em },
       { ElementType.Header1, HtmlTag.H1 },

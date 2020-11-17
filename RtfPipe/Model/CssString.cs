@@ -21,7 +21,6 @@ namespace RtfPipe.Model
       var padding = new UnitValue[4];
       var cellSpacing = new UnitValue[4];
 
-      var underline = false;
       const double DefaultBrowserLineHeight = 1.2;
       
       foreach (var token in tokens)
@@ -49,7 +48,7 @@ namespace RtfPipe.Model
         else if (token is RowLeft rowLeft)
           margins[3] = rowLeft.Value;
         else if (token is UnderlineToken underlineToken)
-          underline = underlineToken.Value;
+          Append("text-decoration", underlineToken.Value ? "underline" : "none");
         else if (token is PageBreak)
           Append("page-break-before", "always");
         else if (token is LeftIndent leftIndent && leftIndent.Value.Value != 0) //  || Name == "ul" || Name == "ol"
@@ -90,7 +89,7 @@ namespace RtfPipe.Model
           Append("text-decoration-skip", "spaces");
         else if (token is OffsetToken offset)
           Append("top", offset.Value).Append("position", "relative");
-        else if (token is FirstLineIndent firstIndent && elementType != ElementType.ListItem && elementType != ElementType.List && elementType != ElementType.OrderedList)
+        else if (token is FirstLineIndent firstIndent && elementType != ElementType.ListItem && elementType != ElementType.List && elementType != ElementType.OrderedList && elementType != ElementType.TableCell)
           Append("text-indent", firstIndent.Value);
         else if (token is SpaceBetweenLines lineSpace && lineSpace.Value > int.MinValue && lineSpace.Value != 0 && (Math.Abs(lineSpace.Value) / 240.0).ToString("0.#") != "1")
           Append("line-height", (Math.Abs(lineSpace.Value) * DefaultBrowserLineHeight / 240.0).ToString("0.#"));
@@ -147,15 +146,111 @@ namespace RtfPipe.Model
       }
       */
 
-      if (elementType == ElementType.List || elementType == ElementType.OrderedList)
+      if (elementType == ElementType.Table)
+      {
+        if (!tokens.OfType<FontSize>().Any())
+          Append("font-size", "inherit");
+        Append("box-sizing", "border-box");
+      }
+      else if (elementType == ElementType.TableCell)
+      {
+        for (var i = 0; i < 4; i++)
+        {
+          padding[i] += margins[i];
+          margins[i] = UnitValue.Empty;
+        }
+
+        var indent = tokens.OfType<FirstLineIndent>().FirstOrDefault()?.Value ?? default;
+        if (indent.ToPx() > 0)
+        {
+          if (padding[3].ToPx() < 0)
+            indent += padding[3];
+          Append("text-indent", indent);
+        }
+      }
+      else if (elementType == ElementType.List || elementType == ElementType.OrderedList)
       {
         if (!tokens.OfType<LeftIndent>().Any())
           margins[3] = new UnitValue(720, UnitType.Twip);
 
-        var firstLineIndent = tokens.OfType<FirstLineIndent>().FirstOrDefault()?.Value ?? new UnitValue(0, UnitType.Twip);
-        if (firstLineIndent > new UnitValue(-0.125, UnitType.Inch))
-          margins[3] += new UnitValue(0.25, UnitType.Inch);
+        //var firstLineIndent = tokens.OfType<FirstLineIndent>().FirstOrDefault()?.Value ?? new UnitValue(0, UnitType.Twip);
+        //if (firstLineIndent > new UnitValue(-0.125, UnitType.Inch))
+        //  margins[3] += new UnitValue(0.25, UnitType.Inch);
         Append("padding-left", "0");
+
+        if (elementType == ElementType.OrderedList)
+        {
+          var numType = tokens.OfType<ListLevelType>().FirstOrDefault()?.Value
+              ?? tokens.OfType<NumberingTypeToken>().FirstOrDefault()?.Value
+              ?? NumberingType.Numbers;
+          switch (numType)
+          {
+            case NumberingType.ArabicAbjad:
+            case NumberingType.ArabicAlif:
+              Append("list-style-type", "arabic-indic");
+              break;
+            case NumberingType.Chinese1:
+            case NumberingType.Chinese2:
+            case NumberingType.Chinese3:
+            case NumberingType.Chinese4:
+            case NumberingType.ChineseDoubleByte1:
+            case NumberingType.ChineseDoubleByte2:
+            case NumberingType.ChineseDoubleByte3:
+            case NumberingType.ChineseDoubleByte4:
+            case NumberingType.TaiwaneseDoubleByte1:
+            case NumberingType.TaiwaneseDoubleByte2:
+            case NumberingType.TaiwaneseDoubleByte3:
+            case NumberingType.TaiwaneseDoubleByte4:
+              Append("list-style-type", "cjk-ideographic");
+              break;
+            case NumberingType.Hebrew:
+            case NumberingType.HebrewBiblical:
+              Append("list-style-type", "hebrew");
+              break;
+            case NumberingType.HindiNumbers:
+              Append("list-style-type", "devanagari");
+              break;
+            case NumberingType.Katana1:
+            case NumberingType.DoubleByteKatana1:
+              Append("list-style-type", "katakana");
+              break;
+            case NumberingType.Katana2:
+            case NumberingType.DoubleByteKatana2:
+              Append("list-style-type", "katakana-iroha");
+              break;
+            case NumberingType.Kanji:
+            case NumberingType.Kanji3:
+            case NumberingType.Kanji4:
+            case NumberingType.KanjiDigit:
+              Append("list-style-type", "japanese-formal");
+              break;
+            case NumberingType.Korean1:
+            case NumberingType.Korean2:
+            case NumberingType.KoreanDoubleByte1:
+            case NumberingType.KoreanDoubleByte2:
+            case NumberingType.KoreanDoubleByte3:
+            case NumberingType.KoreanDoubleByte4:
+              Append("list-style-type", "korean-hanja-formal");
+              break;
+            case NumberingType.LeadingZeroArabic:
+              Append("list-style-type", "decimal-leading-zero");
+              break;
+            case NumberingType.LowerGreekNumerals:
+              Append("list-style-type", "lower-greek");
+              break;
+            case NumberingType.ThaiNumbers:
+              Append("list-style-type", "thai");
+              break;
+            case NumberingType.UpperGreekNumerals:
+              Append("list-style-type", "upper-greek");
+              break;
+            case NumberingType.Zodiac1:
+            case NumberingType.Zodiac2:
+            case NumberingType.Zodiac3:
+              Append("list-style-type", "cjk-heavenly-stem");
+              break;
+          }
+        }
       }
 
       if (borders.All(b => b != null) && borders.Skip(1).All(b => b.SameBorderStyle(borders[0])))
@@ -183,13 +278,6 @@ namespace RtfPipe.Model
         if (indent.Value > 0)
           WriteCss(builder, "text-indent", PxString(indent));
       }*/
-      
-      if (elementType == ElementType.Table)
-      {
-        if (!tokens.OfType<FontSize>().Any())
-          Append("font-size", "inherit");
-        Append("box-sizing", "border-box");
-      }
 
       if (margins.Any(v => v.HasValue))
         Append("margin", margins);

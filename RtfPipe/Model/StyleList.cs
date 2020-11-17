@@ -86,6 +86,12 @@ namespace RtfPipe.Model
         Merge(token);
       return this;
     }
+
+    public void Set(IEnumerable<IToken> styles)
+    {
+      Clear();
+      AddRange(styles);
+    }
     
     public bool TryRemoveFirst<S>(out S result) where S : IToken
     {

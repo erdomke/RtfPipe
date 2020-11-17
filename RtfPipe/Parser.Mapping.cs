@@ -619,6 +619,8 @@ namespace RtfPipe
           return new PageBreak();
 
         // Other
+        case "chftn":
+          return new FootnoteReference();
         case "footnote":
           return new Footnote();
 

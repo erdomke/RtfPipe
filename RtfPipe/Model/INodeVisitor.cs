@@ -9,7 +9,8 @@ namespace RtfPipe.Model
   {
     void Visit(Attachment attachment);
     void Visit(Element element);
-    void Visit(Run run);
+    void Visit(HorizontalRule horizontalRule);
     void Visit(Picture image);
+    void Visit(Run run);
   }
 }

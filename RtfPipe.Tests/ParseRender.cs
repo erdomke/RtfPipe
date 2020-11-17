@@ -85,15 +85,82 @@ namespace RtfPipe.Tests
     }
 
     [TestMethod]
-    public void OutlineList()
+    public void InlineOverPara()
     {
-      TestConvert("RtfPipe.Tests.Files.rtf2xml.outline_list");
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.inline_over_para");
+    }
+
+    [TestMethod]
+    public void ItalicsPlain()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.italics_plain");
+    }
+
+    [TestMethod]
+    public void Minimal()
+    {
+      TestConvert("RtfPipe.Tests.Files.minimal");
     }
 
     [TestMethod]
     public void NestedTables()
     {
       TestConvert("RtfPipe.Tests.Files.phprtflite.nested_tables");
+    }
+
+    [TestMethod]
+    public void OutlineList()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.outline_list");
+    }
+
+    [TestMethod]
+    public void ParagraphsFonts()
+    {
+      Parser.Clock = () => new DateTime(2018, 7, 1);
+      TestConvert("RtfPipe.Tests.Files.phprtflite.paragraphs_fonts");
+    }
+
+    [TestMethod]
+    public void RtfParserTest0()
+    {
+      TestConvert("RtfPipe.Tests.Files.RtfParserTest_0");
+    }
+
+    [TestMethod]
+    public void RtfParserTest1()
+    {
+      TestConvert("RtfPipe.Tests.Files.RtfParserTest_1");
+    }
+
+    [TestMethod]
+    public void RtfParserTest2()
+    {
+      TestConvert("RtfPipe.Tests.Files.RtfParserTest_2");
+    }
+
+    [TestMethod]
+    public void RtfParserTest3()
+    {
+      TestConvert("RtfPipe.Tests.Files.RtfParserTest_3");
+    }
+
+    [TestMethod]
+    public void Simplest()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.simplest");
+    }
+
+    [TestMethod]
+    public void TableDifferentCellWidths()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.table_different_cell_widths");
+    }
+
+    [TestMethod]
+    public void Test01()
+    {
+      TestConvert("RtfPipe.Tests.Files.Test01");
     }
 
     ///// <summary>
@@ -104,29 +171,15 @@ namespace RtfPipe.Tests
     //{
     //  Parser.Clock = () => new DateTime(2018, 7, 1);
 
-    //  TestConvert("RtfPipe.Tests.Files.rtf2xml.heading_with_section");
-    //  TestConvert("RtfPipe.Tests.Files.rtf2xml.headings_mixed");
-    //  TestConvert("RtfPipe.Tests.Files.rtf2xml.inline_mix");
-    //  TestConvert("RtfPipe.Tests.Files.rtf2xml.inline_over_para");
-    //  TestConvert("RtfPipe.Tests.Files.rtf2xml.italics_plain");
     //  TestConvert("RtfPipe.Tests.Files.rtf2xml.list_in_table");
     //  TestConvert("RtfPipe.Tests.Files.rtf2xml.lists_with_breaks");
     //  TestConvert("RtfPipe.Tests.Files.rtf2xml.nested_lists_indents");
-    //  TestConvert("RtfPipe.Tests.Files.rtf2xml.simplest");
     //  TestConvert("RtfPipe.Tests.Files.rtf2xml.table_different_cell_widths");
     //  TestConvert("RtfPipe.Tests.Files.rtf2xml.table_empty_row");
     //  TestConvert("RtfPipe.Tests.Files.rtf2xml.table_simple");
     //  TestConvert("RtfPipe.Tests.Files.rtf2xml.table_with_header");
-
-    //  TestConvert("RtfPipe.Tests.Files.phprtflite.paragraphs_fonts");
-
-    //  TestConvert("RtfPipe.Tests.Files.Test01");
-    //  TestConvert("RtfPipe.Tests.Files.minimal");
-    //  TestConvert("RtfPipe.Tests.Files.nested_table_report");
-    //  TestConvert("RtfPipe.Tests.Files.RtfParserTest_0");
-    //  TestConvert("RtfPipe.Tests.Files.RtfParserTest_1");
-    //  TestConvert("RtfPipe.Tests.Files.RtfParserTest_2");
-    //  TestConvert("RtfPipe.Tests.Files.RtfParserTest_3");
+    
+      //  TestConvert("RtfPipe.Tests.Files.nested_table_report");
     //}
 
     private void TestParse(string path)
@@ -299,7 +352,7 @@ ffc001ffffffffffffc001ffffffffffffc001ffffffffffffc001040000002701ffff03000000
     {
       const string rtf = "{\\rtf1\\ansicpg1252\r\n{\r\n\\fonttbl\r\n{\\f0 Times New Roman;}\r\n{\\f1 Calibri;}\r\n}\r\n{\r\n\\colortbl\r\n;\r\n\\red0\\green0\\blue255;\r\n\\red0\\green0\\blue0;\r\n}\r\n\\nouicompat\\splytwnine\\htmautsp{\\pard\\plain\\ql{\\f1\\fs24\\cf2 <p><span style=\"color:#404040;font-family:calibri;font-size:12pt;\">On d&#233;termine la couverture de votre objectif de revenu d&#8217;invalidit&#233; en analysant dans quelle mesure vos rentr&#233;es de fonds couvrent vos sorties de fonds dans l'&#233;ventualit&#233; d&#8217;une invalidit&#233;. La couverture actuelle de votre objectif est de </span><strong><span style=\"color:#3265a4;font-family:calibri;font-size:12pt;\">79 %</span></strong><span style=\"color:#404040;font-family:calibri;font-size:12pt;\">. Votre besoin en revenu d'invalidit&#233; est de </span><strong><span style=\"color:#3265a4;font-family:calibri;font-size:12pt;\">3\\~320\\~853 $</span></strong><span style=\"color:#404040;font-family:calibri;font-size:12pt;\"> au cours de la p&#233;riode d'invalidit&#233; projet&#233;e de </span><strong><span style=\"color:#3265a4;font-family:calibri;font-size:12pt;\">192</span></strong><span style=\"color:#404040;font-family:calibri;font-size:12pt;\"> mois. Ce besoin inclut toutes les d&#233;penses mensuelles n&#233;cessaires comme la nourriture, les v&#234;tements et le logement. French blah.</span></p>}\\fs24\\par}\r\n}\r\n";
       var output = Rtf.ToHtml(rtf);
-      const string expected = "<div style=\"font-size:12pt;\"><p style=\"text-align:left;font-family:Calibri;margin:0;\">&lt;p&gt;&lt;span style=\"color:#404040;font-family:calibri;font-size:12pt;\"&gt;On d&amp;#233;termine la couverture de votre objectif de revenu d&amp;#8217;invalidit&amp;#233; en analysant dans quelle mesure vos rentr&amp;#233;es de fonds couvrent vos sorties de fonds dans l'&amp;#233;ventualit&amp;#233; d&amp;#8217;une invalidit&amp;#233;. La couverture actuelle de votre objectif est de &lt;/span&gt;&lt;strong&gt;&lt;span style=\"color:#3265a4;font-family:calibri;font-size:12pt;\"&gt;79 %&lt;/span&gt;&lt;/strong&gt;&lt;span style=\"color:#404040;font-family:calibri;font-size:12pt;\"&gt;. Votre besoin en revenu d'invalidit&amp;#233; est de &lt;/span&gt;&lt;strong&gt;&lt;span style=\"color:#3265a4;font-family:calibri;font-size:12pt;\"&gt;3&nbsp;320&nbsp;853 $&lt;/span&gt;&lt;/strong&gt;&lt;span style=\"color:#404040;font-family:calibri;font-size:12pt;\"&gt; au cours de la p&amp;#233;riode d'invalidit&amp;#233; projet&amp;#233;e de &lt;/span&gt;&lt;strong&gt;&lt;span style=\"color:#3265a4;font-family:calibri;font-size:12pt;\"&gt;192&lt;/span&gt;&lt;/strong&gt;&lt;span style=\"color:#404040;font-family:calibri;font-size:12pt;\"&gt; mois. Ce besoin inclut toutes les d&amp;#233;penses mensuelles n&amp;#233;cessaires comme la nourriture, les v&amp;#234;tements et le logement. French blah.&lt;/span&gt;&lt;/p&gt;</p></div>";
+      const string expected = "<div style=\"font-size:12pt;\"><p style=\"text-align:left;margin:0;\"><span style=\"font-family:Calibri;\">&lt;p&gt;&lt;span style=\"color:#404040;font-family:calibri;font-size:12pt;\"&gt;On d&amp;#233;termine la couverture de votre objectif de revenu d&amp;#8217;invalidit&amp;#233; en analysant dans quelle mesure vos rentr&amp;#233;es de fonds couvrent vos sorties de fonds dans l'&amp;#233;ventualit&amp;#233; d&amp;#8217;une invalidit&amp;#233;. La couverture actuelle de votre objectif est de &lt;/span&gt;&lt;strong&gt;&lt;span style=\"color:#3265a4;font-family:calibri;font-size:12pt;\"&gt;79 %&lt;/span&gt;&lt;/strong&gt;&lt;span style=\"color:#404040;font-family:calibri;font-size:12pt;\"&gt;. Votre besoin en revenu d'invalidit&amp;#233; est de &lt;/span&gt;&lt;strong&gt;&lt;span style=\"color:#3265a4;font-family:calibri;font-size:12pt;\"&gt;3&nbsp;320&nbsp;853 $&lt;/span&gt;&lt;/strong&gt;&lt;span style=\"color:#404040;font-family:calibri;font-size:12pt;\"&gt; au cours de la p&amp;#233;riode d'invalidit&amp;#233; projet&amp;#233;e de &lt;/span&gt;&lt;strong&gt;&lt;span style=\"color:#3265a4;font-family:calibri;font-size:12pt;\"&gt;192&lt;/span&gt;&lt;/strong&gt;&lt;span style=\"color:#404040;font-family:calibri;font-size:12pt;\"&gt; mois. Ce besoin inclut toutes les d&amp;#233;penses mensuelles n&amp;#233;cessaires comme la nourriture, les v&amp;#234;tements et le logement. French blah.&lt;/span&gt;&lt;/p&gt;</span></p></div>";
       AssertEqual(expected, output);
     }
 

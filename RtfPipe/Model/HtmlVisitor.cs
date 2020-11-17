@@ -58,7 +58,7 @@ namespace RtfPipe.Model
       var tag = GetElementTag(element.Type, ElementType.Paragraph, HtmlTag.Div);
       _writer.WriteStartElement(tag.Name);
 
-      var elementStyles = element.Styles;
+      var elementStyles = (IEnumerable<IToken>)element.Styles;
       if (element.Type == ElementType.TableCell)
         elementStyles = elementStyles.Concat(elementStyles.OfType<CellToken>().SelectMany(c => c.Styles));
       else if (element.Type == ElementType.Section || element.Type == ElementType.Document)
@@ -66,6 +66,39 @@ namespace RtfPipe.Model
       var styleList = GetNewStyles(elementStyles, tag)
         .Where(t => !IsSpanElement(t))
         .ToList();
+
+      if (element.Type == ElementType.OrderedList)
+      {
+        var numType = element.Styles.OfType<ListLevelType>().FirstOrDefault()?.Value
+            ?? element.Styles.OfType<NumberingTypeToken>().FirstOrDefault()?.Value
+            ?? NumberingType.Numbers;
+        switch (numType)
+        {
+          case NumberingType.LowerLetter:
+            _writer.WriteAttributeString("type", "a");
+            break;
+          case NumberingType.LowerRoman:
+            _writer.WriteAttributeString("type", "i");
+            break;
+          case NumberingType.UpperLetter:
+            _writer.WriteAttributeString("type", "A");
+            break;
+          case NumberingType.UpperRoman:
+            _writer.WriteAttributeString("type", "I");
+            break;
+        }
+
+        var startAt = element.Styles.OfType<NumberingStart>().FirstOrDefault()?.Value ?? 1;
+        if (startAt > 1)
+          _writer.WriteAttributeString("start", startAt.ToString());
+      }
+      else if (element.Type == ElementType.TableCell)
+      {
+        var colspan = element.Styles.OfType<CellToken>().FirstOrDefault()?.ColSpan ?? 1;
+        if (colspan > 1)
+          _writer.WriteAttributeString("colspan", colspan.ToString());
+      }
+
       ProcessLeadingTabs(element, styleList);
       if (element.Type == ElementType.Section 
         && element.Parent != null
@@ -225,6 +258,7 @@ namespace RtfPipe.Model
       var tag = GetElementTag(elementType, null, hyperlink == null ? HtmlTag.Span : HtmlTag.A);
       var styleList = new StyleList(GetNewStyles(run.Styles, tag)
         .Where(t => t.Type == TokenType.CharacterFormat));
+      var stylesWritten = false;
 
       var endTags = 0;
       if (styleList.TryRemoveFirst(out BoldToken boldToken) && boldToken.Value)
@@ -240,13 +274,16 @@ namespace RtfPipe.Model
       if (hyperlink == null && styleList.TryRemoveMany(StyleList.IsUnderline, out var underlineStyles))
       {
         _writer.WriteStartElement(GetElementTag(ElementType.Underline, null, HtmlTag.U).Name);
-        var underlineCss = new CssString(underlineStyles, ElementType.Underline);
+        var underlineCss = new CssString(underlineStyles.Where(t => !(t is UnderlineToken)), ElementType.Underline);
         if (underlineCss.Length > 0)
+        {
           _writer.WriteAttributeString("style", underlineCss.ToString());
+          stylesWritten = true;
+        }
         endTags++;
       }
       if ((styleList.TryRemoveFirst(out StrikeToken strikeToken) && strikeToken.Value)
-        || (styleList.TryRemoveFirst(out StrikeDoubleToken strikeDoubleToken) && strikeDoubleToken.Value))
+        || styleList.OfType<StrikeDoubleToken>().FirstOrDefault()?.Value == true)
       {
         _writer.WriteStartElement("s");
         endTags++;
@@ -258,22 +295,32 @@ namespace RtfPipe.Model
       }
       if (styleList.TryRemoveFirst(out SuperStartToken superToken))
       {
-        _writer.WriteStartElement("super");
+        _writer.WriteStartElement("sup");
         endTags++;
       }
 
       var css = new CssString(styleList, elementType);
-      if (hyperlink != null || css.Length > 0)
+      if (hyperlink != null)
       {
         _writer.WriteStartElement(tag.Name);
         if (css.Length > 0)
           _writer.WriteAttributeString("style", css.ToString());
-        if (!string.IsNullOrEmpty(hyperlink?.Url))
+        if (!string.IsNullOrEmpty(hyperlink.Url))
           _writer.WriteAttributeString("href", hyperlink.Url);
-        if (!string.IsNullOrEmpty(hyperlink?.Target))
+        if (!string.IsNullOrEmpty(hyperlink.Target))
           _writer.WriteAttributeString("target", hyperlink.Target);
-        if (!string.IsNullOrEmpty(hyperlink?.Title))
+        if (!string.IsNullOrEmpty(hyperlink.Title))
           _writer.WriteAttributeString("title", hyperlink.Title);
+        endTags++;
+      }
+      else if (css.Length > 0 && endTags > 0 && !stylesWritten)
+      {
+        _writer.WriteAttributeString("style", css.ToString());
+      }
+      else if (css.Length > 0)
+      {
+        _writer.WriteStartElement(tag.Name);
+        _writer.WriteAttributeString("style", css.ToString());
         endTags++;
       }
 
@@ -408,6 +455,13 @@ namespace RtfPipe.Model
     public void Visit(Attachment attachment)
     {
       Settings?.AttachmentRenderer(attachment.Index, _writer);
+    }
+
+    public void Visit(HorizontalRule horizontalRule)
+    {
+      _writer.WriteStartElement("hr");
+      _writer.WriteAttributeString("style", "width:2in;border:0.5px solid black;margin-left:0");
+      _writer.WriteEndElement();
     }
   }
 }
