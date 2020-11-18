@@ -262,6 +262,8 @@ namespace RtfPipe
           return new LineSpacingMultiple(number);
         case "outlinelevel":
           return new OutlineLevel(number);
+        case "contextualspace":
+          return new ContextualSpace();
 
         // Bullets & Numbering
         case "pntext":

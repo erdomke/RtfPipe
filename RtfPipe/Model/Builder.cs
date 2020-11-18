@@ -56,6 +56,7 @@ namespace RtfPipe.Model
       var footnotes = new List<IToken>();
       var footnoteIndex = 0;
       var lastParagraphStyle = default(TokenState);
+      var lastBreak = default(IToken);
 
       var root = new Element(ElementType.Document, new Element(ElementType.Section, new Element(ElementType.Paragraph)));
       var paragraph = root.Elements().First().Elements().First();
@@ -228,7 +229,19 @@ namespace RtfPipe.Model
                 && e.Styles.OfType<InTable>().Any()
                 && e.TableLevel == paragraph.TableLevel).Reverse()
               .ToArray();
-            if (cellContent.Length == 1)
+
+            // Eliminate empty paragraphs
+            if (cellContent.Length > 1
+              && cellContent.Last().Type == ElementType.Paragraph
+              && !cellContent.Last().Nodes().Any()
+              && !(lastBreak is ParagraphBreak))
+            {
+              cellContent.Last().Remove();
+              cellContent = cellContent.Take(cellContent.Length - 1).ToArray();
+            }
+
+            // Convert the paragraph to a cell where appropriate
+            if (cellContent.Length == 1 && cellContent[0].Type == ElementType.Paragraph)
             {
               cellContent[0].Type = ElementType.TableCell;
             }
@@ -338,6 +351,8 @@ namespace RtfPipe.Model
               paragraph.Type = ElementType.ListItem;
             groups.Peek().AddStyle(token);
           }
+
+          lastBreak = token.Type == TokenType.BreakTag ? token : lastBreak;
         }
 
         var state = groups.Pop();
@@ -356,6 +371,7 @@ namespace RtfPipe.Model
 
       AddFootnotes(root, footnotes, document, defaultStyles);
 
+      OrganizeMargins(root);
       OrganizeTable(root);
       OrganizeLists(root);
       OrganizeParagraphBorders(root);
@@ -426,9 +442,11 @@ namespace RtfPipe.Model
             }
             
             table.Add(row);
+            row.Styles.RemoveWhere(t => t is LeftIndent || t is RightIndent || t is SpaceAfter || t is SpaceBefore);
             if (!table.Styles.Any())
               table.SetStyles(row.Styles.Where(t => t.Type != TokenType.CellFormat 
-                && t.Type != TokenType.RowFormat));
+                && t.Type != TokenType.RowFormat
+                && !(t is TextAlign || t is LeftIndent || t is RightIndent)));
           }
           else
           {
@@ -444,6 +462,29 @@ namespace RtfPipe.Model
       {
         if (table.Elements().All(r => r.Styles.OfType<RowLeft>().Any()))
           table.Styles.Merge(table.Elements().First().Styles.OfType<RowLeft>().First());
+        var headerRows = table.Elements().TakeWhile(r => r.Styles.OfType<HeaderRow>().Any()).ToList();
+        if (headerRows.Count > 0)
+        {
+          var head = new Element(ElementType.TableHeader);
+          head.SetStyles(headerRows[0].Styles);
+          foreach (var row in headerRows)
+          {
+            row.Remove();
+            head.Add(row);
+            foreach (var cell in row.Elements().Where(e => e.Type == ElementType.TableCell))
+              cell.Type = ElementType.TableHeaderCell;
+          }
+          var body = new Element(ElementType.TableBody);
+          foreach (var row in table.Elements().ToList())
+          {
+            row.Remove();
+            body.Add(row);
+          }
+          if (body.Elements().Any())
+            body.SetStyles(body.Elements().First().Styles);
+          table.Add(head);
+          table.Add(body);
+        }
       }
     }
 
@@ -492,6 +533,29 @@ namespace RtfPipe.Model
       }
     }
 
+    private void OrganizeMargins(Element root)
+    {
+      foreach (var section in root.Elements()
+        .Where(s => s.Elements()
+          .Where(e => e.Styles.OfType<ContextualSpace>().Any())
+          .Skip(1).Any()
+        ))
+      {
+        var previous = section.Elements().First();
+        foreach (var paragraph in section.Elements().Skip(1))
+        {
+          if ((previous.Styles.OfType<StyleRef>().FirstOrDefault()?.Value ?? -1)
+            == (paragraph.Styles.OfType<StyleRef>().FirstOrDefault()?.Value ?? -2)
+            && (previous.Styles.OfType<ContextualSpace>().Any() || paragraph.Styles.OfType<ContextualSpace>().Any()))
+          {
+            previous.Styles.RemoveWhere(t => t is SpaceAfter);
+            paragraph.Styles.RemoveWhere(t => t is SpaceBefore);
+          }
+          previous = paragraph;
+        }
+      }
+    }
+
     private bool SameBorders(Element x, Element y)
     {
       if (x.Type != y.Type || x.Type == ElementType.Table || y.Type == ElementType.Table
@@ -513,6 +577,39 @@ namespace RtfPipe.Model
 
     private void OrganizeLists(Element root)
     {
+      var listIndices = new Dictionary<int, List<int>>();
+
+      foreach (var listItem in root.Descendants()
+        .Where(e => e.Type == ElementType.ListItem))
+      {
+        var listId = (listItem.Styles.OfType<ListStyleId>().FirstOrDefault()?.Value ?? 1);
+        if (!listIndices.TryGetValue(listId, out var currentLevels))
+        {
+          currentLevels = new List<int>();
+          listIndices[listId] = currentLevels;
+        }
+
+        while (currentLevels.Count <= listItem.ListLevel)
+          currentLevels.Add(listItem.Styles.OfType<NumberingStart>().FirstOrDefault()?.Value - 1 ?? 0);
+        while (currentLevels.Count > listItem.ListLevel + 1)
+          currentLevels.RemoveAt(currentLevels.Count - 1);
+        currentLevels[listItem.ListLevel]++;
+
+        listItem.Styles.Merge(new NumberingStart(currentLevels[listItem.ListLevel]));
+
+        if (listItem.Parent.Type == ElementType.TableCell || listItem.Parent.Type == ElementType.TableHeaderCell)
+        {
+          listItem.Parent.Styles.RemoveWhere(t => t is LeftIndent || t is FirstLineIndent);
+          var leftIndent = listItem.Styles.OfType<LeftIndent>().FirstOrDefault();
+          var firstLineIndent = listItem.Styles.OfType<FirstLineIndent>().FirstOrDefault();
+          if (leftIndent != null && firstLineIndent != null 
+            && (leftIndent.Value + firstLineIndent.Value).ToPx() < 0)
+          {
+            listItem.Styles.Merge(new FirstLineIndent(new UnitValue(leftIndent.Value.ToPx() * -1, UnitType.Pixel)));
+          }
+        }
+      }
+
       var parents = root.Descendants()
         .Where(e => e.Type != ElementType.List && e.Type != ElementType.OrderedList 
           && e.Elements().Any(c => c.Type == ElementType.ListItem))
@@ -526,8 +623,23 @@ namespace RtfPipe.Model
           node.Remove();
           if (node is Element listItem && listItem.Type == ElementType.ListItem)
           {
-            if (!(nodeList.LastOrDefault() is Element list 
-              && (list.Type == ElementType.List || list.Type == ElementType.OrderedList)))
+            var list = nodeList.LastOrDefault() as Element;
+            if (list != null)
+            {
+              if (list.Type == ElementType.List || list.Type == ElementType.OrderedList)
+              {
+                var currListId = listItem.Styles.OfType<ListStyleId>().FirstOrDefault()?.Value ?? 1;
+                var prevListId = list.Styles.OfType<ListStyleId>().FirstOrDefault()?.Value ?? 1;
+                if (currListId != prevListId)
+                  list = null;
+              }
+              else
+              {
+                list = null;
+              }
+            }
+
+            if (list == null)
             {
               list = new Element(ElementType.List);
               nodeList.Add(list);
@@ -577,7 +689,7 @@ namespace RtfPipe.Model
                 list.Styles.Merge(new LeftIndent(new UnitValue(newIndent, UnitType.Pixel)));
               }
             }
-            listItem.Styles.RemoveWhere(t => t is LeftIndent || t is RightIndent);
+            listItem.Styles.RemoveWhere(t => t is LeftIndent || t is RightIndent || t is FirstLineIndent);
           }
           else
           {
@@ -614,21 +726,16 @@ namespace RtfPipe.Model
 
       public IEnumerable<IToken> NormalizedStyles(Document document)
       {
-        var result = new StyleList(Styles
-          .Where(t => !HtmlVisitor.IsSpanElement(t)));
         var styleId = Styles.OfType<ListStyleId>().FirstOrDefault();
         if (styleId == null || !document.ListStyles.TryGetValue(styleId.Value, out var listStyle))
-          return result;
+          return Styles
+            .Where(t => !HtmlVisitor.IsSpanElement(t));
 
         var levelNum = Styles.OfType<ListLevelNumber>().FirstOrDefault() ?? new ListLevelNumber(0);
-        result.MergeRange(listStyle.Style.Levels[levelNum.Value]
-          .Where(t =>
-          {
-            // This is a bit of a hack, but not sure how MS Word is interpreting this
-            if (t is FirstLineIndent firstLine)
-              return firstLine.Value > new UnitValue(-1, UnitType.Inch);
-            return t.Type == TokenType.ParagraphFormat;
-          }));
+        var result = new StyleList(listStyle.Style.Levels[levelNum.Value]
+          .Where(t => t.Type == TokenType.ParagraphFormat));
+        result.MergeRange(Styles
+          .Where(t => !HtmlVisitor.IsSpanElement(t)));
         return result;
       }
 

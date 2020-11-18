@@ -65,7 +65,10 @@ namespace RtfPipe
       { ElementType.Span, HtmlTag.Span },
       { ElementType.Strong, HtmlTag.Strong },
       { ElementType.Table, HtmlTag.Table },
+      { ElementType.TableBody, HtmlTag.Tbody },
       { ElementType.TableCell, HtmlTag.Td },
+      { ElementType.TableHeader, HtmlTag.Thead },
+      { ElementType.TableHeaderCell, HtmlTag.Th },
       { ElementType.TableRow, HtmlTag.Tr },
       { ElementType.Underline, HtmlTag.U },
     };

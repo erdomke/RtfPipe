@@ -20,7 +20,10 @@ namespace RtfPipe.Model
     Span,
     Strong,
     Table,
+    TableBody,
     TableCell,
+    TableHeader,
+    TableHeaderCell,
     TableRow,
     Underline,
   }

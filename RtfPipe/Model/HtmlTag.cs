@@ -96,9 +96,12 @@ namespace RtfPipe.Model
     {
       Styles =
       {
-        new NumberingTypeToken(NumberingType.Numbers)
+        new NumberingTypeToken(NumberingType.Numbers),
+        new SpaceBefore(new UnitValue(16, UnitType.Pixel)),
+        new SpaceAfter(new UnitValue(16, UnitType.Pixel))
       }
     };
+    public static HtmlTag Omit { get; } = new HtmlTag(null);
     public static HtmlTag P { get; } = new HtmlTag("p")
     {
       Styles =
@@ -125,6 +128,7 @@ namespace RtfPipe.Model
         new TopCellSpacing(new UnitValue(1, UnitType.Pixel)),
       }
     };
+    public static HtmlTag Tbody { get; } = new HtmlTag("tbody");
     public static HtmlTag Td { get; } = new HtmlTag("td")
     {
       Styles =
@@ -132,6 +136,15 @@ namespace RtfPipe.Model
         new CellVerticalAlign(VerticalAlignment.Center)
       }
     };
+    public static HtmlTag Th { get; } = new HtmlTag("th")
+    {
+      Styles =
+      {
+        new BoldToken(true),
+        new TextAlign(TextAlignment.Center)
+      }
+    };
+    public static HtmlTag Thead { get; } = new HtmlTag("thead");
     public static HtmlTag Tr { get; } = new HtmlTag("tr");
     public static HtmlTag U { get; } = new HtmlTag("u")
     {
@@ -144,7 +157,9 @@ namespace RtfPipe.Model
     {
       Styles =
       {
-        new NumberingTypeToken(NumberingType.Bullet)
+        new NumberingTypeToken(NumberingType.Bullet),
+        new SpaceBefore(new UnitValue(16, UnitType.Pixel)),
+        new SpaceAfter(new UnitValue(16, UnitType.Pixel))
       }
     };
   }

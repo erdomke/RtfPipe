@@ -22,6 +22,12 @@ namespace RtfPipe.Tokens
     public override TokenType Type => TokenType.ParagraphFormat;
   }
 
+  public class ContextualSpace : ControlTag
+  {
+    public override string Name => "contextualspace";
+    public override TokenType Type => TokenType.ParagraphFormat;
+  }
+
   public class TextAlign : ControlWord<TextAlignment>
   {
     public override string Name => "q" + Value.ToString().ToLowerInvariant()[0];

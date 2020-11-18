@@ -20,7 +20,7 @@ namespace RtfPipe.Model
       }
       else if (token is ParagraphDefault)
       {
-        this.RemoveWhere(t => t.Type == TokenType.ParagraphFormat || t.Type == TokenType.RowFormat || t.Type == TokenType.CellFormat);
+        this.RemoveWhere(t => t.Type == TokenType.ParagraphFormat);
       }
       else if (token is RowDefaults)
       {
@@ -101,6 +101,21 @@ namespace RtfPipe.Model
         if (this[i] is S)
         {
           result = (S)this[i];
+          RemoveAt(i);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    public bool TryRemoveFirstTrue<S>(out S result) where S : ControlWord<bool>
+    {
+      result = default(S);
+      for (var i = 0; i < Count; i++)
+      {
+        if (this[i] is S res && res.Value)
+        {
+          result = res;
           RemoveAt(i);
           return true;
         }

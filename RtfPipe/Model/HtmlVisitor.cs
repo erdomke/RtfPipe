@@ -59,13 +59,15 @@ namespace RtfPipe.Model
       _writer.WriteStartElement(tag.Name);
 
       var elementStyles = (IEnumerable<IToken>)element.Styles;
-      if (element.Type == ElementType.TableCell)
+      if (element.Type == ElementType.TableCell || element.Type == ElementType.TableHeaderCell)
         elementStyles = elementStyles.Concat(elementStyles.OfType<CellToken>().SelectMany(c => c.Styles));
       else if (element.Type == ElementType.Section || element.Type == ElementType.Document)
         elementStyles = elementStyles.Where(t => t.Type != TokenType.ParagraphFormat && t.Type != TokenType.RowFormat && t.Type != TokenType.CellFormat);
       var styleList = GetNewStyles(elementStyles, tag)
         .Where(t => !IsSpanElement(t))
         .ToList();
+      if (element.Type != ElementType.TableCell && element.Type != ElementType.TableHeaderCell && element.Type != ElementType.TableRow && element.Type != ElementType.Table)
+        styleList.RemoveWhere(t => t.Type == TokenType.CellFormat || t.Type == TokenType.RowFormat);
 
       if (element.Type == ElementType.OrderedList)
       {
@@ -92,7 +94,7 @@ namespace RtfPipe.Model
         if (startAt > 1)
           _writer.WriteAttributeString("start", startAt.ToString());
       }
-      else if (element.Type == ElementType.TableCell)
+      else if (element.Type == ElementType.TableCell || element.Type == ElementType.TableHeaderCell)
       {
         var colspan = element.Styles.OfType<CellToken>().FirstOrDefault()?.ColSpan ?? 1;
         if (colspan > 1)
@@ -125,8 +127,13 @@ namespace RtfPipe.Model
         node.Visit(this);
         anyNodes = true;
       }
-      if (element.Type == ElementType.Paragraph && !anyNodes)
-        new Run() { Value = "\n" }.Visit(this);
+      if (!anyNodes)
+      {
+        if (element.Type == ElementType.Paragraph)
+          new Run() { Value = "\n" }.Visit(this);
+        else if (element.Type == ElementType.TableCell || element.Type == ElementType.TableHeaderCell)
+          new Run() { Value = "\u00a0" }.Visit(this);
+      }
       _stack.Pop();
 
       _writer.WriteEndElement();
@@ -181,8 +188,11 @@ namespace RtfPipe.Model
         boundaries[i].Index = cellIdx;
       }
       var indexDict = boundaries.ToDictionary(b => b.RightBoundary, b => b.Index);
-      
-      foreach (var row in table.Elements())
+
+      var rows = table.Elements().ToList();
+      if (!rows.Any(e => e.Type == ElementType.TableRow))
+        rows = rows.SelectMany(e => e.Elements()).ToList();
+      foreach (var row in rows)
       {
         var cells = row.Elements().ToList();
         var startIndex = 0;
@@ -192,6 +202,11 @@ namespace RtfPipe.Model
           var lastIndex = indexDict[token.RightBoundary];
           token.Index = startIndex;
           token.ColSpan = lastIndex - startIndex + 1;
+
+          // Fix widths to be the widths instead of the right boundary when there is a discrepancy
+          if (startIndex == lastIndex && token.WidthUnit == CellWidthUnit.Twip)
+            widths[startIndex] = new UnitValue(token.Width, UnitType.Twip);
+
           startIndex = lastIndex + 1;
         }
       }
@@ -244,6 +259,8 @@ namespace RtfPipe.Model
           newStyles.Add(new LeftCellSpacing(new UnitValue(0, UnitType.Pixel)));
         else if (styleToNegate is RightCellSpacing && !newStyles.OfType<RightCellSpacing>().Any())
           newStyles.Add(new RightCellSpacing(new UnitValue(0, UnitType.Pixel)));
+        else if (styleToNegate is TextAlign && tag.Styles.OfType<TextAlign>().Any())
+          newStyles.Add(new TextAlign(TextAlignment.Left));
         else if (styleToNegate is ControlWord<bool> boolControl)
           newStyles.Add(ControlTag.Negate(boolControl));
       }
@@ -261,12 +278,12 @@ namespace RtfPipe.Model
       var stylesWritten = false;
 
       var endTags = 0;
-      if (styleList.TryRemoveFirst(out BoldToken boldToken) && boldToken.Value)
+      if (styleList.TryRemoveFirstTrue(out BoldToken boldToken))
       {
         _writer.WriteStartElement(GetElementTag(ElementType.Strong, null, HtmlTag.Strong).Name);
         endTags++;
       }
-      if (styleList.TryRemoveFirst(out ItalicToken italicToken) && italicToken.Value)
+      if (styleList.TryRemoveFirstTrue(out ItalicToken italicToken))
       {
         _writer.WriteStartElement(GetElementTag(ElementType.Emphasis, null, HtmlTag.Em).Name);
         endTags++;
@@ -282,7 +299,7 @@ namespace RtfPipe.Model
         }
         endTags++;
       }
-      if ((styleList.TryRemoveFirst(out StrikeToken strikeToken) && strikeToken.Value)
+      if (styleList.TryRemoveFirstTrue(out StrikeToken strikeToken)
         || styleList.OfType<StrikeDoubleToken>().FirstOrDefault()?.Value == true)
       {
         _writer.WriteStartElement("s");
@@ -343,6 +360,8 @@ namespace RtfPipe.Model
     {
       var i = 0;
       var charBuffer = run.Value.ToCharArray();
+      var eastAsian = run.Styles.OfType<Font>().Any(f => TextEncoding.IsEastAsian(f.Encoding));
+
       if (run.Parent?.Nodes().First() == run)
       {
         while (i < charBuffer.Length && charBuffer[i] == '\t')
@@ -381,9 +400,9 @@ namespace RtfPipe.Model
             start = i;
           }
           else if (i > 0 && charBuffer[i] == ' '
-            && (charBuffer[i - 1] == ' ' || charBuffer[i - 1] == '\u00a0'))
+            && (charBuffer[i - 1] == ' ' || charBuffer[i - 1] == '\u00a0' || charBuffer[i - 1] == '\u2007'))
           {
-            charBuffer[i] = '\u00a0';
+            charBuffer[i] = eastAsian ? '\u2007' : '\u00a0';
           }
         }
         i++;

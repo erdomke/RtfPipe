@@ -49,6 +49,8 @@ namespace RtfPipe.Model
           margins[3] = rowLeft.Value;
         else if (token is UnderlineToken underlineToken)
           Append("text-decoration", underlineToken.Value ? "underline" : "none");
+        else if (token is BoldToken boldToken)
+          Append("font-weight", boldToken.Value ? "bold" : "normal");
         else if (token is PageBreak)
           Append("page-break-before", "always");
         else if (token is LeftIndent leftIndent && leftIndent.Value.Value != 0) //  || Name == "ul" || Name == "ol"
@@ -89,7 +91,7 @@ namespace RtfPipe.Model
           Append("text-decoration-skip", "spaces");
         else if (token is OffsetToken offset)
           Append("top", offset.Value).Append("position", "relative");
-        else if (token is FirstLineIndent firstIndent && elementType != ElementType.ListItem && elementType != ElementType.List && elementType != ElementType.OrderedList && elementType != ElementType.TableCell)
+        else if (token is FirstLineIndent firstIndent && elementType != ElementType.ListItem && elementType != ElementType.List && elementType != ElementType.OrderedList && elementType != ElementType.TableCell && elementType != ElementType.TableHeaderCell)
           Append("text-indent", firstIndent.Value);
         else if (token is SpaceBetweenLines lineSpace && lineSpace.Value > int.MinValue && lineSpace.Value != 0 && (Math.Abs(lineSpace.Value) / 240.0).ToString("0.#") != "1")
           Append("line-height", (Math.Abs(lineSpace.Value) * DefaultBrowserLineHeight / 240.0).ToString("0.#"));
@@ -152,7 +154,7 @@ namespace RtfPipe.Model
           Append("font-size", "inherit");
         Append("box-sizing", "border-box");
       }
-      else if (elementType == ElementType.TableCell)
+      else if (elementType == ElementType.TableCell || elementType == ElementType.TableHeaderCell)
       {
         for (var i = 0; i < 4; i++)
         {
@@ -173,10 +175,22 @@ namespace RtfPipe.Model
         if (!tokens.OfType<LeftIndent>().Any())
           margins[3] = new UnitValue(720, UnitType.Twip);
 
-        //var firstLineIndent = tokens.OfType<FirstLineIndent>().FirstOrDefault()?.Value ?? new UnitValue(0, UnitType.Twip);
-        //if (firstLineIndent > new UnitValue(-0.125, UnitType.Inch))
-        //  margins[3] += new UnitValue(0.25, UnitType.Inch);
         Append("padding-left", "0");
+        // Try to approximate the correct list layout (without having to use complex ::marker CSS)
+        // based on the first line indent, the left indent (margin) and the first tab
+        // The first line indent is relative to the left indent.
+        var firstLineIndent = tokens.OfType<FirstLineIndent>().FirstOrDefault()?.Value ?? new UnitValue(0, UnitType.Twip);
+        var firstTab = tokens.OfType<TabPosition>().FirstOrDefault();
+        if (firstLineIndent > new UnitValue(-0.125, UnitType.Inch))
+        {
+          Append("list-style-position", "inside");
+          if (firstLineIndent.ToPx() != 0)
+            Append("text-indent", firstLineIndent);
+        }
+        else if (firstTab?.Value > margins[3])
+        {
+          Append("text-indent", firstTab.Value - margins[3]);
+        }
 
         if (elementType == ElementType.OrderedList)
         {
@@ -290,7 +304,7 @@ namespace RtfPipe.Model
           padding[i] = UnitValue.Empty;
       }
 
-      if (padding.Any(p => p.Value > 0) || elementType == ElementType.TableCell)
+      if (padding.Any(p => p.Value > 0) || elementType == ElementType.TableCell || elementType == ElementType.TableHeaderCell)
         Append("padding", padding);
     }
 

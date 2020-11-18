@@ -1,10 +1,12 @@
 using RtfPipe.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace RtfPipe.Model
 {
+  [DebuggerTypeProxy(typeof(ElementDebugView))]
   internal class Element : Node
   {
     private Node _content;
@@ -13,7 +15,6 @@ namespace RtfPipe.Model
       ?? (Styles.OfType<InTable>().Any() ? 1 : 0);
     internal int ListLevel => Styles.OfType<ListLevelNumber>().FirstOrDefault()?.Value ?? 0;
 
-    public Dictionary<string, string> Attributes { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     public StyleList Styles { get; } = new StyleList();
     public ElementType Type { get; set; }
 
@@ -32,12 +33,12 @@ namespace RtfPipe.Model
       node.Parent = this;
       if (_content == null)
       {
-        node.Next = node;
+        node.NextNode = node;
       }
       else
       {
-        node.Next = _content.Next;
-        _content.Next = node;
+        node.NextNode = _content.NextNode;
+        _content.NextNode = node;
       }
       _content = node;
     }
@@ -65,7 +66,7 @@ namespace RtfPipe.Model
 
       do
       {
-        curr = curr.Next;
+        curr = curr.NextNode;
         yield return curr;
       }
       while (curr != _content);
@@ -79,22 +80,22 @@ namespace RtfPipe.Model
       }
       else
       {
-        node.Next = after.Next;
-        after.Next = node;
+        node.NextNode = after.NextNode;
+        after.NextNode = node;
       }
     }
 
     internal void RemoveNode(Node node)
     {
       node.Parent = null;
-      var previous = Nodes().First(n => n.Next == node);
+      var previous = Nodes().First(n => n.NextNode == node);
       if (previous == node)
       {
         _content = null;
       }
       else
       {
-        previous.Next = node.Next;
+        previous.NextNode = node.NextNode;
         if (_content == node)
           _content = previous;
       }
@@ -102,12 +103,31 @@ namespace RtfPipe.Model
 
     internal void SetStyles(IEnumerable<IToken> styles)
     {
-      Styles.Set(styles.Where(t => (t.Type & TokenType.Format) > 0).ToList());
+      Styles.Set(styles
+        .Where(t => (t.Type & TokenType.Format) > 0)
+        .ToList());
     }
 
     internal override void Visit(INodeVisitor visitor)
     {
       visitor.Visit(this);
+    }
+
+    private class ElementDebugView
+    {
+      private Element _elem;
+
+      public IEnumerable<Element> Elements => _elem.Elements().ToArray();
+      internal int ListLevel => _elem.ListLevel;
+      public IEnumerable<Node> Nodes => _elem.Nodes().ToArray();
+      public StyleList Styles => _elem.Styles;
+      internal int TableLevel => _elem.TableLevel;
+      public ElementType Type => _elem.Type;
+
+      public ElementDebugView(Element elem)
+      {
+        _elem = elem;
+      }
     }
   }
 }

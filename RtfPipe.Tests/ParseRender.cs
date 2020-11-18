@@ -7,17 +7,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace RtfPipe.Tests
 {
   /// <summary>
-  /// Additional examples in https://github.com/phprtflite/PHPRtfLite/tree/master/samples/generated
+  /// Many examples are taken from https://github.com/paulhtremblay/rtf2xml/tree/master/test/test_files/good
+  /// and https://github.com/phprtflite/PHPRtfLite/tree/master/samples/generated
   /// </summary>
   [TestClass]
   public class ParseRender
   {
-    //[TestMethod]
-    //public void Prototype()
-    //{
-    //  TestParse(@"Casdfasdf");
-    //}
-
     [TestMethod]
     public void BulletList()
     {
@@ -97,9 +92,33 @@ namespace RtfPipe.Tests
     }
 
     [TestMethod]
+    public void ListInTable()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.list_in_table");
+    }
+
+    [TestMethod]
+    public void ListsWithBreaks()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.lists_with_breaks");
+    }
+
+    [TestMethod]
     public void Minimal()
     {
       TestConvert("RtfPipe.Tests.Files.minimal");
+    }
+
+    [TestMethod]
+    public void NestedListsIndents()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.nested_lists_indents");
+    }
+
+    [TestMethod]
+    public void NestedTableReport()
+    {
+      TestConvert("RtfPipe.Tests.Files.nested_table_report");
     }
 
     [TestMethod]
@@ -158,29 +177,28 @@ namespace RtfPipe.Tests
     }
 
     [TestMethod]
+    public void TableEmptyRow()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.table_empty_row");
+    }
+
+    [TestMethod]
+    public void TableSimple()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.table_simple");
+    }
+
+    [TestMethod]
+    public void TableWithHeader()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.table_with_header");
+    }
+
+    [TestMethod]
     public void Test01()
     {
       TestConvert("RtfPipe.Tests.Files.Test01");
     }
-
-    ///// <summary>
-    ///// Many examples are taken from https://github.com/paulhtremblay/rtf2xml/tree/master/test/test_files/good
-    ///// </summary>
-    //[TestMethod]
-    //public void RtfToHtml()
-    //{
-    //  Parser.Clock = () => new DateTime(2018, 7, 1);
-
-    //  TestConvert("RtfPipe.Tests.Files.rtf2xml.list_in_table");
-    //  TestConvert("RtfPipe.Tests.Files.rtf2xml.lists_with_breaks");
-    //  TestConvert("RtfPipe.Tests.Files.rtf2xml.nested_lists_indents");
-    //  TestConvert("RtfPipe.Tests.Files.rtf2xml.table_different_cell_widths");
-    //  TestConvert("RtfPipe.Tests.Files.rtf2xml.table_empty_row");
-    //  TestConvert("RtfPipe.Tests.Files.rtf2xml.table_simple");
-    //  TestConvert("RtfPipe.Tests.Files.rtf2xml.table_with_header");
-    
-      //  TestConvert("RtfPipe.Tests.Files.nested_table_report");
-    //}
 
     private void TestParse(string path)
     {
