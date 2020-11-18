@@ -82,6 +82,10 @@
     <EmbeddedResource Include="Files\Issue35.rtf" />
     <EmbeddedResource Include="Files\Issue37.rtf" />
     <EmbeddedResource Include="Files\Issue39.rtf" />
+    <EmbeddedResource Include="Files\Issue42.rtf" />
+    <EmbeddedResource Include="Files\Issue46.rtf" />
+    <EmbeddedResource Include="Files\Issue48.rtf" />
+    <EmbeddedResource Include="Files\Issue50-1.rtf" />
     <None Include="Files\rtf2xml\char_upper_ranges_hex.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\escaped_text.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\headings_mixed.rtf" />
@@ -154,6 +158,10 @@
     <EmbeddedResource Include="Files\Issue35.html" />
     <EmbeddedResource Include="Files\Issue37.html" />
     <EmbeddedResource Include="Files\Issue39.html" />
+    <EmbeddedResource Include="Files\Issue42.html" />
+    <EmbeddedResource Include="Files\Issue46.html" />
+    <EmbeddedResource Include="Files\Issue48.html" />
+    <EmbeddedResource Include="Files\Issue50-1.html" />
     <Content Include="Files\rtf2xml\char_upper_ranges_hex.html" />
     <EmbeddedResource Include="Files\rtf2xml\outline_list.html" />
     <EmbeddedResource Include="Files\rtf2xml\nested_lists_indents.html" />

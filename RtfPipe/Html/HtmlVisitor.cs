@@ -129,7 +129,7 @@ namespace RtfPipe.Model
       }
       if (!anyNodes)
       {
-        if (element.Type == ElementType.Paragraph)
+        if (element.Type == ElementType.Paragraph || element.Type == ElementType.ListItem)
           new Run() { Value = "\n" }.Visit(this);
         else if (element.Type == ElementType.TableCell || element.Type == ElementType.TableHeaderCell)
           new Run() { Value = "\u00a0" }.Visit(this);

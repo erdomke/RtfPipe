@@ -220,6 +220,40 @@ AC Reference: 12312443423\par \par \par
       TestConvert("RtfPipe.Tests.Files.Issue39");
     }
 
+    [TestMethod]
+    public void Issue42()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue42");
+    }
+
+    //[TestMethod]
+    //public void Issue46()
+    //{
+    //  // Need to figure out how to handle shapes and paragraph numbering
+    //  TestConvert("RtfPipe.Tests.Files.Issue46");
+    //}
+
+    [TestMethod]
+    public void Issue48()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue48");
+    }
+
+    //[TestMethod]
+    //public void Issue49()
+    //{
+    //  // Invalid RTF. Shouldn't have an exception, but need to decide what to do here.
+    //  TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Verdana;} \viewkind4\uc1\pard\f0\fs18 5% Auf Patronen \par \f1\par } {\f1\fnil Verdana;}}"
+    //    , "<div style=\"font-size:12pt;font-family:&quot;Segoe UI&quot;;\"><p style=\"font-size:10pt;font-family:Arial;text-indent:0;text-align:left;margin:0 0 10.7px 0;\">Left</p><p style=\"font-size:10pt;font-family:Arial;text-indent:0;text-align:center;margin:0 0 10.7px 0;\"> Center</p><p style=\"font-size:10pt;font-family:Arial;text-indent:0;text-align:right;margin:0 0 10.7px 0;\"> Right</p><p style=\"font-size:10pt;font-family:Arial;text-indent:0;text-align:right;margin:0 0 10.7px 0;\"> <span style=\"font-size:12pt;font-family:&quot;Segoe UI&quot;;\"> </span></p></div>");
+    //}
+
+    //[TestMethod]
+    //public void Issue50_1()
+    //{
+    //  // Need to fix line height and table layout issues
+    //  TestConvert("RtfPipe.Tests.Files.Issue50-1");
+    //}
+
     private void TestConvert(RtfSource rtf, string html)
     {
       var actual = Rtf.ToHtml(rtf);

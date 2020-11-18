@@ -199,6 +199,9 @@ namespace RtfPipe.Model
               ?? NumberingType.Numbers;
           switch (numType)
           {
+            case NumberingType.NoNumber:
+              Append("list-style-type", "none");
+              break;
             case NumberingType.ArabicAbjad:
             case NumberingType.ArabicAlif:
               Append("list-style-type", "arabic-indic");

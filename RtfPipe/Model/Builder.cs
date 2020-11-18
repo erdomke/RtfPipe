@@ -104,15 +104,10 @@ namespace RtfPipe.Model
             else if (dest is FieldInstructions)
             {
               var instructions = childGroup.Contents
-                .OfType<Group>().LastOrDefault(g => g.Destination == null && g.Contents.OfType<TextToken>().Any())
-                ?.Contents.OfType<TextToken>().FirstOrDefault()?.Value?.Trim();
-              if (string.IsNullOrEmpty(instructions)
-                && !childGroup.Contents.OfType<Group>().Any()
-                && childGroup.Contents.Count == 3)
-              {
-                instructions = (childGroup.Contents[2] as TextToken)?.Value;
-              }
-
+                .OfType<Group>()
+                .SelectMany(g => g.Contents.OfType<TextToken>())
+                .FirstOrDefault(t => t.Value?.IndexOf("HYPERLINK") >= 0)
+                ?.Value?.Trim();
               if (!string.IsNullOrEmpty(instructions))
               {
                 var args = instructions.Split(' ');
