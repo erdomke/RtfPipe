@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace RtfPipe
@@ -32,6 +33,21 @@ namespace RtfPipe
     public override string ToString()
     {
       return "\\" + Name;
+    }
+
+    private static Dictionary<Type, Func<bool, ControlWord<bool>>> _factory = new Dictionary<Type, Func<bool, ControlWord<bool>>>();
+
+    public static ControlWord<bool> Negate(ControlWord<bool> word)
+    {
+      var type = word.GetType();
+      if (!_factory.TryGetValue(type, out var factory))
+      {
+        var ctor = type.GetConstructor(new[] { typeof(bool) });
+        var boolParam = Expression.Parameter(typeof(bool), "value");
+        factory = (Func<bool, ControlWord<bool>>)Expression.Lambda(Expression.Convert(Expression.New(ctor, boolParam), typeof(ControlWord<bool>)), boolParam).Compile();
+        _factory[type] = factory;
+      }
+      return factory(!word.Value);
     }
   }
 }

@@ -788,14 +788,39 @@ namespace RtfPipe
     }
   }
 
+  /// <summary>
+  /// Settings used when rendering HTML to text
+  /// </summary>
   public class HtmlWriterSettings
   {
+    /// <summary>
+    /// Gets or sets a value indicating whether to indent elements.
+    /// </summary>
     public bool Indent { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the character string to use when indenting. This setting is used when the <see cref="Indent"/> property is set to <c>true</c>.
+    /// </summary>
     public string IndentChars { get; set; }
+
+    /// <summary>
+    /// Gets or sets the character string to use for line breaks.
+    /// </summary>
     public string NewLineChars { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to write attributes on a new line.
+    /// </summary>
     public bool NewLineOnAttributes { get; set; }
+
+    /// <summary>
+    /// Character to use for quoting attributes
+    /// </summary>
     public char QuoteChar { get; set; }
 
+    /// <summary>
+    /// Create a new <see cref="HtmlWriterSettings"/> object
+    /// </summary>
     public HtmlWriterSettings()
     {
       this.Indent = false;

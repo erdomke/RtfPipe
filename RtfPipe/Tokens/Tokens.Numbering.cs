@@ -15,27 +15,27 @@ namespace RtfPipe.Tokens
     public override string Name => "pntext";
   }
 
-  public class NumberLevelBullet : ControlTag
+  public class NumberingLevelBullet : ControlTag
   {
     public override string Name => "pnlvlblt";
     public override TokenType Type => TokenType.ParagraphFormat;
   }
 
-  public class NumberLevelBody : ControlTag
+  public class NumberingLevelBody : ControlTag
   {
     public override string Name => "pnlvlbody";
     public override TokenType Type => TokenType.ParagraphFormat;
   }
 
-  public class NumberingIndent : ControlWord<int>
+  public class NumberingIndent : ControlWord<UnitValue>
   {
     public override string Name => "pnindent";
     public override TokenType Type => TokenType.ParagraphFormat;
 
-    public NumberingIndent(int value) : base(value) { }
+    public NumberingIndent(UnitValue value) : base(value) { }
   }
 
-  public class BulletText : ControlTag
+  public class NumberingTextBefore : ControlTag
   {
     public override string Name => "pntxtb";
     public override TokenType Type => TokenType.ParagraphFormat;
@@ -82,7 +82,7 @@ namespace RtfPipe.Tokens
         case NumberingType.UpperRoman:
           return "ucrm";
         default:
-          throw new NotSupportedException();
+          return Value.ToString().ToLowerInvariant();
       }
     }
   }

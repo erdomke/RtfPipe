@@ -7,12 +7,18 @@ namespace RtfPipe.Tests
   [TestClass]
   public class GitHubIssues
   {
+    //    //[TestMethod]
+    //    //public void Adhoc()
+    //    //{
+    //    //  File.WriteAllText(@"C:\Users\erdomke\Downloads\OverviewPolicyClaims2.html", Rtf.ToHtml(File.ReadAllText(@"C:\Users\erdomke\Downloads\OverviewPolicyClaims.rtf")));
+    //    //}
+
     [TestMethod]
     public void Issue10()
     {
       TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}}
 \viewkind4\uc1\pard\lang2057\f0\fs16\line Error can be found using this\par
-}", @"<div style=""font-size:12pt;font-family:&quot;MS Sans Serif&quot;;""><br><p style=""font-size:8pt;margin:0;"">Error can be found using this</p></div>");
+}", @"<div style=""font-size:12pt;font-family:&quot;MS Sans Serif&quot;;""><p style=""font-size:8pt;margin:0;""><br>Error can be found using this</p></div>");
     }
 
     [TestMethod]
@@ -37,7 +43,7 @@ This line is font 0 again\line
 This line has a \cf2 red \cf1 word\line
 \highlight3 while this line has a \cf2 red \cf1 word and is highlighted in yellow\highlight0\line
 Finally, back to the default color.\line
-}", "<div style=\"font-size:12pt;font-family:Courier;\"><p style=\"margin:0;\">This line is font 0 which is courier<br><span style=\"font-family:ProFontWindows;\">This line is font 1<br></span>This line is font 0 again<br>This line has a <span style=\"color:#FF0000;\">red </span>word<br><span style=\"background:#FFFF00;\">while this line has a <span style=\"color:#FF0000;\">red </span>word and is highlighted in yellow<br></span><span style=\"background:#FFFFFF;\">Finally, back to the default color.<br></span>&nbsp;</p></div>");
+}", "<div style=\"font-size:12pt;font-family:Courier;\"><p style=\"margin:0;\">This line is font 0 which is courier<br><span style=\"font-family:ProFontWindows;\">This line is font 1<br></span>This line is font 0 again<br>This line has a <span style=\"color:#FF0000;\">red </span>word<br><span style=\"background:#FFFF00;\">while this line has a </span><span style=\"background:#FFFF00;color:#FF0000;\">red </span><span style=\"background:#FFFF00;\">word and is highlighted in yellow<br></span>Finally, back to the default color.<br>&nbsp;</p></div>");
     }
 
     [TestMethod]
@@ -143,7 +149,8 @@ f9a62f2ee765661012ae583c4da47b7193b0e8f4c595c2620ce212b58b67f0ce5cdc2321396b719d
 {\colortbl ;\red0\green0\blue0;\red51\green102\blue255;}
 \paperw12240\paperh15840\margl1417\margr1134\margt1134\margb1134
 \pard\sb100\sa100\sbauto1\saauto1\fs20\lang1033
-ist Ersatzabruf für 4200028332 warAN 68595 bez 12.261,20- Re 111607-7105658060-ok !!\pard}}", @"<div style=""font-size:12pt;font-family:Arial, sans-serif;""><p style=""font-size:10pt;margin:6.7px 0 6.7px 0;"">ist Ersatzabruf für 4200028332 warAN 68595 bez 12.261,20- Re 111607-7105658060-ok !!</p></div>");
+ist Ersatzabruf für 4200028332 warAN 68595 bez 12.261,20- Re 111607-7105658060-ok !!\pard}}"
+          , "<div style=\"font-size:12pt;font-family:Arial, sans-serif;\"><p style=\"font-size:10pt;margin:6.7px 0;\">ist Ersatzabruf für 4200028332 warAN 68595 bez 12.261,20- Re 111607-7105658060-ok !!</p></div>");
     }
 
     [TestMethod]
@@ -166,6 +173,17 @@ AC Reference: 12312443423\par \par \par
     }
 
     [TestMethod]
+    public void Issue32()
+    {
+      TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang2057{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+{\colortbl ;\red0\green0\blue255;\red0\green0\blue0;}
+{*\generator Riched20 10.0.18362}\viewkind4\uc1
+\pard {\f0\fs17{\field{*\fldinst{HYPERLINK http://www.xxxx.co.uk }}{\fldrslt{http://www.xxxx.co.uk\ul0\cf0}}}}\cf2\f0\fs17\par
+\par
+\par}", "<div style=\"font-size:12pt;font-family:&quot;Microsoft Sans Serif&quot;;\"><p style=\"font-size:8.5pt;margin:0;\"><a style=\"color:#000000;text-decoration:none;\" href=\"http://www.xxxx.co.uk\">http://www.xxxx.co.uk</a></p><p style=\"font-size:8.5pt;margin:0;\"><br></p><p style=\"font-size:8.5pt;margin:0;\"><br></p></div>");
+    }
+
+    [TestMethod]
     public void Issue32_Corrected()
     {
       TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang2057{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
@@ -173,7 +191,7 @@ AC Reference: 12312443423\par \par \par
 {\*\generator Riched20 10.0.18362}\viewkind4\uc1
 \pard {\f0\fs17{\field{\*\fldinst{HYPERLINK http://www.xxxx.co.uk }}{\fldrslt{http://www.xxxx.co.uk\ul0\cf0}}}}\cf2\f0\fs17\par
 \par
-\par}", @"<div style=""font-size:12pt;font-family:&quot;Microsoft Sans Serif&quot;;""><p style=""font-size:8.5pt;margin:0;""><a style=""text-decoration:none;"" href=""http://www.xxxx.co.uk"">http://www.xxxx.co.uk</a></p><p style=""font-size:8.5pt;margin:0;""><br></p><p style=""font-size:8.5pt;margin:0;""><br></p></div>");
+\par}", "<div style=\"font-size:12pt;font-family:&quot;Microsoft Sans Serif&quot;;\"><p style=\"font-size:8.5pt;margin:0;\"><a style=\"color:#000000;text-decoration:none;\" href=\"http://www.xxxx.co.uk\">http://www.xxxx.co.uk</a></p><p style=\"font-size:8.5pt;margin:0;\"><br></p><p style=\"font-size:8.5pt;margin:0;\"><br></p></div>");
     }
 
     [TestMethod]
@@ -200,12 +218,12 @@ AC Reference: 12312443423\par \par \par
       TestConvert("RtfPipe.Tests.Files.Issue37");
     }
 
-    //[TestMethod]
-    //public void Issue38()
-    //{
-    //  TestConvert(@"{\rtf1\ansi\ansicpg1252\uc1\htmautsp\deff2{\fonttbl{\f0\fcharset0 Times New Roman;}{\f2\fcharset0 Segoe UI;}{\f3\fcharset0 Arial;}}{\colortbl\red0\green0\blue0;\red255\green255\blue255;}\loch\hich\dbch\pard\plain\ltrpar\itap0{\lang1033\fs20\f3\cf0 \cf0\ql{\f3 {\ltrch Left}\li0\ri0\sa160\sb0\fi0\ql\par} {\f3 {\ltrch Center}\li0\ri0\sa160\sb0\fi0\qc\par} {\f3 {\ltrch Right}\li0\ri0\sa160\sb0\fi0\qr\par} } }"
-    //    , "");
-    //}
+    [TestMethod]
+    public void Issue38()
+    {
+      TestConvert(@"{\rtf1\ansi\ansicpg1252\uc1\htmautsp\deff2{\fonttbl{\f0\fcharset0 Times New Roman;}{\f2\fcharset0 Segoe UI;}{\f3\fcharset0 Arial;}}{\colortbl\red0\green0\blue0;\red255\green255\blue255;}\loch\hich\dbch\pard\plain\ltrpar\itap0{\lang1033\fs20\f3\cf0 \cf0\ql{\f3 {\ltrch Left}\li0\ri0\sa160\sb0\fi0\ql\par} {\f3 {\ltrch Center}\li0\ri0\sa160\sb0\fi0\qc\par} {\f3 {\ltrch Right}\li0\ri0\sa160\sb0\fi0\qr\par} } }"
+        , "<div style=\"font-size:12pt;font-family:&quot;Segoe UI&quot;;\"><p style=\"font-size:10pt;font-family:Arial;text-indent:0;text-align:left;margin:0 0 10.7px 0;\">Left</p><p style=\"font-size:10pt;font-family:Arial;text-indent:0;text-align:center;margin:0 0 10.7px 0;\"> Center</p><p style=\"font-size:10pt;font-family:Arial;text-indent:0;text-align:right;margin:0 0 10.7px 0;\"> Right</p><p style=\"font-size:10pt;font-family:Arial;text-indent:0;text-align:right;margin:0 0 10.7px 0;\"> <span style=\"font-size:12pt;font-family:&quot;Segoe UI&quot;;\"> </span></p></div>");
+    }
 
     [TestMethod]
     public void Issue39()
@@ -213,10 +231,79 @@ AC Reference: 12312443423\par \par \par
       TestConvert("RtfPipe.Tests.Files.Issue39");
     }
 
+    [TestMethod]
+    public void Issue42()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue42");
+    }
+
+    //[TestMethod]
+    //public void Issue46()
+    //{
+    //  // Need to figure out how to handle shapes and paragraph numbering
+    //  TestConvert("RtfPipe.Tests.Files.Issue46");
+    //}
+
+    [TestMethod]
+    public void Issue48()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue48");
+    }
+
+    // Invalid RTF. Shouldn't have an exception, but need to decide what to do here.
+    [TestMethod]
+    public void Issue49()
+    {
+      TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Verdana;} \viewkind4\uc1\pard\f0\fs18 5% Auf Patronen \par \f1\par } {\f1\fnil Verdana;}}"
+        , "<div style=\"font-size:12pt;font-family:Verdana;\"><p style=\"margin:0;\"><span style=\"font-family:Verdana;\"> </span>Verdana;</p></div>");
+    }
+
+    [TestMethod]
+    public void Issue50_1()
+    {
+      // Need to fix line height and table layout issues
+      TestConvert("RtfPipe.Tests.Files.Issue50-1");
+    }
+
+    [TestMethod]
+    public void Issue50_2()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue50-2");
+    }
+
+    [TestMethod]
+    public void Issue51()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue51");
+    }
+
+    [TestMethod]
+    public void Issue52()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue52");
+    }
+
+    [TestMethod]
+    public void Issue53()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue53");
+    }
+
+    [TestMethod]
+    public void Issue54()
+    {
+      TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang2057{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+{\colortbl ;\red255\green0\blue0;\red0\green0\blue255;\red0\green255\blue0;}
+{\*\generator Riched20 10.0.18362}\viewkind4\uc1 
+\pard\qc\highlight1\f0\fs24 Red\highlight0 \highlight2 Blue\highlight0 \highlight3 Green\highlight0\par
+}"
+        , "<div style=\"font-size:12pt;font-family:&quot;Microsoft Sans Serif&quot;;\"><p style=\"text-align:center;margin:0;\"><span style=\"background:#FF0000;\">Red</span><span style=\"background:#0000FF;\">Blue</span><span style=\"background:#00FF00;\">Green</span></p></div>");
+    }
+
     private void TestConvert(RtfSource rtf, string html)
     {
       var actual = Rtf.ToHtml(rtf);
-      Assert.AreEqual(html, actual);
+      ParseRender.AssertEqual(html, actual);
     }
 
     private void TestConvert(string path)
@@ -226,7 +313,7 @@ AC Reference: 12312443423\par \par \par
       {
         var actual = Rtf.ToHtml(stream);
         var expected = expectedReader.ReadToEnd();
-        Assert.AreEqual(expected, actual);
+        ParseRender.AssertEqual(expected, actual);
       }
     }
   }

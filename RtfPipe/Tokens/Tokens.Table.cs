@@ -28,12 +28,44 @@ namespace RtfPipe.Tokens
     public override TokenType Type => TokenType.BreakTag;
   }
 
-  public class CellSpacing : ControlWord<UnitValue>
+  public class HalfCellPadding : ControlWord<UnitValue>
   {
-    public override string Name => "trgraph";
+    public override string Name => "trgaph";
     public override TokenType Type => TokenType.RowFormat;
 
-    public CellSpacing(UnitValue value) : base(value) { }
+    public HalfCellPadding(UnitValue value) : base(value) { }
+  }
+
+  public class BottomCellSpacing : ControlWord<UnitValue>
+  {
+    public override string Name => "trspdb";
+    public override TokenType Type => TokenType.CellFormat;
+
+    public BottomCellSpacing(UnitValue value) : base(value) { }
+  }
+
+  public class LeftCellSpacing : ControlWord<UnitValue>
+  {
+    public override string Name => "trspdl";
+    public override TokenType Type => TokenType.CellFormat;
+
+    public LeftCellSpacing(UnitValue value) : base(value) { }
+  }
+
+  public class RightCellSpacing : ControlWord<UnitValue>
+  {
+    public override string Name => "trspdr";
+    public override TokenType Type => TokenType.CellFormat;
+
+    public RightCellSpacing(UnitValue value) : base(value) { }
+  }
+
+  public class TopCellSpacing : ControlWord<UnitValue>
+  {
+    public override string Name => "trspdt";
+    public override TokenType Type => TokenType.CellFormat;
+
+    public TopCellSpacing(UnitValue value) : base(value) { }
   }
 
   public class RightCellBoundary : ControlWord<UnitValue>
@@ -60,12 +92,12 @@ namespace RtfPipe.Tokens
     public RowLeft(UnitValue value) : base(value) { }
   }
 
-  public class RowAlign : ControlWord<TextAlignment>
+  public class RowTextAlign : ControlWord<TextAlignment>
   {
     public override string Name => "trq" + Value.ToString().ToLowerInvariant()[0];
     public override TokenType Type => TokenType.RowFormat;
 
-    public RowAlign(TextAlignment value) : base(value) { }
+    public RowTextAlign(TextAlignment value) : base(value) { }
 
     public override string ToString() => "\\" + Name;
   }
@@ -76,6 +108,20 @@ namespace RtfPipe.Tokens
     public override TokenType Type => TokenType.RowFormat;
 
     public TableBorderSide(BorderPosition value) : base(value) { }
+  }
+
+  public class ParagraphBorderSide : ControlWord<BorderPosition>
+  {
+    public override string Name => "brdr" + Value.ToString().ToLowerInvariant()[0];
+    public override TokenType Type => TokenType.ParagraphFormat;
+
+    public ParagraphBorderSide(BorderPosition value) : base(value) { }
+  }
+
+  public class ParagraphBorderBetween : ControlTag
+  {
+    public override string Name => "brdrbtw";
+    public override TokenType Type => TokenType.ParagraphFormat;
   }
 
   public class CellBorderSide : ControlWord<BorderPosition>
@@ -134,6 +180,12 @@ namespace RtfPipe.Tokens
     public CellWidth(int value) : base(value) { }
   }
 
+  public class CellMergePrevious : ControlTag
+  {
+    public override string Name => "clmrg";
+    public override TokenType Type => TokenType.CellFormat;
+  }
+
   public class CellVerticalAlign : ControlWord<VerticalAlignment>
   {
     public override string Name => "clvertal" + Value.ToString().ToLowerInvariant()[0];
@@ -147,7 +199,7 @@ namespace RtfPipe.Tokens
   public class InTable : ControlTag
   {
     public override string Name => "intbl";
-    public override TokenType Type => TokenType.RowFormat;
+    public override TokenType Type => TokenType.ParagraphFormat;
   }
 
   public class CellBackgroundColor : ControlWord<ColorValue>
@@ -164,7 +216,7 @@ namespace RtfPipe.Tokens
     public override TokenType Type => TokenType.RowFormat;
   }
 
-  public class NestTableProperties : ControlTag
+  public class NestedTableProperties : ControlTag
   {
     public override string Name => "nesttableprops";
   }
@@ -174,13 +226,13 @@ namespace RtfPipe.Tokens
     public override string Name => "nonesttables";
   }
 
-  public class NestCell : ControlTag
+  public class NestedCellBreak : ControlTag
   {
     public override string Name => "nestcell";
     public override TokenType Type => TokenType.BreakTag;
   }
 
-  public class NestRow : ControlTag
+  public class NestedRowBreak : ControlTag
   {
     public override string Name => "nestrow";
     public override TokenType Type => TokenType.BreakTag;

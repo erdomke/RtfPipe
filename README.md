@@ -50,9 +50,9 @@ features include:
 With that said, there are numerous cases for non-trivial documents where the library will not 
 produce the "correct" visual representation when compared to other RTF readers (such as MS Word).
 
-## Frameworks
+## .Net Targets
 
-The NuGet package can be used with the following frameworks
+The NuGet package can be used with the following .Net targets
 
 - .Net 3.5+
-- .Net Standard 1.0
+- .Net Standard 2.0+

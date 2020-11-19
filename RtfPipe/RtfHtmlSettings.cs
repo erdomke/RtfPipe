@@ -1,17 +1,38 @@
+using RtfPipe.Model;
 using RtfPipe.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using System.Linq;
 using System.Xml;
 
 namespace RtfPipe
 {
+  /// <summary>
+  /// Settings used when converting RTF to HTML
+  /// </summary>
   public class RtfHtmlSettings : HtmlWriterSettings
   {
+    /// <summary>
+    /// Callback used when building the HTML to render an e-mail attachment
+    /// </summary>
     public Action<int, XmlWriter> AttachmentRenderer { get; set; }
+
+    /// <summary>
+    /// Mapping of HTML tags to use for various document element types
+    /// </summary>
+    public Dictionary<ElementType, HtmlTag> ElementTags { get; } = DefaultTags.ToDictionary(k => k.Key, k => k.Value);
+
+    /// <summary>
+    /// Callback used to get the URI for a picture stored in RTF. This could be 
+    /// a data URI that contains the binary data of the picture, or a link to
+    /// an external file.
+    /// </summary>
     public Func<Picture, string> ImageUriGetter { get; set; }
 
+    /// <summary>
+    /// Create a new <see cref="RtfHtmlSettings"/> object
+    /// </summary>
     public RtfHtmlSettings()
     {
       AttachmentRenderer = RenderAttachment;
@@ -41,5 +62,33 @@ namespace RtfPipe
       writer.WriteAttributeString("data-index", index.ToString());
       writer.WriteEndElement();
     }
+
+    internal static Dictionary<ElementType, HtmlTag> DefaultTags { get; } = new Dictionary<ElementType, HtmlTag>()
+    {
+      { ElementType.Container, HtmlTag.Div },
+      { ElementType.Document, HtmlTag.Div },
+      { ElementType.Emphasis, HtmlTag.Em },
+      { ElementType.Header1, HtmlTag.H1 },
+      { ElementType.Header2, HtmlTag.H2 },
+      { ElementType.Header3, HtmlTag.H3 },
+      { ElementType.Header4, HtmlTag.H4 },
+      { ElementType.Header5, HtmlTag.H5 },
+      { ElementType.Header6, HtmlTag.H6 },
+      { ElementType.Hyperlink, HtmlTag.A },
+      { ElementType.List, HtmlTag.Ul },
+      { ElementType.ListItem, HtmlTag.Li },
+      { ElementType.OrderedList, HtmlTag.Ol },
+      { ElementType.Paragraph, HtmlTag.P },
+      { ElementType.Section, HtmlTag.Div },
+      { ElementType.Span, HtmlTag.Span },
+      { ElementType.Strong, HtmlTag.Strong },
+      { ElementType.Table, HtmlTag.Table },
+      { ElementType.TableBody, HtmlTag.Tbody },
+      { ElementType.TableCell, HtmlTag.Td },
+      { ElementType.TableHeader, HtmlTag.Thead },
+      { ElementType.TableHeaderCell, HtmlTag.Th },
+      { ElementType.TableRow, HtmlTag.Tr },
+      { ElementType.Underline, HtmlTag.U },
+    };
   }
 }

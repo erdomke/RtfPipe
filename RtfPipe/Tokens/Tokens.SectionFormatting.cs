@@ -16,12 +16,12 @@ namespace RtfPipe.Tokens
     public override TokenType Type => TokenType.SectionFormat;
   }
 
-  public class HtmlTag : ControlWord<HtmlEncapsulation>
+  public class HtmlTagToken : ControlWord<HtmlEncapsulation>
   {
     public override string Name => "htmltag";
     public override TokenType Type => TokenType.HtmlFormat;
 
-    public HtmlTag(HtmlEncapsulation value) : base(value) { }
+    public HtmlTagToken(HtmlEncapsulation value) : base(value) { }
   }
 
   public class HtmlRtf : ControlWord<bool>

@@ -1,0 +1,640 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RtfPipe</name>
+    </assembly>
+    <members>
+        <member name="T:RtfPipe.HashTool">
+            <summary>
+            Some hash utility methods for collections.
+            </summary>
+        </member>
+        <member name="T:RtfPipe.TextEncoding">
+            <summary>
+            Various HTML encoding helpers.
+            </summary>
+        </member>
+        <member name="T:RtfPipe.Model.Node">
+            <summary>
+            A node in the HTML representation of the document
+            </summary>
+        </member>
+        <member name="M:RtfPipe.Model.Node.ToString">
+            <summary>
+            Render the node as a string
+            </summary>
+        </member>
+        <member name="T:RtfPipe.HtmlWriterSettings">
+            <summary>
+            Settings used when rendering HTML to text
+            </summary>
+        </member>
+        <member name="P:RtfPipe.HtmlWriterSettings.Indent">
+            <summary>
+            Gets or sets a value indicating whether to indent elements.
+            </summary>
+        </member>
+        <member name="P:RtfPipe.HtmlWriterSettings.IndentChars">
+            <summary>
+            Gets or sets the character string to use when indenting. This setting is used when the <see cref="P:RtfPipe.HtmlWriterSettings.Indent"/> property is set to <c>true</c>.
+            </summary>
+        </member>
+        <member name="P:RtfPipe.HtmlWriterSettings.NewLineChars">
+            <summary>
+            Gets or sets the character string to use for line breaks.
+            </summary>
+        </member>
+        <member name="P:RtfPipe.HtmlWriterSettings.NewLineOnAttributes">
+            <summary>
+            Gets or sets a value indicating whether to write attributes on a new line.
+            </summary>
+        </member>
+        <member name="P:RtfPipe.HtmlWriterSettings.QuoteChar">
+            <summary>
+            Character to use for quoting attributes
+            </summary>
+        </member>
+        <member name="M:RtfPipe.HtmlWriterSettings.#ctor">
+            <summary>
+            Create a new <see cref="T:RtfPipe.HtmlWriterSettings"/> object
+            </summary>
+        </member>
+        <member name="T:RtfPipe.Picture">
+            <summary>
+            A picture store in a RTF document
+            </summary>
+        </member>
+        <member name="P:RtfPipe.Picture.Attributes">
+            <summary>
+            Control tokens stored in the RTF document
+            </summary>
+        </member>
+        <member name="P:RtfPipe.Picture.Bytes">
+            <summary>
+            The binary data describing the picture
+            </summary>
+        </member>
+        <member name="P:RtfPipe.Picture.Height">
+            <summary>
+            The rendered height of the picture
+            </summary>
+        </member>
+        <member name="P:RtfPipe.Picture.Type">
+            <summary>
+            The picture format
+            </summary>
+        </member>
+        <member name="P:RtfPipe.Picture.Width">
+            <summary>
+            The rendered width of the picture
+            </summary>
+        </member>
+        <member name="M:RtfPipe.Picture.#ctor(RtfPipe.Group)">
+            <summary>
+            Create a new <see cref="T:RtfPipe.Picture"/> object
+            </summary>
+            <param name="group">An RTF token group</param>
+        </member>
+        <member name="M:RtfPipe.Picture.MimeType">
+            <summary>
+            The MIME type of the picture
+            </summary>
+        </member>
+        <member name="T:RtfPipe.Parser">
+            <summary>
+            Tokenize an RTF document and create a heirarchical document structure of the groups
+            </summary>
+        </member>
+        <member name="M:RtfPipe.Parser.#ctor(System.String)">
+            <summary>
+            Parse RTF stored in a string
+            </summary>
+            <param name="rtf">RTF string</param>
+        </member>
+        <member name="M:RtfPipe.Parser.#ctor(System.IO.Stream)">
+            <summary>
+            Parse RTF from a stream
+            </summary>
+            <param name="stream">Binary RTF data</param>
+        </member>
+        <member name="M:RtfPipe.Parser.#ctor(System.IO.TextReader)">
+            <summary>
+            Parse RTF from a text reader
+            </summary>
+            <param name="reader">RTF</param>
+        </member>
+        <member name="M:RtfPipe.Parser.Parse">
+            <summary>
+            Build a document structure
+            </summary>
+        </member>
+        <member name="M:RtfPipe.Parser.Tokens">
+            <summary>
+            Get a flat list of all the tokens in the RTF document
+            </summary>
+        </member>
+        <member name="T:RtfPipe.Rtf">
+            <summary>
+            Convert a Rich Text Format (RTF) document to HTML
+            </summary>
+        </member>
+        <member name="M:RtfPipe.Rtf.ToHtml(RtfPipe.RtfSource,RtfPipe.RtfHtmlSettings)">
+            <summary>
+            Convert a Rich Text Format (RTF) document to an HTML string
+            </summary>
+            <param name="source">The source RTF document (either a <see cref="T:System.String"/>, <see cref="T:System.IO.TextReader"/>, or <see cref="T:System.IO.Stream"/>)</param>
+            <param name="settings">The settings used in the HTML rendering</param>
+            <returns>An HTML string that can be used to render the RTF</returns>
+        </member>
+        <member name="M:RtfPipe.Rtf.ToHtml(RtfPipe.RtfSource,System.IO.TextWriter,RtfPipe.RtfHtmlSettings)">
+            <summary>
+            Convert a Rich Text Format (RTF) document to HTML
+            </summary>
+            <param name="source">The source RTF document (either a <see cref="T:System.String"/>, <see cref="T:System.IO.TextReader"/>, or <see cref="T:System.IO.Stream"/>)</param>
+            <param name="writer"><see cref="T:System.IO.TextWriter"/> that the HTML will be written to</param>
+            <param name="settings">The settings used in the HTML rendering</param>
+        </member>
+        <member name="M:RtfPipe.Rtf.ToHtml(RtfPipe.RtfSource,System.Xml.XmlWriter,RtfPipe.RtfHtmlSettings)">
+            <summary>
+            Convert a Rich Text Format (RTF) document to HTML
+            </summary>
+            <param name="source">The source RTF document (either a <see cref="T:System.String"/>, <see cref="T:System.IO.TextReader"/>, or <see cref="T:System.IO.Stream"/>)</param>
+            <param name="writer"><see cref="T:System.Xml.XmlWriter"/> that the HTML will be written to</param>
+            <param name="settings">The settings used in the HTML rendering</param>
+            <example>
+            This overload can be used for creating a document that can be further manipulated
+            <code lang="csharp"><![CDATA[var doc = new XDocument();
+            using (var writer = doc.CreateWriter())
+            {
+              Rtf.ToHtml(rtf, writer);
+            }]]>
+            </code>
+            </example>
+        </member>
+        <member name="T:RtfPipe.RtfHtmlSettings">
+            <summary>
+            Settings used when converting RTF to HTML
+            </summary>
+        </member>
+        <member name="P:RtfPipe.RtfHtmlSettings.AttachmentRenderer">
+            <summary>
+            Callback used when building the HTML to render an e-mail attachment
+            </summary>
+        </member>
+        <member name="P:RtfPipe.RtfHtmlSettings.ElementTags">
+            <summary>
+            Mapping of HTML tags to use for various document element types
+            </summary>
+        </member>
+        <member name="P:RtfPipe.RtfHtmlSettings.ImageUriGetter">
+            <summary>
+            Callback used to get the URI for a picture stored in RTF. This could be 
+            a data URI that contains the binary data of the picture, or a link to
+            an external file.
+            </summary>
+        </member>
+        <member name="M:RtfPipe.RtfHtmlSettings.#ctor">
+            <summary>
+            Create a new <see cref="T:RtfPipe.RtfHtmlSettings"/> object
+            </summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.None">
+            <summary>No border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.SingleThick">
+            <summary>Single-thickness border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.DoubleThick">
+            <summary>Double-thickness border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.Double">
+            <summary>Double border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.Dotted">
+            <summary>Dotted border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.Dashed">
+            <summary>Dashed border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.Hairline">
+            <summary>Hairline border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.DashedSmall">
+            <summary>Dashed border (small).</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.DotDashed">
+            <summary>Dot-dashed border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.DotDotDashed">
+            <summary>Dot-dot-dashed border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.Inset">
+            <summary>Inset border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.Outset">
+            <summary>Outset border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.Triple">
+            <summary>Triple border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.ThickThinSmall">
+            <summary>Thick-thin border (small).</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.ThinThickSmall">
+            <summary>Thin-thick border (small).</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.ThinThickThinSmall">
+            <summary>Thin-thick thin border (small).</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.ThickThinMedium">
+            <summary>Thick-thin border (medium).</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.ThinThickMedium">
+            <summary>Thin-thick border (medium).</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.ThinThickThinMedium">
+            <summary>Thin-thick thin border (medium).</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.ThickThinLarge">
+            <summary>Thick-thin border (large).</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.ThinThickLarge">
+            <summary>Thin-thick border (large).</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.ThinThickThinLarge">
+            <summary>Thin-thick-thin border (large).</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.Wavy">
+            <summary>Wavy border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.DoubleWavy">
+            <summary>Double wavy border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.Striped">
+            <summary>Striped border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.Embossed">
+            <summary>Embossed border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.Engraved">
+            <summary>Engraved border.</summary>
+        </member>
+        <member name="F:RtfPipe.BorderStyle.Frame">
+            <summary>Border resembles a “Frame.”</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.INBODY">
+            <summary>Inside of a &lt;BODY&gt; HTML element and encapsulates a text fragment</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.INHEAD">
+            <summary>Inside of a &lt;HEAD&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.INHTML">
+            <summary>Inside of an &lt;HTML&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.OUTHTML">
+            <summary>Outside of an &lt;HTML&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.HTML">
+            <summary>This group encapsulates the &lt;HTML&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.HEAD">
+            <summary>This group encapsulates the &lt;HEAD&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.BODY">
+            <summary>This group encapsulates the &lt;BODY&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.P">
+            <summary>This group encapsulates the &lt;P&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.STARTP">
+            <summary>This group encapsulates an HTML tag that starts a paragraph other than the &lt;P&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.ENDP">
+            <summary>This group encapsulates an HTML tag that ends a paragraph other than the &lt;P&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.BR">
+            <summary>This group encapsulates the &lt;BR&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.PRE">
+            <summary>This group encapsulates the &lt;PRE&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.FONT">
+            <summary>This group encapsulates the &lt;FONT&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.HEADER">
+            <summary>This group encapsulates heading HTML tags such as &lt;H1&gt;, &lt;H2&gt;, and so on.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.TITLE">
+            <summary>This group encapsulates the &lt;TITLE&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.PLAIN">
+            <summary>This group encapsulates the &lt;PLAIN&gt; HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.RESERVED1">
+            <summary>Reserved, MUST be ignored.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.RESERVED2">
+            <summary>Reserved, MUST be ignored.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.UNK">
+            <summary>This group encapsulates any other HTML tag.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.INPAR">
+            <summary>The corresponding fragment of the original HTML SHOULD appear inside a paragraph HTML element.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.CLOSE">
+            <summary>This is a closing tag.</summary>
+        </member>
+        <member name="F:RtfPipe.HtmlEncapsulation.MHTML">
+            <summary>This group encapsulates MIME Encapsulation of Aggregate HTML Documents (MHTML); that is, an HTML tag with a rewritable URL parameter. For more details about the MHTMLTAG destination group, see section 2.1.3.1.5.</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Numbers">
+            <summary>Decimal numbering (1, 2, 3).</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.CardinalText">
+            <summary>Cardinal numbering (One, Two, Three).</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.UpperLetter">
+            <summary>Uppercase alphabetical numbering (A, B, C).</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.UpperRoman">
+            <summary>Uppercase Roman numbering (I, II, III).</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.LowerLetter">
+            <summary>Lowercase alphabetical numbering (a, b, c).</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.LowerRoman">
+            <summary>Lowercase Roman numbering (i, ii, iii).</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Ordinal">
+            <summary>Ordinal numbering (1st, 2nd, 3rd).</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.OrdinalText">
+            <summary>Ordinal text numbering (First, Second, Third)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Kanji">
+            <summary>Kanji numbering without the digit character (DBNUM1)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.KanjiDigit">
+            <summary>Kanji numbering with the digit character (DBNUM2)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Katana1">
+            <summary>46 phonetic katakana characters in "aiueo" order (AIUEO) (newer form – "あいうえお。。。” based on phonem matrix)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Katana2">
+            <summary>46 phonetic katakana characters in "iroha" order (IROHA) (old form – “いろはにほへとちりぬるお。。。” based on haiku from long ago)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.DoubleByte">
+            <summary>Double-byte character</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.SingleByte">
+            <summary>Single-byte character</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Kanji3">
+            <summary>Kanji numbering 3 (DBNUM3)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Kanji4">
+            <summary>Kanji numbering 4 (DBNUM4)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Circle">
+            <summary>Circle numbering (CIRCLENUM)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.DoubleByteArabic">
+            <summary>Double-byte Arabic numbering</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.DoubleByteKatana1">
+            <summary>46 phonetic double-byte katakana characters (AIUEO DBCHAR)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.DoubleByteKatana2">
+            <summary>46 phonetic double-byte katakana characters (IROHA DBCHAR)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.LeadingZeroArabic">
+            <summary>Arabic with leading zero (01, 02, 03, ..., 10, 11)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Bullet">
+            <summary>Bullet (no number at all)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Korean2">
+            <summary>Korean numbering 2 (GANADA)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Korean1">
+            <summary>Korean numbering 1 (CHOSUNG)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Chinese1">
+            <summary>Chinese numbering 1 (GB1)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Chinese2">
+            <summary>Chinese numbering 2 (GB2)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Chinese3">
+            <summary>Chinese numbering 3 (GB3)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Chinese4">
+            <summary>Chinese numbering 4 (GB4)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Zodiac1">
+            <summary>Chinese Zodiac numbering 1 (ZODIAC1)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Zodiac2">
+            <summary>Chinese Zodiac numbering 2 (ZODIAC2)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Zodiac3">
+            <summary>Chinese Zodiac numbering 3 (ZODIAC3)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.TaiwaneseDoubleByte1">
+            <summary>Taiwanese double-byte numbering 1</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.TaiwaneseDoubleByte2">
+            <summary>Taiwanese double-byte numbering 2</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.TaiwaneseDoubleByte3">
+            <summary>Taiwanese double-byte numbering 3</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.TaiwaneseDoubleByte4">
+            <summary>Taiwanese double-byte numbering 4</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.ChineseDoubleByte1">
+            <summary>Chinese double-byte numbering 1</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.ChineseDoubleByte2">
+            <summary>Chinese double-byte numbering 2</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.ChineseDoubleByte3">
+            <summary>Chinese double-byte numbering 3</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.ChineseDoubleByte4">
+            <summary>Chinese double-byte numbering 4</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.KoreanDoubleByte1">
+            <summary>Korean double-byte numbering 1</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.KoreanDoubleByte2">
+            <summary>Korean double-byte numbering 2</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.KoreanDoubleByte3">
+            <summary>Korean double-byte numbering 3</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.KoreanDoubleByte4">
+            <summary>Korean double-byte numbering 4</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.Hebrew">
+            <summary>Hebrew non-standard decimal</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.ArabicAlif">
+            <summary>Arabic Alif Ba Tah</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.HebrewBiblical">
+            <summary>Hebrew Biblical standard</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.ArabicAbjad">
+            <summary>Arabic Abjad style</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.HindiVowels">
+            <summary>Hindi vowels</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.HindiConsonants">
+            <summary>Hindi consonants</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.HindiNumbers">
+            <summary>Hindi numbers</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.HindiCardinals">
+            <summary>Hindi descriptive (cardinals)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.ThaiLetters">
+            <summary>Thai letters</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.ThaiNumbers">
+            <summary>Thai numbers</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.ThaiCardinals">
+            <summary>Thai descriptive (cardinals)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.VietnameseCardinals">
+            <summary>Vietnamese descriptive (cardinals)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.PageNumber">
+            <summary>Page number format - # -</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.LowerRussian">
+            <summary>Lower case Russian alphabet</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.UpperRussian">
+            <summary>Upper case Russian alphabet</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.LowerGreekNumerals">
+            <summary>Lower case Greek numerals (alphabet based)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.UpperGreekNumerals">
+            <summary>Upper case Greek numerals (alphabet based)</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.LeadingZeroArabic2">
+            <summary>2 leading zeros: 001, 002, ..., 100, ...</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.LeadingZeroArabic3">
+            <summary>3 leading zeros: 0001, 0002, ..., 1000, ...</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.LeadingZeroArabic4">
+            <summary>4 leading zeros: 00001, 00002, ..., 10000, ...</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.LowerTurkish">
+            <summary>Lower case Turkish alphabet</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.UpperTurkish">
+            <summary>Upper case Turkish alphabet</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.LowerBulgarian">
+            <summary>Lower case Bulgarian alphabet</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.UpperBulgarian">
+            <summary>Upper case Bulgarian alphabet</summary>
+        </member>
+        <member name="F:RtfPipe.NumberingType.NoNumber">
+            <summary>No number</summary>
+        </member>
+        <member name="T:RtfPipe.TextAlignment">
+            <summary>
+            How text is aligned in a paragraph
+            </summary>
+        </member>
+        <member name="F:RtfPipe.TextAlignment.Left">
+            <summary>
+            Left aligned
+            </summary>
+        </member>
+        <member name="F:RtfPipe.TextAlignment.Center">
+            <summary>
+            Center aligned
+            </summary>
+        </member>
+        <member name="F:RtfPipe.TextAlignment.Right">
+            <summary>
+            Right aligned
+            </summary>
+        </member>
+        <member name="F:RtfPipe.TextAlignment.Justify">
+            <summary>
+            Justified
+            </summary>
+        </member>
+        <member name="T:RtfPipe.UnitValue">
+            <summary>
+            Represents a measurement with units
+            </summary>
+        </member>
+        <member name="P:RtfPipe.UnitValue.HasValue">
+            <summary>
+            Gets whether or not the unit has been initialied with a value
+            </summary>
+        </member>
+        <member name="P:RtfPipe.UnitValue.Value">
+            <summary>
+            Gets or sets the value of the measurement
+            </summary>
+        </member>
+        <member name="P:RtfPipe.UnitValue.Unit">
+            <summary>
+            Gets or sets the units of the measurement
+            </summary>
+        </member>
+        <member name="M:RtfPipe.UnitValue.#ctor(System.Double,RtfPipe.UnitType)">
+            <summary>
+            Create a new <see cref="T:RtfPipe.UnitValue"/>
+            </summary>
+            <param name="value">The measurement value</param>
+            <param name="unit">The measurement unit</param>
+        </member>
+        <member name="M:RtfPipe.UnitValue.ToPx">
+            <summary>
+            Convert the measurement value to pixels
+            </summary>
+            <returns>The measurement in the corresponding number of pixels</returns>
+        </member>
+        <member name="M:RtfPipe.UnitValue.ToPt">
+            <summary>
+            Convert the measurement to points
+            </summary>
+            <returns>The measuremet value in points</returns>
+        </member>
+        <member name="M:RtfPipe.UnitValue.ToTwip">
+            <summary>
+            Convert the measurement to twips
+            </summary>
+            <returns>The measurement in twips</returns>
+        </member>
+        <member name="M:RtfPipe.UnitValue.Equals(System.Object)">
+            <summary>
+            Whether this measurement is exactly equal (in value and unit) to another measurement
+            </summary>
+            <param name="obj">Another measurement</param>
+            <returns><c>true</c> if they are equal. <c>false</c> otherwise</returns>
+        </member>
+        <member name="M:RtfPipe.UnitValue.Equals(RtfPipe.UnitValue)">
+            <summary>
+            Whether this measurement is exactly equal (in value and unit) to another measurement
+            </summary>
+            <param name="other">Another measurement</param>
+            <returns><c>true</c> if they are equal. <c>false</c> otherwise</returns>
+        </member>
+    </members>
+</doc>

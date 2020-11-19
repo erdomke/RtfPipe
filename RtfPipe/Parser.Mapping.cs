@@ -83,7 +83,7 @@ namespace RtfPipe
         case "fromhtml":
           return new FromHtml(number != 0);
         case "htmltag":
-          return new HtmlTag((HtmlEncapsulation)number);
+          return new HtmlTagToken((HtmlEncapsulation)number);
         case "htmlrtf":
           return new HtmlRtf(number != 0);
 
@@ -262,6 +262,8 @@ namespace RtfPipe
           return new LineSpacingMultiple(number);
         case "outlinelevel":
           return new OutlineLevel(number);
+        case "contextualspace":
+          return new ContextualSpace();
 
         // Bullets & Numbering
         case "pntext":
@@ -269,13 +271,13 @@ namespace RtfPipe
         case "pn":
           return new ParagraphNumbering();
         case "pnlvlblt":
-          return new NumberLevelBullet();
+          return new NumberingLevelBullet();
         case "pnlvlbody":
-          return new NumberLevelBody();
+          return new NumberingLevelBody();
         case "pnindent":
-          return new NumberingIndent(number);
+          return new NumberingIndent(new UnitValue(number, UnitType.Twip));
         case "pntxtb":
-          return new BulletText();
+          return new NumberingTextBefore();
         case "levelstartat":
         case "pnstart":
           return new NumberingStart(number);
@@ -295,6 +297,51 @@ namespace RtfPipe
           return new NumberingTypeToken(NumberingType.UpperLetter);
         case "pnucrm":
           return new NumberingTypeToken(NumberingType.UpperRoman);
+        case "pnbidia":
+          return new NumberingTypeToken(NumberingType.ArabicAbjad);
+        case "pnbidib":
+          return new NumberingTypeToken(NumberingType.ArabicAlif);
+        case "pnaiu":
+        case "pnaiueo":
+          return new NumberingTypeToken(NumberingType.Katana1);
+        case "pnaiud":
+        case "pnaiueod":
+          return new NumberingTypeToken(NumberingType.DoubleByteKatana1);
+        case "pnchosung":
+          return new NumberingTypeToken(NumberingType.Korean1);
+        case "pncnum":
+          return new NumberingTypeToken(NumberingType.Circle);
+        case "pndbnum":
+          return new NumberingTypeToken(NumberingType.Kanji);
+        case "pndbnumd":
+          return new NumberingTypeToken(NumberingType.KanjiDigit);
+        case "pndbnumk":
+          return new NumberingTypeToken(NumberingType.Kanji4);
+        case "pndbnuml":
+        case "pndbnumt":
+          return new NumberingTypeToken(NumberingType.Kanji3);
+        case "pndecd":
+          return new NumberingTypeToken(NumberingType.DoubleByteArabic);
+        case "pnganada":
+          return new NumberingTypeToken(NumberingType.Korean2);
+        case "pngbnum":
+          return new NumberingTypeToken(NumberingType.Chinese1);
+        case "pngbnumd":
+          return new NumberingTypeToken(NumberingType.Chinese2);
+        case "pngbnumk":
+          return new NumberingTypeToken(NumberingType.Chinese4);
+        case "pngbnuml":
+          return new NumberingTypeToken(NumberingType.Chinese3);
+        case "pniroha":
+          return new NumberingTypeToken(NumberingType.Katana2);
+        case "pnirohad":
+          return new NumberingTypeToken(NumberingType.DoubleByteKatana2);
+        case "pnzodiac":
+          return new NumberingTypeToken(NumberingType.Zodiac1);
+        case "pnzodiacd":
+          return new NumberingTypeToken(NumberingType.Zodiac2);
+        case "pnzodiacl":
+          return new NumberingTypeToken(NumberingType.Zodiac3);
         case "pntxta":
           return new NumberingTextAfter();
 
@@ -335,92 +382,92 @@ namespace RtfPipe
 
         // Character Tags
         case "b":
-          return new BoldToken(number != 0);
+          return new IsBold(number != 0);
         case "caps":
-          return new CapitalToken(number != 0);
+          return new IsAllCaps(number != 0);
         case "cbpat":
-          return new ParaBackgroundColor(ColorByIndex(number));
+          return new ParagraphBackgroundColor(ColorByIndex(number));
         case "cb":
         case "chcbpat":
         case "highlight":
           return new BackgroundColor(number == 0 ? new ColorValue(255, 255, 255) : ColorByIndex(number));
         case "shading":
           var shade = (byte)(255 - Math.Min(Math.Max(0, number * 255 / 10000), 255));
-          return new ParaBackgroundColor(new ColorValue(shade, shade, shade));
+          return new ParagraphBackgroundColor(new ColorValue(shade, shade, shade));
         case "cf":
           return new ForegroundColor(ColorByIndex(number));
         case "dn":
           if (number > 0)
-            return new OffsetToken(UnitValue.FromHalfPoint(number));
-          return new OffsetToken(UnitValue.FromHalfPoint(6));
+            return new PositionOffset(UnitValue.FromHalfPoint(number));
+          return new PositionOffset(UnitValue.FromHalfPoint(6));
         case "embo":
-          return new EmbossText(number != 0);
+          return new IsEmbossed(number != 0);
         case "i":
-          return new ItalicToken(number != 0);
+          return new IsItalic(number != 0);
         case "impr":
-          return new EngraveText(number != 0);
+          return new IsEngraved(number != 0);
         case "nosupersub":
-          return new NoSuperSubToken();
+          return new SuperSubEnd();
         case "outl":
-          return new OutlineText(number != 0);
+          return new IsOutlined(number != 0);
         case "plain":
-          return new PlainToken();
+          return new PlainStyle();
         case "scaps":
-          return new SmallCapitalToken(number != 0);
+          return new IsSmallCaps(number != 0);
         case "shad":
-          return new ShadowText(number != 0);
+          return new IsShadow(number != 0);
         case "strike":
-          return new StrikeToken(number != 0);
+          return new IsStrikethrough(number != 0);
         case "striked":
-          return new StrikeDoubleToken(number != 0);
+          return new IsDoubleStrike(number != 0);
         case "sub":
-          return new SubStartToken();
+          return new SubscriptStart();
         case "super":
-          return new SuperStartToken();
+          return new SuperscriptStart();
         case "ul":
-          return new UnderlineToken(number != 0);
+          return new IsUnderline(number != 0);
         case "ulc":
           return new UnderlineColor(ColorByIndex(number));
         case "uld":
-          return new UnderlineDotted(number != 0);
+          return new UnderlineDotted();
         case "uldash":
-          return new UnderlineDashed(number != 0);
+          return new UnderlineDashed();
         case "uldashd":
-          return new UnderlineDashDot(number != 0);
+          return new UnderlineDashDot();
         case "uldashdd":
-          return new UnderlineDashDotDot(number != 0);
+          return new UnderlineDashDotDot();
         case "uldb":
-          return new UnderlineDouble(number != 0);
+          return new UnderlineDouble();
         case "ulhwave":
-          return new UnderlineHeavyWave(number != 0);
+          return new UnderlineHeavyWave();
         case "ulldash":
-          return new UnderlineLongDash(number != 0);
+          return new UnderlineLongDash();
         case "ulth":
-          return new UnderlineThick(number != 0);
+          return new UnderlineThick();
         case "ulthd":
-          return new UnderlineThickDotted(number != 0);
+          return new UnderlineThickDotted();
         case "ulthdash":
-          return new UnderlineThickDash(number != 0);
+          return new UnderlineThickDash();
         case "ulthdashd":
-          return new UnderlineThickDashDot(number != 0);
+          return new UnderlineThickDashDot();
         case "ulthdashdd":
-          return new UnderlineThickDashDotDot(number != 0);
+          return new UnderlineThickDashDotDot();
         case "ulthldash":
-          return new UnderlineThickLongDash(number != 0);
+          return new UnderlineThickLongDash();
         case "ululdbwave":
-          return new UnderlineDoubleWave(number != 0);
+          return new UnderlineDoubleWave();
         case "ulw":
-          return new UnderlineWord(number != 0);
+          return new UnderlineWord();
         case "ulwave":
-          return new UnderlineWave(number != 0);
+          return new UnderlineWave();
         case "ulnone":
-          return new UnderlineToken(false);
+          return new IsUnderline(false);
         case "up":
           if (number > 0)
-            return new OffsetToken(UnitValue.FromHalfPoint(-1 * number));
-          return new OffsetToken(UnitValue.FromHalfPoint(-6));
+            return new PositionOffset(UnitValue.FromHalfPoint(-1 * number));
+          return new PositionOffset(UnitValue.FromHalfPoint(-6));
         case "v":
-          return new HiddenToken(number != 0);
+          return new IsHidden(number != 0);
 
         // Pictures
         case "pict":
@@ -467,8 +514,16 @@ namespace RtfPipe
           return new CellDefaults();
         case "cell":
           return new CellBreak();
-        case "trgraph":
-          return new CellSpacing(new UnitValue(number, UnitType.Twip));
+        case "trgaph":
+          return new HalfCellPadding(new UnitValue(number, UnitType.Twip));
+        case "trspdb":
+          return new BottomCellSpacing(new UnitValue(number, UnitType.Twip));
+        case "trspdl":
+          return new LeftCellSpacing(new UnitValue(number, UnitType.Twip));
+        case "trspdr":
+          return new RightCellSpacing(new UnitValue(number, UnitType.Twip));
+        case "trspdt":
+          return new TopCellSpacing(new UnitValue(number, UnitType.Twip));
         case "cellx":
           return new RightCellBoundary(new UnitValue(number, UnitType.Twip));
         case "trautofit":
@@ -478,11 +533,11 @@ namespace RtfPipe
         case "trleft":
           return new RowLeft(new UnitValue(number, UnitType.Twip));
         case "trqc":
-          return new RowAlign(TextAlignment.Center);
+          return new RowTextAlign(TextAlignment.Center);
         case "trql":
-          return new RowAlign(TextAlignment.Left);
+          return new RowTextAlign(TextAlignment.Left);
         case "trqr":
-          return new RowAlign(TextAlignment.Right);
+          return new RowTextAlign(TextAlignment.Right);
         case "trbrdrt":
           return new TableBorderSide(BorderPosition.Top);
         case "trbrdrr":
@@ -511,6 +566,8 @@ namespace RtfPipe
           return new CellWidthType((CellWidthUnit)number);
         case "clwWidth":
           return new CellWidth(number);
+        case "clmrg":
+          return new CellMergePrevious();
         case "intbl":
           return new InTable();
         case "clvertalt":
@@ -522,13 +579,13 @@ namespace RtfPipe
         case "clcbpat":
           return new CellBackgroundColor(ColorByIndex(number));
         case "nesttableprops":
-          return new NestTableProperties();
+          return new NestedTableProperties();
         case "nonesttables":
           return new NoNestedTables();
         case "nestcell":
-          return new NestCell();
+          return new NestedCellBreak();
         case "nestrow":
-          return new NestRow();
+          return new NestedRowBreak();
         case "itap":
           return new NestingLevel(number >= 0 ? number : 1);
 
@@ -571,13 +628,15 @@ namespace RtfPipe
         case "brdrcf":
           return new BorderColor(ColorByIndex(number));
         case "brdrt":
-          return new TableBorderSide(BorderPosition.Top);
+          return new ParagraphBorderSide(BorderPosition.Top);
         case "brdrr":
-          return new TableBorderSide(BorderPosition.Right);
+          return new ParagraphBorderSide(BorderPosition.Right);
         case "brdrb":
-          return new TableBorderSide(BorderPosition.Bottom);
+          return new ParagraphBorderSide(BorderPosition.Bottom);
         case "brdrl":
-          return new TableBorderSide(BorderPosition.Left);
+          return new ParagraphBorderSide(BorderPosition.Left);
+        case "brdrbtw":
+          return new ParagraphBorderBetween();
         case "brsp":
           return new BorderSpacing(new UnitValue(number, UnitType.Twip));
 
@@ -609,6 +668,8 @@ namespace RtfPipe
           return new PageBreak();
 
         // Other
+        case "chftn":
+          return new FootnoteReference();
         case "footnote":
           return new Footnote();
 
