@@ -7,7 +7,7 @@ namespace RtfPipe.Model
 {
   internal interface INodeVisitor
   {
-    void Visit(Attachment attachment);
+    void Visit(Anchor anchor);
     void Visit(Element element);
     void Visit(HorizontalRule horizontalRule);
     void Visit(Picture image);

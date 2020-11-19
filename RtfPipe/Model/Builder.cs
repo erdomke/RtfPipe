@@ -74,11 +74,20 @@ namespace RtfPipe.Model
           if (token is Group childGroup)
           {
             var dest = childGroup.Destination;
+            var fallbackDest = default(IWord);
             if (childGroup.Contents.Count > 1
-              && childGroup.Contents[0] is IgnoreUnrecognized
+              && (childGroup.Contents[0] is TextToken ignoreText && ignoreText.Value == "*"))
+              fallbackDest = childGroup.Contents[1] as IWord;
+
+            if (childGroup.Contents.Count > 1
+              && childGroup.Contents[0] is IgnoreUnrecognized 
               && (childGroup.Contents[1].GetType().Name == "GenericTag" || childGroup.Contents[1].GetType().Name == "GenericWord"))
             {
               // Ignore groups with the "skip if unrecognized" flag
+            }
+            else if (fallbackDest?.GetType().Name == "GenericTag" || fallbackDest?.GetType().Name == "GenericWord")
+            {
+              groups.Push(new TokenState(new[] { childGroup.Contents[0] }, groups.Peek()));
             }
             else if (dest is ListTextFallback)
             {
@@ -86,6 +95,7 @@ namespace RtfPipe.Model
             }
             else if (dest is NumberingTextFallback
               || dest?.Type == TokenType.HeaderTag
+              || fallbackDest?.Type == TokenType.HeaderTag
               || dest is NoNestedTables
               || dest is BookmarkEnd)
             {
@@ -101,7 +111,7 @@ namespace RtfPipe.Model
             {
               // skip for now
             }
-            else if (dest is FieldInstructions)
+            else if (dest is FieldInstructions || fallbackDest is FieldInstructions)
             {
               var instructions = childGroup.Contents
                 .OfType<Group>()
@@ -117,11 +127,7 @@ namespace RtfPipe.Model
             }
             else if (dest is BookmarkStart)
             {
-              groups.Peek().AddStyle(new BookmarkToken()
-              {
-                Start = true,
-                Id = childGroup.Contents.OfType<TextToken>().FirstOrDefault()?.Value
-              });
+              paragraph.Add(new Anchor(AnchorType.Bookmark, childGroup.Contents.OfType<TextToken>().FirstOrDefault()?.Value));
             }
             else if (dest is PictureTag)
             {
@@ -136,6 +142,12 @@ namespace RtfPipe.Model
 
               ProcessFootnoteGroups(childGroup.Contents, footnotes, footnoteIndex);
             }
+            else if (dest is ParagraphNumbering)
+            {
+              paragraph.Type = ElementType.ListItem;
+              foreach (var child in childGroup.Contents.Where(t => t.Type == TokenType.ParagraphFormat))
+                groups.Peek().AddStyle(child);
+            }
             else
             {
               groups.Push(new TokenState(childGroup.Contents, groups.Peek()));
@@ -144,14 +156,17 @@ namespace RtfPipe.Model
           else if (token is TextToken text)
           {
             var newRun = new Run(text.Value, groups.Peek().Styles);
-            if (paragraph.Nodes().LastOrDefault() is Run run
-              && run.Styles.CollectionEquals(newRun.Styles))
+            if (!newRun.Styles.OfType<IsHidden>().Any())
             {
-              run.Value += text.Value;
-            }
-            else
-            {
-              paragraph.Add(newRun);
+              if (paragraph.Nodes().LastOrDefault() is Run run
+                && run.Styles.CollectionEquals(newRun.Styles))
+              {
+                run.Value += text.Value;
+              }
+              else
+              {
+                paragraph.Add(newRun);
+              }
             }
           }
           else if (token is FootnoteReference)
@@ -273,24 +288,28 @@ namespace RtfPipe.Model
             var currLevel = paragraph.TableLevel;
             var cells = parent.Elements().Reverse()
               .TakeWhile(e => e.Type == ElementType.TableCell && e.TableLevel == currLevel).Reverse()
-              .ToArray();
-            if (cells.Length > 0)
+              .ToList();
+            if (cells.Count > 0)
             {
-              foreach (var cell in cells)
-                cell.Remove();
-              var row = new Element(ElementType.TableRow, cells);
+              var row = new Element(ElementType.TableRow);
               var rowStyles = new StyleList(groups.Peek().Styles);
               rowStyles.Merge(new NestingLevel(Math.Max(currLevel - 1, 0)));
-              var cellFormats = rowStyles.OfType<CellToken>().ToList();
-              if (cellFormats.Count >= cells.Length)
-              {
-                for (var i = 0; i < cells.Length; i++)
-                {
-                  cells[i].Styles.RemoveWhere(t => t is CellToken);
-                  cells[i].Styles.Add(cellFormats[i]);
-                }
-              }
               rowStyles.RemoveWhere(t => t is HalfCellPadding || t is BorderToken);
+              var cellFormats = rowStyles.OfType<CellToken>().ToList();
+              if (cellFormats.Count < cells.Count)
+                throw new InvalidOperationException("Fewer cell styles were found than cell breaks");
+
+              for (var i = 0; i < cells.Count; i++)
+              {
+                cells[i].Remove();
+                cells[i].Styles.RemoveWhere(t => t is CellToken);
+                cells[i].Styles.Add(cellFormats[i]);
+                if (i > 0 && cellFormats[i].Styles.OfType<CellMergePrevious>().Any())
+                  cellFormats[i - 1].ColSpan++;
+                else
+                  row.Add(cells[i]);
+              }
+
               if (rowStyles.TryRemoveMany(t => t is TablePaddingBottom || t is TablePaddingLeft
                 || t is TablePaddingRight || t is TablePaddingTop, out var paddings))
               {
@@ -306,7 +325,7 @@ namespace RtfPipe.Model
           }
           else if (token is ObjectAttachment)
           {
-            paragraph.Add(new Attachment(attachmentIndex));
+            paragraph.Add(new Anchor(AnchorType.Attachment, attachmentIndex.ToString()));
             attachmentIndex++;
           }
           else if (token is OutlineLevel outlineLevel && outlineLevel.Value >= 0 && outlineLevel.Value < 6)
@@ -401,9 +420,25 @@ namespace RtfPipe.Model
         else if (token is FootnoteReference)
         {
           var footnoteId = "footnote" + footnoteIndex.ToString("D2");
-          clone.Add(new BookmarkToken() { Id = footnoteId, Start = true });
+          clone.Add(new Group()
+          {
+            Contents =
+            {
+              new IgnoreUnrecognized(),
+              new BookmarkStart(),
+              new TextToken() { Value = footnoteId }
+            }
+          });
           clone.Add(new TextToken() { Value = footnoteIndex.ToString() + " " });
-          clone.Add(new BookmarkToken() { Id = footnoteId, Start = false });
+          clone.Add(new Group()
+          {
+            Contents =
+            {
+              new IgnoreUnrecognized(),
+              new BookmarkEnd(),
+              new TextToken() { Value = footnoteId }
+            }
+          });
         }
         else if (!(token is Footnote))
         {
@@ -577,7 +612,9 @@ namespace RtfPipe.Model
       foreach (var listItem in root.Descendants()
         .Where(e => e.Type == ElementType.ListItem))
       {
-        var listId = (listItem.Styles.OfType<ListStyleId>().FirstOrDefault()?.Value ?? 1);
+        var listId = listItem.Styles.OfType<ListStyleId>().FirstOrDefault()?.Value
+          ?? (int?)listItem.Styles.OfType<NumberingTypeToken>().FirstOrDefault()?.Value
+          ?? 1;
         if (!listIndices.TryGetValue(listId, out var currentLevels))
         {
           currentLevels = new List<int>();
@@ -623,8 +660,12 @@ namespace RtfPipe.Model
             {
               if (list.Type == ElementType.List || list.Type == ElementType.OrderedList)
               {
-                var currListId = listItem.Styles.OfType<ListStyleId>().FirstOrDefault()?.Value ?? 1;
-                var prevListId = list.Styles.OfType<ListStyleId>().FirstOrDefault()?.Value ?? 1;
+                var currListId = listItem.Styles.OfType<ListStyleId>().FirstOrDefault()?.Value 
+                  ?? (int?)listItem.Styles.OfType<NumberingTypeToken>().FirstOrDefault()?.Value
+                  ?? 1;
+                var prevListId = list.Styles.OfType<ListStyleId>().FirstOrDefault()?.Value
+                  ?? (int?)list.Styles.OfType<NumberingTypeToken>().FirstOrDefault()?.Value
+                  ?? 1;
                 if (currListId != prevListId)
                   list = null;
               }
@@ -659,7 +700,7 @@ namespace RtfPipe.Model
             if (!list.Elements().Any())
             {
               var numType = listItem.Styles.OfType<ListLevelType>().FirstOrDefault()?.Value
-                ?? (listItem.Styles.OfType<NumberLevelBullet>().Any() ? (NumberingType?)NumberingType.Bullet : null)
+                ?? (listItem.Styles.OfType<NumberingLevelBullet>().Any() ? (NumberingType?)NumberingType.Bullet : null)
                 ?? listItem.Styles.OfType<NumberingTypeToken>().FirstOrDefault()?.Value
                 ?? NumberingType.Bullet;
 
@@ -737,7 +778,7 @@ namespace RtfPipe.Model
       public void AddStyle(IToken token)
       {
         _styles.Merge(token);
-        if (token is PlainToken && _defaultStyles?.Count > 0)
+        if (token is PlainStyle && _defaultStyles?.Count > 0)
           _styles.MergeRange(_defaultStyles);
       }
     }

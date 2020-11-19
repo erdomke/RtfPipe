@@ -31,11 +31,11 @@ namespace RtfPipe.Model
           Append("font-size", fontSize.Value.ToPt().ToString("0.#") + "pt");
         else if (token is BackgroundColor background)
           Append("background", "#" + background.Value);
-        else if (token is ParaBackgroundColor backgroundPara)
+        else if (token is ParagraphBackgroundColor backgroundPara)
           Append("background", "#" + backgroundPara.Value);
         else if (token is CellBackgroundColor backgroundCell)
           Append("background", "#" + backgroundCell.Value);
-        else if (token is CapitalToken capitalToken)
+        else if (token is IsAllCaps capitalToken)
           Append("text-transform", capitalToken.Value ? "uppercase" : "none");
         else if (token is ForegroundColor color)
           Append("color", "#" + color.Value);
@@ -47,14 +47,16 @@ namespace RtfPipe.Model
           margins[0] = spaceBefore.Value;
         else if (token is RowLeft rowLeft)
           margins[3] = rowLeft.Value;
-        else if (token is UnderlineToken underlineToken)
+        else if (token is IsUnderline underlineToken)
           Append("text-decoration", underlineToken.Value ? "underline" : "none");
-        else if (token is BoldToken boldToken)
+        else if (token is IsBold boldToken)
           Append("font-weight", boldToken.Value ? "bold" : "normal");
         else if (token is PageBreak)
           Append("page-break-before", "always");
         else if (token is LeftIndent leftIndent && leftIndent.Value.Value != 0) //  || Name == "ul" || Name == "ol"
           margins[3] = leftIndent.Value;
+        else if (token is NumberingIndent numIndent && numIndent.Value.Value != 0 && (elementType == ElementType.ListItem || elementType == ElementType.List || elementType == ElementType.OrderedList))
+          margins[3] = numIndent.Value;
         else if (token is RightIndent rightIndent && rightIndent.Value.Value != 0)
           margins[1] = rightIndent.Value;
         else if (token is BorderToken border)
@@ -67,15 +69,15 @@ namespace RtfPipe.Model
           padding[2] = paddingBottom.Value;
         else if (token is TablePaddingLeft paddingLeft)
           padding[3] = paddingLeft.Value;
-        else if (token is EmbossText)
+        else if (token is IsEmbossed)
           Append("text-shadow", "-1px -1px 1px #999, 1px 1px 1px #000");
-        else if (token is EngraveText)
+        else if (token is IsEngraved)
           Append("text-shadow", "-1px -1px 1px #000, 1px 1px 1px #999");
-        else if (token is OutlineText)
+        else if (token is IsOutlined)
           Append("text-shadow", "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000");
-        else if (token is ShadowText)
+        else if (token is IsShadow)
           Append("text-shadow", "1px 1px 1px #CCC");
-        else if (token is SmallCapitalToken)
+        else if (token is IsSmallCaps)
           Append("font-variant", "small-caps");
         else if (token is UnderlineDashed || token is UnderlineDashDot || token is UnderlineLongDash || token is UnderlineThickDash || token is UnderlineThickDashDot || token is UnderlineThickLongDash)
           Append("text-decoration-style", "dashed");
@@ -83,18 +85,28 @@ namespace RtfPipe.Model
           Append("text-decoration-style", "dotted");
         else if (token is UnderlineWave || token is UnderlineHeavyWave || token is UnderlineDoubleWave)
           Append("text-decoration-style", "wavy");
-        else if (token is StrikeDoubleToken || token is UnderlineDouble)
+        else if (token is IsDoubleStrike || token is UnderlineDouble)
           Append("text-decoration-style", "double");
         else if (token is UnderlineColor underlineColor)
           Append("text-decoration-color", "#" + underlineColor.Value);
         else if (token is UnderlineWord)
           Append("text-decoration-skip", "spaces");
-        else if (token is OffsetToken offset)
+        else if (token is PositionOffset offset)
           Append("top", offset.Value).Append("position", "relative");
         else if (token is FirstLineIndent firstIndent && elementType != ElementType.ListItem && elementType != ElementType.List && elementType != ElementType.OrderedList && elementType != ElementType.TableCell && elementType != ElementType.TableHeaderCell)
           Append("text-indent", firstIndent.Value);
-        else if (token is SpaceBetweenLines lineSpace && lineSpace.Value > int.MinValue && lineSpace.Value != 0 && (Math.Abs(lineSpace.Value) / 240.0).ToString("0.#") != "1")
-          Append("line-height", (Math.Abs(lineSpace.Value) * DefaultBrowserLineHeight / 240.0).ToString("0.#"));
+        else if (token is SpaceBetweenLines lineSpace && lineSpace.Value > int.MinValue && lineSpace.Value != 0)
+        {
+          if (tokens.OfType<LineSpacingMultiple>().Any(m => m.Value == 1))
+          {
+            if ((Math.Abs(lineSpace.Value) / 240.0).ToString("0.#") != "1")
+              Append("line-height", (Math.Abs(lineSpace.Value) * DefaultBrowserLineHeight / 240.0).ToString("0.#"));
+          }
+          else if (lineSpace.Value < 0)
+          {
+            Append("line-height", new UnitValue(lineSpace.Value * -1, UnitType.Twip));
+          }
+        }
         else if (token is CellVerticalAlign cellVerticalAlign)
           Append("vertical-align", cellVerticalAlign.Value == VerticalAlignment.Center ? "middle" : cellVerticalAlign.Value.ToString().ToLowerInvariant());
         else if (token is TopCellSpacing topCellSpacing)
@@ -112,7 +124,7 @@ namespace RtfPipe.Model
       if (cellSpacing.Any(v => v.HasValue) && elementType == ElementType.Table)
         Append("border-spacing", UnitValue.Average(new[] { cellSpacing[0] + cellSpacing[2], cellSpacing[1] + cellSpacing[3] }));
       
-      if (tokens.OfType<OutlineText>().Any() && !tokens.OfType<ForegroundColor>().Any())
+      if (tokens.OfType<IsOutlined>().Any() && !tokens.OfType<ForegroundColor>().Any())
         Append("color", "#fff");
 
       /*
@@ -172,7 +184,7 @@ namespace RtfPipe.Model
       }
       else if (elementType == ElementType.List || elementType == ElementType.OrderedList)
       {
-        if (!tokens.OfType<LeftIndent>().Any())
+        if (!tokens.OfType<LeftIndent>().Any() && !tokens.OfType<NumberingIndent>().Any())
           margins[3] = new UnitValue(720, UnitType.Twip);
 
         Append("padding-left", "0");
@@ -313,6 +325,9 @@ namespace RtfPipe.Model
 
     public CssString Append(Font font)
     {
+      if (string.IsNullOrEmpty(font?.Name))
+        return this;
+
       var name = font.Name.IndexOf(' ') > 0 ? "\"" + font.Name + "\"" : font.Name;
       switch (font.Category)
       {

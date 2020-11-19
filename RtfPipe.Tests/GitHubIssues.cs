@@ -173,6 +173,17 @@ AC Reference: 12312443423\par \par \par
     }
 
     [TestMethod]
+    public void Issue32()
+    {
+      TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang2057{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+{\colortbl ;\red0\green0\blue255;\red0\green0\blue0;}
+{*\generator Riched20 10.0.18362}\viewkind4\uc1
+\pard {\f0\fs17{\field{*\fldinst{HYPERLINK http://www.xxxx.co.uk }}{\fldrslt{http://www.xxxx.co.uk\ul0\cf0}}}}\cf2\f0\fs17\par
+\par
+\par}", "<div style=\"font-size:12pt;font-family:&quot;Microsoft Sans Serif&quot;;\"><p style=\"font-size:8.5pt;margin:0;\"><a style=\"color:#000000;text-decoration:none;\" href=\"http://www.xxxx.co.uk\">http://www.xxxx.co.uk</a></p><p style=\"font-size:8.5pt;margin:0;\"><br></p><p style=\"font-size:8.5pt;margin:0;\"><br></p></div>");
+    }
+
+    [TestMethod]
     public void Issue32_Corrected()
     {
       TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang2057{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
@@ -239,20 +250,55 @@ AC Reference: 12312443423\par \par \par
       TestConvert("RtfPipe.Tests.Files.Issue48");
     }
 
-    //[TestMethod]
-    //public void Issue49()
-    //{
-    //  // Invalid RTF. Shouldn't have an exception, but need to decide what to do here.
-    //  TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Verdana;} \viewkind4\uc1\pard\f0\fs18 5% Auf Patronen \par \f1\par } {\f1\fnil Verdana;}}"
-    //    , "<div style=\"font-size:12pt;font-family:&quot;Segoe UI&quot;;\"><p style=\"font-size:10pt;font-family:Arial;text-indent:0;text-align:left;margin:0 0 10.7px 0;\">Left</p><p style=\"font-size:10pt;font-family:Arial;text-indent:0;text-align:center;margin:0 0 10.7px 0;\"> Center</p><p style=\"font-size:10pt;font-family:Arial;text-indent:0;text-align:right;margin:0 0 10.7px 0;\"> Right</p><p style=\"font-size:10pt;font-family:Arial;text-indent:0;text-align:right;margin:0 0 10.7px 0;\"> <span style=\"font-size:12pt;font-family:&quot;Segoe UI&quot;;\"> </span></p></div>");
-    //}
+    // Invalid RTF. Shouldn't have an exception, but need to decide what to do here.
+    [TestMethod]
+    public void Issue49()
+    {
+      TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Verdana;} \viewkind4\uc1\pard\f0\fs18 5% Auf Patronen \par \f1\par } {\f1\fnil Verdana;}}"
+        , "<div style=\"font-size:12pt;font-family:Verdana;\"><p style=\"margin:0;\"><span style=\"font-family:Verdana;\"> </span>Verdana;</p></div>");
+    }
 
-    //[TestMethod]
-    //public void Issue50_1()
-    //{
-    //  // Need to fix line height and table layout issues
-    //  TestConvert("RtfPipe.Tests.Files.Issue50-1");
-    //}
+    [TestMethod]
+    public void Issue50_1()
+    {
+      // Need to fix line height and table layout issues
+      TestConvert("RtfPipe.Tests.Files.Issue50-1");
+    }
+
+    [TestMethod]
+    public void Issue50_2()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue50-2");
+    }
+
+    [TestMethod]
+    public void Issue51()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue51");
+    }
+
+    [TestMethod]
+    public void Issue52()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue52");
+    }
+
+    [TestMethod]
+    public void Issue53()
+    {
+      TestConvert("RtfPipe.Tests.Files.Issue53");
+    }
+
+    [TestMethod]
+    public void Issue54()
+    {
+      TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang2057{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+{\colortbl ;\red255\green0\blue0;\red0\green0\blue255;\red0\green255\blue0;}
+{\*\generator Riched20 10.0.18362}\viewkind4\uc1 
+\pard\qc\highlight1\f0\fs24 Red\highlight0 \highlight2 Blue\highlight0 \highlight3 Green\highlight0\par
+}"
+        , "<div style=\"font-size:12pt;font-family:&quot;Microsoft Sans Serif&quot;;\"><p style=\"text-align:center;margin:0;\"><span style=\"background:#FF0000;\">Red</span><span style=\"background:#0000FF;\">Blue</span><span style=\"background:#00FF00;\">Green</span></p></div>");
+    }
 
     private void TestConvert(RtfSource rtf, string html)
     {

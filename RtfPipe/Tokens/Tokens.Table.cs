@@ -92,12 +92,12 @@ namespace RtfPipe.Tokens
     public RowLeft(UnitValue value) : base(value) { }
   }
 
-  public class RowAlign : ControlWord<TextAlignment>
+  public class RowTextAlign : ControlWord<TextAlignment>
   {
     public override string Name => "trq" + Value.ToString().ToLowerInvariant()[0];
     public override TokenType Type => TokenType.RowFormat;
 
-    public RowAlign(TextAlignment value) : base(value) { }
+    public RowTextAlign(TextAlignment value) : base(value) { }
 
     public override string ToString() => "\\" + Name;
   }
@@ -180,6 +180,12 @@ namespace RtfPipe.Tokens
     public CellWidth(int value) : base(value) { }
   }
 
+  public class CellMergePrevious : ControlTag
+  {
+    public override string Name => "clmrg";
+    public override TokenType Type => TokenType.CellFormat;
+  }
+
   public class CellVerticalAlign : ControlWord<VerticalAlignment>
   {
     public override string Name => "clvertal" + Value.ToString().ToLowerInvariant()[0];
@@ -210,7 +216,7 @@ namespace RtfPipe.Tokens
     public override TokenType Type => TokenType.RowFormat;
   }
 
-  public class NestTableProperties : ControlTag
+  public class NestedTableProperties : ControlTag
   {
     public override string Name => "nesttableprops";
   }

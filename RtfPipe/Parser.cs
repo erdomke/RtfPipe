@@ -8,6 +8,9 @@ using System.Text;
 
 namespace RtfPipe
 {
+  /// <summary>
+  /// Tokenize an RTF document and create a heirarchical document structure of the groups
+  /// </summary>
   public partial class Parser
   {
     internal static Func<DateTime> Clock { get; set; } = () => DateTime.Now;
@@ -22,21 +25,36 @@ namespace RtfPipe
 
     private int Depth { get { return _context.Count; } }
 
+    /// <summary>
+    /// Parse RTF stored in a string
+    /// </summary>
+    /// <param name="rtf">RTF string</param>
     public Parser(string rtf)
     {
       _reader = new StringReader(rtf);
     }
 
+    /// <summary>
+    /// Parse RTF from a stream
+    /// </summary>
+    /// <param name="stream">Binary RTF data</param>
     public Parser(Stream stream)
     {
       _reader = new RtfStreamReader(stream);
     }
 
+    /// <summary>
+    /// Parse RTF from a text reader
+    /// </summary>
+    /// <param name="reader">RTF</param>
     public Parser(TextReader reader)
     {
       _reader = reader;
     }
 
+    /// <summary>
+    /// Build a document structure
+    /// </summary>
     public Document Parse()
     {
       var groups = new Stack<Group>();
@@ -126,6 +144,9 @@ namespace RtfPipe
       }
     }
 
+    /// <summary>
+    /// Get a flat list of all the tokens in the RTF document
+    /// </summary>
     public IEnumerable<IToken> Tokens()
     {
       var curr = -1;

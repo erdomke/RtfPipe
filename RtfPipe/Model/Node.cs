@@ -4,6 +4,9 @@ using System.IO;
 
 namespace RtfPipe.Model
 {
+  /// <summary>
+  /// A node in the HTML representation of the document
+  /// </summary>
   public abstract class Node
   {
     //internal Node Next => NextNode == this ? null : NextNode;
@@ -48,6 +51,9 @@ namespace RtfPipe.Model
 
     internal abstract void Visit(INodeVisitor visitor);
 
+    /// <summary>
+    /// Render the node as a string
+    /// </summary>
     public override string ToString()
     {
       using (var writer = new StringWriter())

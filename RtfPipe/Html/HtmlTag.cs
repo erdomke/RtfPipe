@@ -19,7 +19,7 @@ namespace RtfPipe.Model
     {
       Styles =
       {
-        new UnderlineToken(true),
+        new IsUnderline(true),
         new ForegroundColor(new ColorValue(0, 0, 238))
       }
     };
@@ -28,7 +28,7 @@ namespace RtfPipe.Model
     {
       Styles =
       {
-        new ItalicToken(true)
+        new IsItalic(true)
       }
     };
     public static HtmlTag H1 { get; } = new HtmlTag("h1")
@@ -38,7 +38,7 @@ namespace RtfPipe.Model
         new FontSize(new UnitValue(32, UnitType.Pixel)),
         new SpaceAfter(new UnitValue(21.44, UnitType.Pixel)),
         new SpaceBefore(new UnitValue(21.44, UnitType.Pixel)),
-        new BoldToken(true)
+        new IsBold(true)
       }
     };
     public static HtmlTag H2 { get; } = new HtmlTag("h2")
@@ -48,7 +48,7 @@ namespace RtfPipe.Model
         new FontSize(new UnitValue(24, UnitType.Pixel)),
         new SpaceAfter(new UnitValue(19.92, UnitType.Pixel)),
         new SpaceBefore(new UnitValue(19.92, UnitType.Pixel)),
-        new BoldToken(true)
+        new IsBold(true)
       }
     };
     public static HtmlTag H3 { get; } = new HtmlTag("h3")
@@ -58,7 +58,7 @@ namespace RtfPipe.Model
         new FontSize(new UnitValue(18.72, UnitType.Pixel)),
         new SpaceAfter(new UnitValue(18.72, UnitType.Pixel)),
         new SpaceBefore(new UnitValue(18.72, UnitType.Pixel)),
-        new BoldToken(true)
+        new IsBold(true)
       }
     };
     public static HtmlTag H4 { get; } = new HtmlTag("h4")
@@ -68,7 +68,7 @@ namespace RtfPipe.Model
         new FontSize(new UnitValue(16, UnitType.Pixel)),
         new SpaceAfter(new UnitValue(21.28, UnitType.Pixel)),
         new SpaceBefore(new UnitValue(21.28, UnitType.Pixel)),
-        new BoldToken(true)
+        new IsBold(true)
       }
     };
     public static HtmlTag H5 { get; } = new HtmlTag("h5")
@@ -78,7 +78,7 @@ namespace RtfPipe.Model
         new FontSize(new UnitValue(13.28, UnitType.Pixel)),
         new SpaceAfter(new UnitValue(22.1776, UnitType.Pixel)),
         new SpaceBefore(new UnitValue(22.1776, UnitType.Pixel)),
-        new BoldToken(true)
+        new IsBold(true)
       }
     };
     public static HtmlTag H6 { get; } = new HtmlTag("h6")
@@ -88,7 +88,7 @@ namespace RtfPipe.Model
         new FontSize(new UnitValue(10.72, UnitType.Pixel)),
         new SpaceAfter(new UnitValue(24.9776, UnitType.Pixel)),
         new SpaceBefore(new UnitValue(24.9776, UnitType.Pixel)),
-        new BoldToken(true)
+        new IsBold(true)
       }
     };
     public static HtmlTag Li { get; } = new HtmlTag("li");
@@ -115,7 +115,7 @@ namespace RtfPipe.Model
     {
       Styles =
       {
-        new BoldToken(true)
+        new IsBold(true)
       }
     };
     public static HtmlTag Table { get; } = new HtmlTag("table")
@@ -140,7 +140,7 @@ namespace RtfPipe.Model
     {
       Styles =
       {
-        new BoldToken(true),
+        new IsBold(true),
         new TextAlign(TextAlignment.Center)
       }
     };
@@ -150,7 +150,7 @@ namespace RtfPipe.Model
     {
       Styles =
       {
-        new UnderlineToken(true)
+        new IsUnderline(true)
       }
     };
     public static HtmlTag Ul { get; } = new HtmlTag("ul")

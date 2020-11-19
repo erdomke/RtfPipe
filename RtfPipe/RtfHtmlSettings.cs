@@ -4,17 +4,35 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
 
 namespace RtfPipe
 {
+  /// <summary>
+  /// Settings used when converting RTF to HTML
+  /// </summary>
   public class RtfHtmlSettings : HtmlWriterSettings
   {
+    /// <summary>
+    /// Callback used when building the HTML to render an e-mail attachment
+    /// </summary>
     public Action<int, XmlWriter> AttachmentRenderer { get; set; }
+
+    /// <summary>
+    /// Mapping of HTML tags to use for various document element types
+    /// </summary>
     public Dictionary<ElementType, HtmlTag> ElementTags { get; } = DefaultTags.ToDictionary(k => k.Key, k => k.Value);
+
+    /// <summary>
+    /// Callback used to get the URI for a picture stored in RTF. This could be 
+    /// a data URI that contains the binary data of the picture, or a link to
+    /// an external file.
+    /// </summary>
     public Func<Picture, string> ImageUriGetter { get; set; }
 
+    /// <summary>
+    /// Create a new <see cref="RtfHtmlSettings"/> object
+    /// </summary>
     public RtfHtmlSettings()
     {
       AttachmentRenderer = RenderAttachment;

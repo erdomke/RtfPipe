@@ -11,7 +11,6 @@ namespace RtfPipe.Model
   {
     private UnitValue _defaultTabWidth = new UnitValue(0.5, UnitType.Inch);
     private HtmlTag _lastTag;
-    private HashSet<string> _renderedBookmarks = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     private Stack<StyleList> _stack = new Stack<StyleList>();
     private IEnumerable<IToken> _stylesheet = new IToken[]
     {
@@ -278,12 +277,12 @@ namespace RtfPipe.Model
       var stylesWritten = false;
 
       var endTags = 0;
-      if (styleList.TryRemoveFirstTrue(out BoldToken boldToken))
+      if (styleList.TryRemoveFirstTrue(out IsBold boldToken))
       {
         _writer.WriteStartElement(GetElementTag(ElementType.Strong, null, HtmlTag.Strong).Name);
         endTags++;
       }
-      if (styleList.TryRemoveFirstTrue(out ItalicToken italicToken))
+      if (styleList.TryRemoveFirstTrue(out IsItalic italicToken))
       {
         _writer.WriteStartElement(GetElementTag(ElementType.Emphasis, null, HtmlTag.Em).Name);
         endTags++;
@@ -291,7 +290,7 @@ namespace RtfPipe.Model
       if (hyperlink == null && styleList.TryRemoveMany(StyleList.IsUnderline, out var underlineStyles))
       {
         _writer.WriteStartElement(GetElementTag(ElementType.Underline, null, HtmlTag.U).Name);
-        var underlineCss = new CssString(underlineStyles.Where(t => !(t is UnderlineToken)), ElementType.Underline);
+        var underlineCss = new CssString(underlineStyles.Where(t => !(t is IsUnderline)), ElementType.Underline);
         if (underlineCss.Length > 0)
         {
           _writer.WriteAttributeString("style", underlineCss.ToString());
@@ -299,18 +298,18 @@ namespace RtfPipe.Model
         }
         endTags++;
       }
-      if (styleList.TryRemoveFirstTrue(out StrikeToken strikeToken)
-        || styleList.OfType<StrikeDoubleToken>().FirstOrDefault()?.Value == true)
+      if (styleList.TryRemoveFirstTrue(out IsStrikethrough strikeToken)
+        || styleList.OfType<IsDoubleStrike>().FirstOrDefault()?.Value == true)
       {
         _writer.WriteStartElement("s");
         endTags++;
       }
-      if (styleList.TryRemoveFirst(out SubStartToken subToken))
+      if (styleList.TryRemoveFirst(out SubscriptStart subToken))
       {
         _writer.WriteStartElement("sub");
         endTags++;
       }
-      if (styleList.TryRemoveFirst(out SuperStartToken superToken))
+      if (styleList.TryRemoveFirst(out SuperscriptStart superToken))
       {
         _writer.WriteStartElement("sup");
         endTags++;
@@ -341,15 +340,6 @@ namespace RtfPipe.Model
         endTags++;
       }
 
-      var bookmark = styleList.OfType<BookmarkToken>().FirstOrDefault();
-      if (bookmark != null && !_renderedBookmarks.Contains(bookmark.Id))
-      {
-        _renderedBookmarks.Add(bookmark.Id);
-        _writer.WriteStartElement("a");
-        _writer.WriteAttributeString("id", bookmark.Id);
-        _writer.WriteEndElement();
-      }
-
       WriteRunText(run);
       
       for (var j = 0; j < endTags; j++)
@@ -362,11 +352,16 @@ namespace RtfPipe.Model
       var charBuffer = run.Value.ToCharArray();
       var eastAsian = run.Styles.OfType<Font>().Any(f => TextEncoding.IsEastAsian(f.Encoding));
 
-      if (run.Parent?.Nodes().First() == run)
+      if (run.Value == " " && run.Parent?.Nodes().Count() == 1)
+      {
+        charBuffer[0] = eastAsian ? '\u2007' : '\u00a0';
+      }
+      else if (run.Parent?.Nodes().First() == run)
       {
         while (i < charBuffer.Length && charBuffer[i] == '\t')
           i++;
       }
+      
 
       var start = i;
       var inTabList = false;
@@ -442,15 +437,14 @@ namespace RtfPipe.Model
 
     internal static bool IsSpanElement(IToken token)
     {
-      return token is BoldToken
-        || token is ItalicToken
+      return token is IsBold
+        || token is IsItalic
         || StyleList.IsUnderline(token)
-        || token is StrikeToken
-        || token is StrikeDoubleToken
-        || token is SubStartToken
-        || token is SuperStartToken
-        || token is HyperlinkToken
-        || token is BookmarkToken;
+        || token is IsStrikethrough
+        || token is IsDoubleStrike
+        || token is SubscriptStart
+        || token is SuperscriptStart
+        || token is HyperlinkToken;
     }
 
     public void Visit(Picture image)
@@ -471,9 +465,18 @@ namespace RtfPipe.Model
       }
     }
 
-    public void Visit(Attachment attachment)
+    public void Visit(Anchor anchor)
     {
-      Settings?.AttachmentRenderer(attachment.Index, _writer);
+      if (anchor.Type == AnchorType.Attachment)
+      {
+        Settings?.AttachmentRenderer(int.Parse(anchor.Id), _writer);
+      }
+      else
+      {
+        _writer.WriteStartElement("a");
+        _writer.WriteAttributeString("id", anchor.Id);
+        _writer.WriteEndElement();        
+      }
     }
 
     public void Visit(HorizontalRule horizontalRule)

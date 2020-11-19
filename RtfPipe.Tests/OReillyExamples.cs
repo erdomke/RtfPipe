@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace RtfPipe.Tests
 {
@@ -27,6 +28,26 @@ namespace RtfPipe.Tests
       TestConvert(@"{\rtf1\ansi\deff0 {\fonttbl {\f0 Monotype Corsiva;}}
 \qc\f0\fs120\i\b Hello,\line World!
 }", @"<div style=""font-size:12pt;font-family:&quot;Monotype Corsiva&quot;;""><p style=""text-align:center;font-size:60pt;margin:0;""><strong><em>Hello,<br>World!</em></strong></p></div>");
+    }
+
+    [TestMethod()]
+    public void HelloWorld_XElement()
+    {
+      var rtf = @"{\rtf1\ansi\deff0 {\fonttbl {\f0 Monotype Corsiva;}}
+\qc\f0\fs120\i\b Hello,\line World!
+}";
+      var doc = new XDocument();
+      using (var writer = doc.CreateWriter())
+      {
+        Rtf.ToHtml(rtf, writer);
+      }
+      Assert.AreEqual(@"<div style=""font-size:12pt;font-family:&quot;Monotype Corsiva&quot;;"">
+  <p style=""text-align:center;font-size:60pt;margin:0;"">
+    <strong>
+      <em>Hello,<br />World!</em>
+    </strong>
+  </p>
+</div>", doc.Root.ToString());
     }
 
     private void TestConvert(string rtf, string html)

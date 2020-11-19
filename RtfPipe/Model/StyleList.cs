@@ -30,13 +30,9 @@ namespace RtfPipe.Model
       {
         this.RemoveWhere(t => t.Type == TokenType.CellFormat);
       }
-      else if (token is PlainToken)
+      else if (token is PlainStyle)
       {
         this.RemoveWhere(t => t.Type == TokenType.CharacterFormat);
-      }
-      else if (token is BookmarkToken bookmark && !bookmark.Start)
-      {
-        this.RemoveWhere(t => t is BookmarkToken bkmkStart && bkmkStart.Id == bookmark.Id);
       }
       else if (IsUnderline(token))
       {
@@ -48,9 +44,9 @@ namespace RtfPipe.Model
       {
         this.RemoveWhere(t => t is ControlWord<bool> boolStyle && boolStyle.Name == boolean.Name);
       }
-      else if (token is NoSuperSubToken)
+      else if (token is SuperSubEnd)
       {
-        this.RemoveWhere(t => t is SuperStartToken || t is SubStartToken);
+        this.RemoveWhere(t => t is SuperscriptStart || t is SubscriptStart);
       }
       else if (token is ControlWord<BorderPosition> borderPosition)
       {
@@ -66,6 +62,7 @@ namespace RtfPipe.Model
         var cellToken = new CellToken(this.Skip(i).Concat(new[] { token }), previous);
         while (i < Count)
           RemoveAt(i);
+
         Add(cellToken);
       }
       else if (Count > 0 && this[Count - 1] is BorderToken borderToken && borderToken.Add(token))
@@ -144,8 +141,8 @@ namespace RtfPipe.Model
 
     private Func<IToken, bool> SameTokenPredicate(IToken token)
     {
-      if (token is OffsetToken)
-        return t => t is OffsetToken;
+      if (token is PositionOffset)
+        return t => t is PositionOffset;
       else if (token is TextAlign)
         return t => t is TextAlign;
       else if (token is Font font)

@@ -106,6 +106,8 @@ namespace RtfPipe.Model
       Styles.Set(styles
         .Where(t => (t.Type & TokenType.Format) > 0)
         .ToList());
+      if (Type == ElementType.Paragraph && Styles.OfType<ParagraphNumbering>().Any())
+        Type = ElementType.ListItem;
     }
 
     internal override void Visit(INodeVisitor visitor)

@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace RtfPipe
 {
+  /// <summary>
+  /// A picture store in a RTF document
+  /// </summary>
   public class Picture : Node
   {
     private readonly List<IToken> _tokens = new List<IToken>();
@@ -14,8 +17,19 @@ namespace RtfPipe
     private int _scaleX = 100;
     private int _scaleY = 100;
 
+    /// <summary>
+    /// Control tokens stored in the RTF document
+    /// </summary>
     public IEnumerable<IToken> Attributes { get { return _tokens; } }
+
+    /// <summary>
+    /// The binary data describing the picture
+    /// </summary>
     public byte[] Bytes { get; }
+
+    /// <summary>
+    /// The rendered height of the picture
+    /// </summary>
     public UnitValue Height
     {
       get
@@ -28,7 +42,15 @@ namespace RtfPipe
         return baseUnit;
       }
     }
+
+    /// <summary>
+    /// The picture format
+    /// </summary>
     public IToken Type { get; }
+
+    /// <summary>
+    /// The rendered width of the picture
+    /// </summary>
     public UnitValue Width
     {
       get
@@ -42,6 +64,10 @@ namespace RtfPipe
       }
     }
 
+    /// <summary>
+    /// Create a new <see cref="Picture"/> object
+    /// </summary>
+    /// <param name="group">An RTF token group</param>
     public Picture(Group group)
     {
       foreach (var token in group.Contents)
@@ -69,6 +95,9 @@ namespace RtfPipe
       Type = Type ?? new WBitmap(0);
     }
 
+    /// <summary>
+    /// The MIME type of the picture
+    /// </summary>
     public string MimeType()
     {
       if (Type is EmfBlip)
