@@ -188,7 +188,9 @@ namespace RtfPipe
                 case '\n':
                 case '\r':
                   _reader.Read();
-                  yield return ConsumeToken(GetControlWord("para"));
+                  if (_context.Peek().ValueBuffer.Length > 0)
+                    yield return ConsumeTextBuffer();
+                  yield return ConsumeToken(GetControlWord("par"));
                   break;
 
                 case '\'':

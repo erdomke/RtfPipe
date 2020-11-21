@@ -101,6 +101,10 @@
     <EmbeddedResource Include="Files\Issue51.rtf" />
     <EmbeddedResource Include="Files\Issue52.rtf" />
     <EmbeddedResource Include="Files\Issue53.rtf" />
+    <EmbeddedResource Include="Files\phprtflite\chess_tournament.rtf" />
+    <EmbeddedResource Include="Files\phprtflite\paragraphs_in_tables.rtf" />
+    <EmbeddedResource Include="Files\phprtflite\tables.rtf" />
+    <EmbeddedResource Include="Files\phprtflite\utf8.rtf" />
     <None Include="Files\rtf2xml\char_upper_ranges_hex.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\escaped_text.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\headings_mixed.rtf" />
@@ -117,6 +121,11 @@
     <EmbeddedResource Include="Files\rtf2xml\table_different_cell_widths.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\table_empty_row.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\table_with_header.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\japanese.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\list_with_indented_items.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\nested_lists_indents_word.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\os_x_text_edit_faces_mixed.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\os_x_text_edit_italics_mixed.rtf" />
     <None Include="packages.config" />
     <None Include="RtfPipeStrongNameKey.snk" />
   </ItemGroup>
@@ -152,6 +161,11 @@
     <EmbeddedResource Include="Files\rtf2xml\color.html" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Files\rtf2xml\os_x_text_edit_faces_mixed.html" />
+    <EmbeddedResource Include="Files\rtf2xml\os_x_text_edit_italics_mixed.html" />
+    <EmbeddedResource Include="Files\rtf2xml\nested_lists_indents_word.html" />
+    <EmbeddedResource Include="Files\rtf2xml\list_with_indented_items.html" />
+    <EmbeddedResource Include="Files\rtf2xml\japanese.html" />
     <EmbeddedResource Include="Files\rtf2xml\table_with_header.html" />
     <EmbeddedResource Include="Files\rtf2xml\simplest.html" />
     <EmbeddedResource Include="Files\rtf2xml\table_different_cell_widths.html" />
@@ -182,6 +196,10 @@
     <EmbeddedResource Include="Files\Issue51.html" />
     <EmbeddedResource Include="Files\Issue52.html" />
     <EmbeddedResource Include="Files\Issue53.html" />
+    <EmbeddedResource Include="Files\phprtflite\chess_tournament.html" />
+    <EmbeddedResource Include="Files\phprtflite\paragraphs_in_tables.html" />
+    <EmbeddedResource Include="Files\phprtflite\tables.html" />
+    <EmbeddedResource Include="Files\phprtflite\utf8.html" />
     <Content Include="Files\rtf2xml\char_upper_ranges_hex.html" />
     <EmbeddedResource Include="Files\rtf2xml\outline_list.html" />
     <EmbeddedResource Include="Files\rtf2xml\nested_lists_indents.html" />

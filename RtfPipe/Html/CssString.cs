@@ -14,7 +14,7 @@ namespace RtfPipe.Model
 
     public CssString() { }
 
-    public CssString(IEnumerable<IToken> tokens, ElementType elementType)
+    public CssString(IEnumerable<IToken> tokens, ElementType elementType, IEnumerable<IToken> allStyles)
     {
       var margins = new UnitValue[4];
       var borders = new BorderToken[4];
@@ -22,8 +22,13 @@ namespace RtfPipe.Model
       var cellSpacing = new UnitValue[4];
 
       const double DefaultBrowserLineHeight = 1.2;
-      
-      foreach (var token in tokens)
+      var allTokens = tokens.ToList();
+      if (allTokens.OfType<CellPaddingUnit>().Any(u => u.Value == 3))
+        allTokens.RemoveWhere(t => t is HalfCellPadding);
+      else
+        allTokens.RemoveWhere(t => t is CellPaddingBottom || t is CellPaddingLeft || t is CellPaddingRight || t is CellPaddingTop);
+
+      foreach (var token in allTokens)
       {
         if (token is Font font)
           Append(font);
@@ -106,6 +111,12 @@ namespace RtfPipe.Model
           {
             Append("line-height", new UnitValue(lineSpace.Value * -1, UnitType.Twip));
           }
+          else
+          {
+            var fSize = allStyles.OfType<FontSize>().FirstOrDefault()?.Value ?? UnitValue.Empty;
+            if (fSize.HasValue && lineSpace.Value > fSize.ToTwip() * DefaultBrowserLineHeight)
+              Append("line-height", new UnitValue(lineSpace.Value, UnitType.Twip));
+          }
         }
         else if (token is CellVerticalAlign cellVerticalAlign)
           Append("vertical-align", cellVerticalAlign.Value == VerticalAlignment.Center ? "middle" : cellVerticalAlign.Value.ToString().ToLowerInvariant());
@@ -119,6 +130,23 @@ namespace RtfPipe.Model
           cellSpacing[3] = leftCellSpacing.Value;
         else if (token is HalfCellPadding halfCellPadding)
           padding[1] = padding[3] = halfCellPadding.Value;
+        else if (token is CellPaddingTop cellPaddingTop)
+          padding[0] = cellPaddingTop.Value;
+        else if (token is CellPaddingRight cellPaddingRight)
+          padding[1] = cellPaddingRight.Value;
+        else if (token is CellPaddingBottom cellPaddingBottom)
+          padding[2] = cellPaddingBottom.Value;
+        else if (token is CellPaddingLeft cellPaddingLeft)
+          padding[3] = cellPaddingLeft.Value;
+        else if (token is RowHeight rowHeight)
+        {
+          if (rowHeight.Value.Value < 0)
+            Append("height", new UnitValue(rowHeight.Value.Value * -1, rowHeight.Value.Unit));
+          else
+            Append("height", rowHeight.Value); // height works like min-height in tables
+        }
+        else if (token is CellWritingMode cellWritingMode && cellWritingMode.Value != WritingMode.HorizontalTb)
+          Append("writing-mode", cellWritingMode.Value == WritingMode.VerticalLr ? "vertical-lr" : "vertical-rl");
       }
 
       if (cellSpacing.Any(v => v.HasValue) && elementType == ElementType.Table)

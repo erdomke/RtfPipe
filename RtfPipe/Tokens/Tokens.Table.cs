@@ -92,6 +92,38 @@ namespace RtfPipe.Tokens
     public RowLeft(UnitValue value) : base(value) { }
   }
 
+  public class RowHeight : ControlWord<UnitValue>
+  {
+    public override string Name => "trrh";
+    public override TokenType Type => TokenType.RowFormat;
+
+    public RowHeight(UnitValue value) : base(value) { }
+  }
+
+  public class CellWritingMode : ControlWord<WritingMode>
+  {
+    public override string Name
+    {
+      get
+      {
+        switch (Value)
+        {
+          case WritingMode.VerticalLr:
+            return "cltxbtlr";
+          case WritingMode.VerticalRl:
+            return "cltxtbrl";
+          default:
+            return "cltxlrtb";
+        }
+      }
+    }
+    public override TokenType Type => TokenType.CellFormat;
+
+    public CellWritingMode(WritingMode value) : base(value) { }
+
+    public override string ToString() => "\\" + Name;
+  }
+
   public class RowTextAlign : ControlWord<TextAlignment>
   {
     public override string Name => "trq" + Value.ToString().ToLowerInvariant()[0];
@@ -194,6 +226,50 @@ namespace RtfPipe.Tokens
     public CellVerticalAlign(VerticalAlignment value) : base(value) { }
 
     public override string ToString() => "\\" + Name;
+  }
+
+  public class CellPaddingLeft : ControlWord<UnitValue>
+  {
+    public override string Name => "clpadl";
+    public override TokenType Type => TokenType.CellFormat;
+
+    public CellPaddingLeft(UnitValue value) : base(value) { }
+  }
+
+  public class CellPaddingTop : ControlWord<UnitValue>
+  {
+    public override string Name => "clpadt";
+    public override TokenType Type => TokenType.CellFormat;
+
+    public CellPaddingTop(UnitValue value) : base(value) { }
+  }
+
+  public class CellPaddingBottom : ControlWord<UnitValue>
+  {
+    public override string Name => "clpadb";
+    public override TokenType Type => TokenType.CellFormat;
+
+    public CellPaddingBottom(UnitValue value) : base(value) { }
+  }
+
+  public class CellPaddingRight : ControlWord<UnitValue>
+  {
+    public override string Name => "clpadr";
+    public override TokenType Type => TokenType.CellFormat;
+
+    public CellPaddingRight(UnitValue value) : base(value) { }
+  }
+
+  public class CellPaddingUnit : ControlWord<int>
+  {
+    public override string Name => "clpadf" + Side;
+    public override TokenType Type => TokenType.CellFormat;
+    public char Side { get; }
+
+    public CellPaddingUnit(int value, char side) : base(value)
+    {
+      Side = side;
+    }
   }
 
   public class InTable : ControlTag

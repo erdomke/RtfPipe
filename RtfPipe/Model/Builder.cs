@@ -208,13 +208,13 @@ namespace RtfPipe.Model
           else if (token is PageBreak || token is SectionBreak)
           {
             lastParagraphStyle = null;
-            paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
+            paragraph.SetStyles(groups.Peek().ParagraphStyles(document));
 
             AddFootnotes(root, footnotes, document, defaultStyles);
 
             paragraph = new Element(ElementType.Paragraph);
             var section = new Element(ElementType.Section, paragraph);
-            section.SetStyles(groups.Peek().NormalizedStyles(document)
+            section.SetStyles(groups.Peek().ParagraphStyles(document)
               .Where(t => t.Type != TokenType.ParagraphFormat && t.Type != TokenType.RowFormat && t.Type != TokenType.CellFormat));
             root.Add(section);
           }
@@ -222,7 +222,7 @@ namespace RtfPipe.Model
           {
             lastParagraphStyle = null;
             if (!paragraph.Styles.Any())
-              paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
+              paragraph.SetStyles(groups.Peek().ParagraphStyles(document));
             
             var nextParagraph = new Element(ElementType.Paragraph);
             paragraph.Parent.Add(nextParagraph);
@@ -231,7 +231,7 @@ namespace RtfPipe.Model
           else if (token is CellBreak || token is NestedCellBreak)
           {
             lastParagraphStyle = null;
-            paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
+            paragraph.SetStyles(groups.Peek().ParagraphStyles(document));
 
             var parent = paragraph.Parent;
             var cellContent = parent.Elements().Reverse()
@@ -260,7 +260,7 @@ namespace RtfPipe.Model
               foreach (var content in cellContent)
                 content.Remove();
               var cell = new Element(ElementType.TableCell, cellContent);
-              cell.SetStyles(groups.Peek().NormalizedStyles(document));
+              cell.SetStyles(groups.Peek().CellStyles(document));
               parent.Add(cell);
             }
             
@@ -278,7 +278,7 @@ namespace RtfPipe.Model
             var parent = paragraph.Parent;
             if (paragraph.Type == ElementType.TableCell)
             {
-              paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
+              paragraph.SetStyles(groups.Peek().CellStyles(document));
             }
             else
             {
@@ -294,7 +294,10 @@ namespace RtfPipe.Model
               var row = new Element(ElementType.TableRow);
               var rowStyles = new StyleList(groups.Peek().Styles);
               rowStyles.Merge(new NestingLevel(Math.Max(currLevel - 1, 0)));
-              rowStyles.RemoveWhere(t => t is HalfCellPadding || t is BorderToken);
+              rowStyles.RemoveWhere(t => t is HalfCellPadding 
+                || t is BorderToken
+                || t is CellBackgroundColor
+                || t is ParagraphBackgroundColor);
               var cellFormats = rowStyles.OfType<CellToken>().ToList();
               if (cellFormats.Count < cells.Count)
                 throw new InvalidOperationException("Fewer cell styles were found than cell breaks");
@@ -359,7 +362,7 @@ namespace RtfPipe.Model
             || token.Type == TokenType.SectionFormat)
           {
             if ((token is ParagraphDefault || token is SectionDefault) && paragraph.Nodes().Any())
-              paragraph.SetStyles(groups.Peek().NormalizedStyles(document));
+              paragraph.SetStyles(groups.Peek().ParagraphStyles(document));
             //stylesBeforeReset = groups.Peek().Styles.ToList();
             else if (token is ListLevelNumber listLevelNumber)
               paragraph.Type = ElementType.ListItem;
@@ -376,7 +379,7 @@ namespace RtfPipe.Model
       if (paragraph.Nodes().Any())
       {
         if (!paragraph.Styles.Any())
-          paragraph.SetStyles(lastParagraphStyle.NormalizedStyles(document));
+          paragraph.SetStyles(lastParagraphStyle.ParagraphStyles(document));
       }
       else
       {
@@ -760,7 +763,7 @@ namespace RtfPipe.Model
         _defaultStyles = previous._defaultStyles;
       }
 
-      public IEnumerable<IToken> NormalizedStyles(Document document)
+      public IEnumerable<IToken> ParagraphStyles(Document document)
       {
         var styleId = Styles.OfType<ListStyleId>().FirstOrDefault();
         if (styleId == null || !document.ListStyles.TryGetValue(styleId.Value, out var listStyle))
@@ -773,6 +776,13 @@ namespace RtfPipe.Model
         result.MergeRange(Styles
           .Where(t => !HtmlVisitor.IsSpanElement(t)));
         return result;
+      }
+
+      public IEnumerable<IToken> CellStyles(Document document)
+      {
+        return ParagraphStyles(document)
+          .Where(t => !(t is BorderToken && t.Type == TokenType.ParagraphFormat)
+            && !(t is LeftIndent || t is RightIndent || t is ParagraphBackgroundColor));
       }
 
       public void AddStyle(IToken token)

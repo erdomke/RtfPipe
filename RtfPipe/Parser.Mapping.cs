@@ -532,6 +532,8 @@ namespace RtfPipe
           return new HeaderRow();
         case "trleft":
           return new RowLeft(new UnitValue(number, UnitType.Twip));
+        case "trrh":
+          return new RowHeight(new UnitValue(number, UnitType.Twip));
         case "trqc":
           return new RowTextAlign(TextAlignment.Center);
         case "trql":
@@ -568,6 +570,28 @@ namespace RtfPipe
           return new CellWidth(number);
         case "clmrg":
           return new CellMergePrevious();
+        case "cltxbtlr":
+          return new CellWritingMode(WritingMode.VerticalLr);
+        case "cltxtbrl":
+          return new CellWritingMode(WritingMode.VerticalRl);
+        case "cltxlrtb":
+          return new CellWritingMode(WritingMode.HorizontalTb);
+        case "clpadt":
+          return new CellPaddingLeft(new UnitValue(number, UnitType.Twip));
+        case "clpadft":
+          return new CellPaddingUnit(number, 't');
+        case "clpadl":
+          return new CellPaddingTop(new UnitValue(number, UnitType.Twip));
+        case "clpadfl":
+          return new CellPaddingUnit(number, 'l');
+        case "clpadb":
+          return new CellPaddingBottom(new UnitValue(number, UnitType.Twip));
+        case "clpadfb":
+          return new CellPaddingUnit(number, 'b');
+        case "clpadr":
+          return new CellPaddingRight(new UnitValue(number, UnitType.Twip));
+        case "clpadfr":
+          return new CellPaddingUnit(number, 'r');
         case "intbl":
           return new InTable();
         case "clvertalt":

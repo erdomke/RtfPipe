@@ -110,7 +110,7 @@ namespace RtfPipe.Model
 
       if (styleList.Count > 0)
       {
-        var css = new CssString(styleList, element.Type);
+        var css = new CssString(styleList, element.Type, elementStyles);
         if (css.Length > 0)
           _writer.WriteAttributeString("style", css.ToString());
       }
@@ -290,7 +290,7 @@ namespace RtfPipe.Model
       if (hyperlink == null && styleList.TryRemoveMany(StyleList.IsUnderline, out var underlineStyles))
       {
         _writer.WriteStartElement(GetElementTag(ElementType.Underline, null, HtmlTag.U).Name);
-        var underlineCss = new CssString(underlineStyles.Where(t => !(t is IsUnderline)), ElementType.Underline);
+        var underlineCss = new CssString(underlineStyles.Where(t => !(t is IsUnderline)), ElementType.Underline, run.Styles);
         if (underlineCss.Length > 0)
         {
           _writer.WriteAttributeString("style", underlineCss.ToString());
@@ -315,7 +315,7 @@ namespace RtfPipe.Model
         endTags++;
       }
 
-      var css = new CssString(styleList, elementType);
+      var css = new CssString(styleList, elementType, run.Styles);
       if (hyperlink != null)
       {
         _writer.WriteStartElement(tag.Name);

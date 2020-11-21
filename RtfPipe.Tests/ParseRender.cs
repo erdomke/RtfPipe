@@ -38,6 +38,12 @@ namespace RtfPipe.Tests
     }
 
     [TestMethod]
+    public void ChessTournament()
+    {
+      TestConvert("RtfPipe.Tests.Files.phprtflite.chess_tournament");
+    }
+
+    [TestMethod]
     public void Color()
     {
       TestConvert("RtfPipe.Tests.Files.rtf2xml.color");
@@ -92,9 +98,21 @@ namespace RtfPipe.Tests
     }
 
     [TestMethod]
+    public void Japanese()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.japanese");
+    }
+
+    [TestMethod]
     public void ListInTable()
     {
       TestConvert("RtfPipe.Tests.Files.rtf2xml.list_in_table");
+    }
+
+    [TestMethod]
+    public void ListWithIndentedItems()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.list_with_indented_items");
     }
 
     [TestMethod]
@@ -116,6 +134,12 @@ namespace RtfPipe.Tests
     }
 
     [TestMethod]
+    public void NestedListsIndentsWord()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.nested_lists_indents_word");
+    }
+
+    [TestMethod]
     public void NestedTableReport()
     {
       TestConvert("RtfPipe.Tests.Files.nested_table_report");
@@ -125,6 +149,18 @@ namespace RtfPipe.Tests
     public void NestedTables()
     {
       TestConvert("RtfPipe.Tests.Files.phprtflite.nested_tables");
+    }
+
+    [TestMethod]
+    public void OsXTextEditFacesMixed()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.os_x_text_edit_faces_mixed");
+    }
+
+    [TestMethod]
+    public void OsXTextEditItalicsMixed()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.os_x_text_edit_italics_mixed");
     }
 
     [TestMethod]
@@ -138,6 +174,13 @@ namespace RtfPipe.Tests
     {
       Parser.Clock = () => new DateTime(2018, 7, 1);
       TestConvert("RtfPipe.Tests.Files.phprtflite.paragraphs_fonts");
+    }
+
+    [TestMethod]
+    public void ParagraphsInTables()
+    {
+      Parser.Clock = () => new DateTime(2018, 7, 1);
+      TestConvert("RtfPipe.Tests.Files.phprtflite.paragraphs_in_tables");
     }
 
     [TestMethod]
@@ -183,6 +226,13 @@ namespace RtfPipe.Tests
     }
 
     [TestMethod]
+    public void Tables()
+    {
+      Parser.Clock = () => new DateTime(2018, 7, 1);
+      TestConvert("RtfPipe.Tests.Files.phprtflite.tables");
+    }
+
+    [TestMethod]
     public void TableSimple()
     {
       TestConvert("RtfPipe.Tests.Files.rtf2xml.table_simple");
@@ -198,6 +248,13 @@ namespace RtfPipe.Tests
     public void Test01()
     {
       TestConvert("RtfPipe.Tests.Files.Test01");
+    }
+
+    [TestMethod]
+    public void Utf8()
+    {
+      Parser.Clock = () => new DateTime(2018, 7, 1);
+      TestConvert("RtfPipe.Tests.Files.phprtflite.utf8");
     }
 
     private void TestParse(string path)
