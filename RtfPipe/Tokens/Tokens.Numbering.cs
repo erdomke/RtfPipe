@@ -27,6 +27,12 @@ namespace RtfPipe.Tokens
     public override TokenType Type => TokenType.ParagraphFormat;
   }
 
+  public class NumberingLevelContinue : ControlTag
+  {
+    public override string Name => "pnlvlcont";
+    public override TokenType Type => TokenType.ParagraphFormat;
+  }
+
   public class NumberingIndent : ControlWord<UnitValue>
   {
     public override string Name => "pnindent";

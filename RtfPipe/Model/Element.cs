@@ -106,7 +106,9 @@ namespace RtfPipe.Model
       Styles.Set(styles
         .Where(t => (t.Type & TokenType.Format) > 0)
         .ToList());
-      if (Type == ElementType.Paragraph && Styles.OfType<ParagraphNumbering>().Any())
+      if (Type == ElementType.Paragraph 
+        && Styles.OfType<ParagraphNumbering>().Any() 
+        && !Styles.OfType<NumberingLevelContinue>().Any())
         Type = ElementType.ListItem;
     }
 

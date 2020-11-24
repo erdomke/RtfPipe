@@ -274,6 +274,8 @@ namespace RtfPipe
           return new NumberingLevelBullet();
         case "pnlvlbody":
           return new NumberingLevelBody();
+        case "pnlvlcont":
+          return new NumberingLevelContinue();
         case "pnindent":
           return new NumberingIndent(new UnitValue(number, UnitType.Twip));
         case "pntxtb":
@@ -690,6 +692,18 @@ namespace RtfPipe
         case "page":
         case "pagebb":
           return new PageBreak();
+
+        // Shapes
+        case "shp":
+          return new ShapeTag();
+        case "shpinst":
+          return new ShapeInstructions();
+        case "sp":
+          return new ShapeProperty();
+        case "sn":
+          return new ShapePropertyName();
+        case "sv":
+          return new ShapePropertyValue();
 
         // Other
         case "chftn":

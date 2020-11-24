@@ -19,7 +19,7 @@ namespace RtfPipe
       Id = id;
     }
 
-    internal void Add(IToken token)
+    internal Font Add(IToken token)
     {
       if (token is TextToken text && !string.IsNullOrEmpty(text.Value.TrimEnd(';')))
         Name = text.Value.TrimEnd(';');
@@ -29,6 +29,7 @@ namespace RtfPipe
         Category = category.Value;
       else
         _tokens.Add(token);
+      return this;
     }
   }
 }

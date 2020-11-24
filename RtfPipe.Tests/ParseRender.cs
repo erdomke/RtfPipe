@@ -158,6 +158,18 @@ namespace RtfPipe.Tests
     }
 
     [TestMethod]
+    public void OpenOfficeHelloWorld()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.open_office_hello_world");
+    }
+
+    [TestMethod]
+    public void OpenOfficeSpecialChar()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.open_office_special_char");
+    }
+
+    [TestMethod]
     public void OsXTextEditItalicsMixed()
     {
       TestConvert("RtfPipe.Tests.Files.rtf2xml.os_x_text_edit_italics_mixed");

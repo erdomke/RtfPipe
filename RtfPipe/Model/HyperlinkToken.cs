@@ -1,3 +1,6 @@
+using RtfPipe.Model;
+using System.Collections.Generic;
+
 namespace RtfPipe
 {
   internal class HyperlinkToken : IToken
@@ -10,44 +13,45 @@ namespace RtfPipe
 
     public HyperlinkToken() { }
 
-    public HyperlinkToken(string[] args)
+    public HyperlinkToken(IList<IToken> args)
     {
-      for (var i = 1; i < args.Length; i++)
+      for (var i = 1; i < args.Count; i++)
       {
-        switch (args[i])
+        if (args[i] is FieldSwitch fieldSwitch)
         {
-          case @"\l":
-            if ((i + 1) < args.Length)
-            {
-              Url = "#" + args[i + 1].Trim('"');
-              i++;
-            }
-            break;
-          case @"\m": // Coordinates for an image map
-            break;
-          case @"\n":
-            Target = "_blank";
-            break;
-          case @"\o":
-            if ((i + 1) < args.Length)
-            {
-              Title = args[i + 1].Trim('"');
-              i++;
-            }
-            break;
-          case @"\t":
-            if ((i + 1) < args.Length)
-            {
-              Target = args[i + 1].Trim('"');
-              i++;
-            }
-            break;
-          default:
-            if (args[i].StartsWith("\""))
-              Url = args[i].Trim('"');
-            else
-              Url = args[i];
-            break;
+          switch (fieldSwitch.Value)
+          {
+            case "l":
+              if ((i + 1) < args.Count && args[i + 1] is TextToken bookmark)
+              {
+                Url = "#" + bookmark.Value;
+                i++;
+              }
+              break;
+            case "m": // Coordinates for an image map
+              break;
+            case "n":
+              Target = "_blank";
+              break;
+            case "o":
+              if ((i + 1) < args.Count && args[i + 1] is TextToken title)
+              {
+                Title = title.Value;
+                i++;
+              }
+              break;
+            case @"\t":
+              if ((i + 1) < args.Count && args[i + 1] is TextToken target)
+              {
+                Target = target.Value;
+                i++;
+              }
+              break;
+          }
+        }
+        else if (args[i] is TextToken url)
+        {
+          Url = url.Value;
         }
       }
     }

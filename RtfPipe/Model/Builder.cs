@@ -113,16 +113,18 @@ namespace RtfPipe.Model
             }
             else if (dest is FieldInstructions || fallbackDest is FieldInstructions)
             {
-              var instructions = childGroup.Contents
-                .OfType<Group>()
-                .SelectMany(g => g.Contents.OfType<TextToken>())
-                .FirstOrDefault(t => t.Value?.IndexOf("HYPERLINK") >= 0)
-                ?.Value?.Trim();
-              if (!string.IsNullOrEmpty(instructions))
+              var fieldTokens = FieldParser.Parse(childGroup).ToList();
+              if (fieldTokens.Count > 0 && fieldTokens[0] is FieldTypeTag fieldTypeTag)
               {
-                var args = instructions.Split(' ');
-                if (args[0] == "HYPERLINK")
-                  groups.Peek().AddStyle(new HyperlinkToken(args));
+                switch (fieldTypeTag.Value)
+                {
+                  case FieldType.Hyperlink:
+                    groups.Peek().AddStyle(new HyperlinkToken(fieldTokens));
+                    break;
+                  case FieldType.Symbol:
+                    paragraph.Add(FieldParser.ParseSymbol(fieldTokens, groups.Peek().Styles));
+                    break;
+                }
               }
             }
             else if (dest is BookmarkStart)
@@ -132,6 +134,16 @@ namespace RtfPipe.Model
             else if (dest is PictureTag)
             {
               paragraph.Add(new Picture(childGroup));
+            }
+            else if (dest is ShapeTag)
+            {
+              var shape = new Shape(childGroup);
+              if (shape.Type == ShapeType.PictureFrame 
+                && shape.Properties.TryGetValue("pib", out var picObj)
+                && picObj is Picture picture)
+              {
+                paragraph.Add(picture);
+              }
             }
             else if (dest is Footnote)
             {
@@ -144,7 +156,8 @@ namespace RtfPipe.Model
             }
             else if (dest is ParagraphNumbering)
             {
-              paragraph.Type = ElementType.ListItem;
+              if (!childGroup.Contents.OfType<NumberingLevelContinue>().Any())
+                paragraph.Type = ElementType.ListItem;
               foreach (var child in childGroup.Contents.Where(t => t.Type == TokenType.ParagraphFormat))
                 groups.Peek().AddStyle(child);
             }
