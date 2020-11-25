@@ -128,6 +128,7 @@
     <EmbeddedResource Include="Files\rtf2xml\os_x_text_edit_italics_mixed.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\open_office_hello_world.rtf" />
     <EmbeddedResource Include="Files\rtf2xml\open_office_special_char.rtf" />
+    <EmbeddedResource Include="Files\rtf2xml\headers_footers.rtf" />
     <None Include="packages.config" />
     <None Include="RtfPipeStrongNameKey.snk" />
   </ItemGroup>
@@ -163,6 +164,7 @@
     <EmbeddedResource Include="Files\rtf2xml\color.html" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Files\rtf2xml\headers_footers.html" />
     <EmbeddedResource Include="Files\rtf2xml\open_office_hello_world.html" />
     <EmbeddedResource Include="Files\rtf2xml\open_office_special_char.html" />
     <EmbeddedResource Include="Files\rtf2xml\os_x_text_edit_faces_mixed.html" />

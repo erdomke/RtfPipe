@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RtfPipe.Tokens
 {
@@ -15,7 +13,7 @@ namespace RtfPipe.Tokens
     public override string Name => "title";
     public override TokenType Type => TokenType.HeaderTag;
   }
-
+  
   public class Subject : ControlTag
   {
     public override string Name => "subject";
@@ -33,7 +31,7 @@ namespace RtfPipe.Tokens
     public override string Name => "manager";
     public override TokenType Type => TokenType.HeaderTag;
   }
-
+  
   public class Company : ControlTag
   {
     public override string Name => "company";
@@ -51,13 +49,13 @@ namespace RtfPipe.Tokens
     public override string Name => "category";
     public override TokenType Type => TokenType.HeaderTag;
   }
-
+  
   public class Keywords : ControlTag
   {
     public override string Name => "keywords";
     public override TokenType Type => TokenType.HeaderTag;
   }
-
+  
   public class Comment : ControlTag
   {
     public override string Name => "comment";
@@ -75,7 +73,7 @@ namespace RtfPipe.Tokens
     public override string Name => "hlinkbase";
     public override TokenType Type => TokenType.HeaderTag;
   }
-
+  
   public class CreateTime : ControlTag
   {
     public override string Name => "creatim";
@@ -87,13 +85,13 @@ namespace RtfPipe.Tokens
     public override string Name => "revtim";
     public override TokenType Type => TokenType.HeaderTag;
   }
-
+  
   public class PrintTime : ControlTag
   {
     public override string Name => "printtim";
     public override TokenType Type => TokenType.HeaderTag;
   }
-
+  
   public class BackupTime : ControlTag
   {
     public override string Name => "buptim";
@@ -141,14 +139,14 @@ namespace RtfPipe.Tokens
 
     public Second(int value) : base(value) { }
   }
-
+  
   public class Version : ControlWord<int>
   {
     public override string Name => "version";
 
     public Version(int value) : base(value) { }
   }
-
+  
   public class EditingTime : ControlWord<TimeSpan>
   {
     public override string Name => "edmins";

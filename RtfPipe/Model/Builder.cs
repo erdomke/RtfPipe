@@ -47,6 +47,7 @@ namespace RtfPipe.Model
       }
 
       result.Root = Build(body, document, defaultStyles);
+      result.Metadata = document.Information;
       return result;
     }
 
@@ -102,14 +103,39 @@ namespace RtfPipe.Model
               // Ignore fallback content
             }
             else if (dest is Header
-              || dest is HeaderEven
+              || dest is HeaderLeft
               || dest is HeaderFirst
-              || dest is HeaderOdd
+              || dest is HeaderRight
               || dest is Footer
               || dest is FooterFirst
-              || dest is FooterOdd)
+              || dest is FooterRight
+              || dest is FooterLeft)
             {
-              // skip for now
+              var section = default(Element);
+              if (dest is Header)
+                section = (Element)root.InsertBefore(paragraph.Parent, new Element(ElementType.Header));
+              else if (dest is HeaderLeft)
+                section = (Element)root.InsertBefore(paragraph.Parent, new Element(ElementType.HeaderLeft));
+              else if (dest is HeaderFirst)
+                section = (Element)root.InsertBefore(paragraph.Parent, new Element(ElementType.HeaderFirst));
+              else if (dest is HeaderRight)
+                section = (Element)root.InsertBefore(paragraph.Parent, new Element(ElementType.HeaderRight));
+              else if (dest is Footer)
+                section = (Element)root.InsertAfter(paragraph.Parent, new Element(ElementType.Footer));
+              else if (dest is FooterFirst)
+                section = (Element)root.InsertAfter(paragraph.Parent, new Element(ElementType.FooterFirst));
+              else if (dest is FooterRight)
+                section = (Element)root.InsertAfter(paragraph.Parent, new Element(ElementType.FooterRight));
+              else if (dest is FooterLeft)
+                section = (Element)root.InsertAfter(paragraph.Parent, new Element(ElementType.FooterLeft));
+
+              var newState = new TokenState(childGroup.Contents, groups.Peek())
+              {
+                PreviousParagraph = paragraph
+              };
+              paragraph = new Element(ElementType.Paragraph);
+              section.Add(paragraph);
+              groups.Push(newState);
             }
             else if (dest is FieldInstructions || fallbackDest is FieldInstructions)
             {
@@ -349,22 +375,22 @@ namespace RtfPipe.Model
             switch (outlineLevel.Value + 1)
             {
               case 2:
-                paragraph.Type = ElementType.Header2;
+                paragraph.Type = ElementType.Heading2;
                 break;
               case 3:
-                paragraph.Type = ElementType.Header3;
+                paragraph.Type = ElementType.Heading3;
                 break;
               case 4:
-                paragraph.Type = ElementType.Header4;
+                paragraph.Type = ElementType.Heading4;
                 break;
               case 5:
-                paragraph.Type = ElementType.Header5;
+                paragraph.Type = ElementType.Heading5;
                 break;
               case 6:
-                paragraph.Type = ElementType.Header6;
+                paragraph.Type = ElementType.Heading6;
                 break;
               default:
-                paragraph.Type = ElementType.Header1;
+                paragraph.Type = ElementType.Heading1;
                 break;
             }
           }
@@ -387,18 +413,21 @@ namespace RtfPipe.Model
 
         var state = groups.Pop();
         lastParagraphStyle = lastParagraphStyle ?? state;
+        if (state.PreviousParagraph != null)
+        {
+          if (!paragraph.Nodes().Any())
+            paragraph.Remove();
+          else if (!paragraph.Styles.Any())
+            paragraph.SetStyles(state.ParagraphStyles(document));
+          paragraph = state.PreviousParagraph;
+        }
       }
 
-      if (paragraph.Nodes().Any())
-      {
-        if (!paragraph.Styles.Any())
-          paragraph.SetStyles(lastParagraphStyle.ParagraphStyles(document));
-      }
-      else
-      {
+      if (!paragraph.Nodes().Any())
         paragraph.Remove();
-      }
-
+      else if (!paragraph.Styles.Any())
+        paragraph.SetStyles(lastParagraphStyle.ParagraphStyles(document));
+      
       AddFootnotes(root, footnotes, document, defaultStyles);
 
       OrganizeMargins(root);
@@ -761,7 +790,8 @@ namespace RtfPipe.Model
 
       public IEnumerator<IToken> Tokens { get; }
       public IEnumerable<IToken> Styles => _styles;
-
+      public Element PreviousParagraph { get; set; }
+      
       public TokenState(IEnumerable<IToken> tokens, List<IToken> defaultStyles)
       {
         Tokens = tokens.GetEnumerator();

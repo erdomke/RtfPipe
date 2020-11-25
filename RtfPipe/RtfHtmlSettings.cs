@@ -39,6 +39,39 @@ namespace RtfPipe
       ImageUriGetter = DataUri;
     }
 
+    public RtfHtmlSettings WithFullDocument()
+    {
+      ElementTags[ElementType.Meta] = HtmlTag.Meta;
+      ElementTags[ElementType.Document] = HtmlTag.Body;
+      ElementTags[ElementType.Footer] = HtmlTag.Header;
+      ElementTags[ElementType.FooterFirst] = new HtmlTag("footer")
+      {
+        Attributes = { { "class", "footer-first" } }
+      };
+      ElementTags[ElementType.FooterLeft] = new HtmlTag("footer")
+      {
+        Attributes = { { "class", "footer-left" } }
+      };
+      ElementTags[ElementType.FooterRight] = new HtmlTag("footer")
+      {
+        Attributes = { { "class", "footer-right" } }
+      };
+      ElementTags[ElementType.Header] = HtmlTag.Header;
+      ElementTags[ElementType.HeaderFirst] = new HtmlTag("header")
+      {
+        Attributes = { { "class", "header-first" } }
+      };
+      ElementTags[ElementType.HeaderLeft] = new HtmlTag("header")
+      {
+        Attributes = { { "class", "header-left" } }
+      };
+      ElementTags[ElementType.HeaderRight] = new HtmlTag("header")
+      {
+        Attributes = { { "class", "header-right" } }
+      };
+      return this;
+    }
+
     private static string DataUri(Picture picture)
     {
 #if NETFULL
@@ -68,12 +101,12 @@ namespace RtfPipe
       { ElementType.Container, HtmlTag.Div },
       { ElementType.Document, HtmlTag.Div },
       { ElementType.Emphasis, HtmlTag.Em },
-      { ElementType.Header1, HtmlTag.H1 },
-      { ElementType.Header2, HtmlTag.H2 },
-      { ElementType.Header3, HtmlTag.H3 },
-      { ElementType.Header4, HtmlTag.H4 },
-      { ElementType.Header5, HtmlTag.H5 },
-      { ElementType.Header6, HtmlTag.H6 },
+      { ElementType.Heading1, HtmlTag.H1 },
+      { ElementType.Heading2, HtmlTag.H2 },
+      { ElementType.Heading3, HtmlTag.H3 },
+      { ElementType.Heading4, HtmlTag.H4 },
+      { ElementType.Heading5, HtmlTag.H5 },
+      { ElementType.Heading6, HtmlTag.H6 },
       { ElementType.Hyperlink, HtmlTag.A },
       { ElementType.List, HtmlTag.Ul },
       { ElementType.ListItem, HtmlTag.Li },

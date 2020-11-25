@@ -153,17 +153,17 @@ namespace RtfPipe
         case "headerf":
           return new HeaderFirst();
         case "headerl":
-          return new HeaderEven();
+          return new HeaderLeft();
         case "headerr":
-          return new HeaderOdd();
+          return new HeaderRight();
         case "footer":
           return new Footer();
         case "footerf":
           return new FooterFirst();
         case "footerl":
-          return new FooterEven();
+          return new FooterLeft();
         case "footerr":
-          return new FooterOdd();
+          return new FooterRight();
 
         // Font Tags
         case "f":

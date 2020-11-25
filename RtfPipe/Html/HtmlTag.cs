@@ -7,6 +7,7 @@ namespace RtfPipe.Model
   [DebuggerDisplay("{Name}")]
   public class HtmlTag
   {
+    public Dictionary<string, string> Attributes { get; } = new Dictionary<string, string>();
     public string Name { get; }
     public IList<IToken> Styles { get; } = new List<IToken>();
 
@@ -23,6 +24,7 @@ namespace RtfPipe.Model
         new ForegroundColor(new ColorValue(0, 0, 238))
       }
     };
+    public static HtmlTag Body { get; } = new HtmlTag("body");
     public static HtmlTag Div { get; } = new HtmlTag("div");
     public static HtmlTag Em { get; } = new HtmlTag("em")
     {
@@ -31,6 +33,7 @@ namespace RtfPipe.Model
         new IsItalic(true)
       }
     };
+    public static HtmlTag Footer { get; } = new HtmlTag("footer");
     public static HtmlTag H1 { get; } = new HtmlTag("h1")
     {
       Styles =
@@ -91,7 +94,9 @@ namespace RtfPipe.Model
         new IsBold(true)
       }
     };
+    public static HtmlTag Header { get; } = new HtmlTag("header");
     public static HtmlTag Li { get; } = new HtmlTag("li");
+    public static HtmlTag Meta { get; } = new HtmlTag("meta");
     public static HtmlTag Ol { get; } = new HtmlTag("ol")
     {
       Styles =

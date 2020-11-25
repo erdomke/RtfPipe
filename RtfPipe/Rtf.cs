@@ -69,10 +69,9 @@ namespace RtfPipe
         var html = new Model.Builder().Build(parser.Parse());
         var visitor = new Model.HtmlVisitor(writer)
         {
-          DefaultTabWidth = html.DefaultTabWidth,
           Settings = settings ?? new RtfHtmlSettings()
         };
-        html.Root.Visit(visitor);
+        visitor.Visit(html);
       }
       writer.Flush();
     }

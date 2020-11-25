@@ -72,7 +72,7 @@ namespace RtfPipe.Model
       while (curr != _content);
     }
 
-    internal void InsertAfter(Node after, Node node)
+    public Node InsertAfter(Node after, Node node)
     {
       if (after == _content)
       {
@@ -83,6 +83,18 @@ namespace RtfPipe.Model
         node.NextNode = after.NextNode;
         after.NextNode = node;
       }
+      return node;
+    }
+
+    public Node InsertBefore(Node before, Node node)
+    {
+      node.Parent = this;
+      var previous = before;
+      while (previous.NextNode != before)
+        previous = previous.NextNode;
+      previous.NextNode = node;
+      node.NextNode = before;
+      return node;
     }
 
     internal void RemoveNode(Node node)

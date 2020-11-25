@@ -10,12 +10,12 @@ namespace RtfPipe.Tokens
     public override string Name => "header";
   }
 
-  public class HeaderEven : ControlTag
+  public class HeaderLeft : ControlTag
   {
     public override string Name => "headerl";
   }
 
-  public class HeaderOdd : ControlTag
+  public class HeaderRight : ControlTag
   {
     public override string Name => "headerr";
   }
@@ -30,12 +30,12 @@ namespace RtfPipe.Tokens
     public override string Name => "footer";
   }
 
-  public class FooterEven : ControlTag
+  public class FooterLeft : ControlTag
   {
     public override string Name => "footerl";
   }
 
-  public class FooterOdd : ControlTag
+  public class FooterRight : ControlTag
   {
     public override string Name => "footerr";
   }

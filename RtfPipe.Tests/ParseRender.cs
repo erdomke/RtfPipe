@@ -62,6 +62,12 @@ namespace RtfPipe.Tests
     }
 
     [TestMethod]
+    public void HeadersFooters()
+    {
+      TestConvert("RtfPipe.Tests.Files.rtf2xml.headers_footers", true);
+    }
+
+    [TestMethod]
     public void HeadingWithSection()
     {
       TestConvert("RtfPipe.Tests.Files.rtf2xml.heading_with_section");
@@ -280,12 +286,15 @@ namespace RtfPipe.Tests
       }
     }
 
-    private void TestConvert(string path)
+    private void TestConvert(string path, bool fullDocument = false)
     {
       using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path + ".rtf"))
       using (var expectedReader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(path + ".html")))
       {
-        var actual = Rtf.ToHtml(stream);
+        var settings = new RtfHtmlSettings();
+        if (fullDocument)
+          settings.WithFullDocument();
+        var actual = Rtf.ToHtml(stream, settings);
         var expected = expectedReader.ReadToEnd();
         ParseRender.AssertEqual(expected, actual);
       }

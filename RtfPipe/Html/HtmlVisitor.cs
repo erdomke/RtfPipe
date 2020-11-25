@@ -37,25 +37,110 @@ namespace RtfPipe.Model
       _writer = writer;
     }
 
-    private HtmlTag GetElementTag(ElementType primary, ElementType? secondary, HtmlTag defaultValue)
+    private bool TryGetElementTag(ElementType primary, out HtmlTag tag)
     {
       var tags = Settings?.ElementTags ?? RtfHtmlSettings.DefaultTags;
-      if (tags.TryGetValue(primary, out var result)
-        || (secondary.HasValue && tags.TryGetValue(secondary.Value, out result)))
-        return result;
-      return defaultValue;
+      if (tags.TryGetValue(primary, out tag))
+        return !string.IsNullOrEmpty(tag.Name);
+      return false;
     }
     
+    public void Visit(RtfHtml document)
+    {
+      DefaultTabWidth = document.DefaultTabWidth;
+
+      if (TryGetElementTag(ElementType.Meta, out var metaTag))
+      {
+        _writer.WriteStartElement("html");
+        if (document.Metadata.Count > 0)
+        {
+          _writer.WriteStartElement("head");
+
+          var title = document.Metadata.FirstOrDefault(k => k.Key is Title).Value as string;
+          if (!string.IsNullOrEmpty(title))
+            _writer.WriteElementString("title", title);
+
+          var baseUrl = document.Metadata.FirstOrDefault(k => k.Key is HyperlinkBase).Value as string;
+          if (!string.IsNullOrEmpty(baseUrl))
+          {
+            _writer.WriteStartElement("base");
+            _writer.WriteAttributeString("href", baseUrl);
+            _writer.WriteEndElement();
+          }
+
+          foreach (var meta in document.Metadata
+            .Where(k => !(k.Key is Title | k.Key is InternalVersion) && k.Value != null))
+          {
+            _writer.WriteStartElement(metaTag.Name);
+            if (meta.Key is CreateTime)
+              _writer.WriteAttributeString("name", "DCTERMS.created");
+            else if (meta.Key is Subject)
+              _writer.WriteAttributeString("name", "DCTERMS.subject");
+            else if (meta.Key is Author)
+              _writer.WriteAttributeString("name", "DCTERMS.creator");
+            else if (meta.Key is Manager)
+              _writer.WriteAttributeString("name", "manager");
+            else if (meta.Key is Company)
+              _writer.WriteAttributeString("name", "company");
+            else if (meta.Key is Operator)
+              _writer.WriteAttributeString("name", "operator");
+            else if (meta.Key is Category)
+              _writer.WriteAttributeString("name", "category");
+            else if (meta.Key is Keywords)
+              _writer.WriteAttributeString("name", "keywords");
+            else if (meta.Key is Comment)
+              _writer.WriteAttributeString("name", "comment");
+            else if (meta.Key is DocComment)
+              _writer.WriteAttributeString("name", "comment");
+            else if (meta.Key is RevisionTime)
+              _writer.WriteAttributeString("name", "DCTERMS.modified");
+            else if (meta.Key is PrintTime)
+              _writer.WriteAttributeString("name", "print-time");
+            else if (meta.Key is BackupTime)
+              _writer.WriteAttributeString("name", "backup-time");
+            else if (meta.Key is Tokens.Version)
+              _writer.WriteAttributeString("name", "version");
+            else if (meta.Key is EditingTime)
+              _writer.WriteAttributeString("name", "editting-time");
+            else if (meta.Key is NumPages)
+              _writer.WriteAttributeString("name", "number-of-pages");
+            else if (meta.Key is NumWords)
+              _writer.WriteAttributeString("name", "number-of-words");
+            else if (meta.Key is NumChars)
+              _writer.WriteAttributeString("name", "number-of-characters");
+            else if (meta.Key is NumCharsWs)
+              _writer.WriteAttributeString("name", "number-of-non-whitespace-characters");
+
+            if (meta.Value is DateTime date)
+              _writer.WriteAttributeString("content", date.ToString("s"));
+            else
+              _writer.WriteAttributeString("content", meta.Value?.ToString() ?? "");
+
+            _writer.WriteEndElement();
+          }
+          _writer.WriteEndElement();
+        }
+        document.Root.Visit(this);
+        _writer.WriteEndElement();
+      }
+      else
+      {
+        var elements = document.Root.Elements().Where(e => TryGetElementTag(e.Type, out var _)).ToList();
+        if (elements.Count == 1)
+          elements[0].Visit(this);
+        else
+          document.Root.Visit(this);
+      }
+    }
+
     public void Visit(Element element)
     {
-      if (element.Type == ElementType.Document && element.Nodes().Count() == 1)
-      {
-        element.Nodes().First().Visit(this);
+      if (!TryGetElementTag(element.Type, out var tag))
         return;
-      }
-
-      var tag = GetElementTag(element.Type, ElementType.Paragraph, HtmlTag.Div);
+      
       _writer.WriteStartElement(tag.Name);
+      foreach (var attribute in tag.Attributes)
+        _writer.WriteAttributeString(attribute.Key, attribute.Value);
 
       var elementStyles = (IEnumerable<IToken>)element.Styles;
       if (element.Type == ElementType.TableCell || element.Type == ElementType.TableHeaderCell)
@@ -103,7 +188,7 @@ namespace RtfPipe.Model
       ProcessLeadingTabs(element, styleList);
       if (element.Type == ElementType.Section 
         && element.Parent != null
-        && element.Parent.Elements().First() != element)
+        && element.Parent.Elements().First(e => e.Type == ElementType.Section) != element)
       {
         styleList.Add(new PageBreak());
       }
@@ -271,7 +356,10 @@ namespace RtfPipe.Model
     {
       var hyperlink = run.Styles.OfType<HyperlinkToken>().FirstOrDefault();
       var elementType = hyperlink == null ? ElementType.Span : ElementType.Hyperlink;
-      var tag = GetElementTag(elementType, null, hyperlink == null ? HtmlTag.Span : HtmlTag.A);
+
+      if (!TryGetElementTag(elementType, out var tag))
+        return;
+
       var styleList = new StyleList(GetNewStyles(run.Styles, tag)
         .Where(t => t.Type == TokenType.CharacterFormat));
       var stylesWritten = false;
@@ -281,19 +369,23 @@ namespace RtfPipe.Model
         styleList.RemoveWhere(t => t is Font);
 
       var endTags = 0;
-      if (styleList.TryRemoveFirstTrue(out IsBold boldToken))
+      if (TryGetElementTag(ElementType.Strong, out var boldTag)
+        && styleList.TryRemoveFirstTrue(out IsBold boldToken))
       {
-        _writer.WriteStartElement(GetElementTag(ElementType.Strong, null, HtmlTag.Strong).Name);
+        _writer.WriteStartElement(boldTag.Name);
         endTags++;
       }
-      if (styleList.TryRemoveFirstTrue(out IsItalic italicToken))
+      if (TryGetElementTag(ElementType.Emphasis, out var italicTag)
+        && styleList.TryRemoveFirstTrue(out IsItalic italicToken))
       {
-        _writer.WriteStartElement(GetElementTag(ElementType.Emphasis, null, HtmlTag.Em).Name);
+        _writer.WriteStartElement(italicTag.Name);
         endTags++;
       }
-      if (hyperlink == null && styleList.TryRemoveMany(StyleList.IsUnderline, out var underlineStyles))
+      if (hyperlink == null 
+        && TryGetElementTag(ElementType.Underline, out var underlineTag)
+        && styleList.TryRemoveMany(StyleList.IsUnderline, out var underlineStyles))
       {
-        _writer.WriteStartElement(GetElementTag(ElementType.Underline, null, HtmlTag.U).Name);
+        _writer.WriteStartElement(underlineTag.Name);
         var underlineCss = new CssString(underlineStyles.Where(t => !(t is IsUnderline)), ElementType.Underline, run.Styles);
         if (underlineCss.Length > 0)
         {
