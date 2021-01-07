@@ -8,7 +8,7 @@ var configuration = Argument("configuration", "Release");
 var versionSuffix = string.Format(".{0}.{1}"
 	, (int)((DateTime.UtcNow - new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalDays)
 	, (int)((DateTime.UtcNow - DateTime.UtcNow.Date).TotalSeconds / 2));
-var version = "1.0" + versionSuffix;
+var version = "2.0" + versionSuffix;
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -35,7 +35,7 @@ Task("Build")
   DotNetBuild("./RtfPipe/RtfPipe.csproj", (settings) =>
   {
      settings.Configuration = configuration;
-     settings.WithProperty("VersionSuffix", versionSuffix);
+     settings.WithProperty("Version", version);
   });
   
   MoveFiles("./RtfPipe/bin/" + configuration + "/RtfPipe.*.nupkg", "./artifacts/");
