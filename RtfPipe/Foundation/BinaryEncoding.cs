@@ -8,7 +8,7 @@ namespace RtfPipe
   {
     public override int GetByteCount(char[] chars, int index, int count)
     {
-      throw new NotSupportedException();
+      return count;
     }
 
     public override int GetBytes(char[] chars, int charIndex, int charCount, byte[] bytes, int byteIndex)
@@ -24,7 +24,7 @@ namespace RtfPipe
     public override int GetChars(byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
     {
       var toCopy = Math.Min(byteCount, chars.Length - charIndex);
-      for (var i = 0; i <= toCopy; i++)
+      for (var i = 0; i < toCopy; i++)
       {
         chars[charIndex + i] = (char)bytes[byteIndex + i];
       }

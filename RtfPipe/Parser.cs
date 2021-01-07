@@ -150,7 +150,7 @@ namespace RtfPipe
     public IEnumerable<IToken> Tokens()
     {
       var curr = -1;
-      while ((curr = _reader.Read()) > 0)
+      while ((curr = _reader.Read()) >= 0)
       {
         if (Depth >= _ignoreDepth)
         {
@@ -265,14 +265,14 @@ namespace RtfPipe
             default:
               if (_context.Count < 1)
               {
-                if (!char.IsWhiteSpace((char)curr))
+                if (curr > 0 && !char.IsWhiteSpace((char)curr))
                   throw new NotSupportedException("Non-whitespace characters were found after the end of the file");
               }
               else if (_context.Peek().Destination is PictureBinaryLength binLength)
               {
                 var i = 1;
                 _context.Peek().ValueBuffer.Append(curr);
-                while (i < binLength.Value && (curr = _reader.Read()) > 0)
+                while (i < binLength.Value && (curr = _reader.Read()) >= 0)
                 {
                   _context.Peek().ValueBuffer.Append(curr);
                   i++;
