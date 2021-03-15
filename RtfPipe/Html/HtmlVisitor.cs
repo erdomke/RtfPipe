@@ -1,6 +1,7 @@
 using RtfPipe.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -532,7 +533,7 @@ namespace RtfPipe.Model
     {
       var size = IndentSize(parentStyles, newLine, tabCount);
       _writer.WriteStartElement("span");
-      _writer.WriteAttributeString("style", $"display:inline-block;width:{size.ToPx()}px");
+      _writer.WriteAttributeString("style", $"display:inline-block;width:{size.ToPx().ToString(CultureInfo.InvariantCulture)}px");
       _writer.WriteEndElement();
     }
 
