@@ -410,6 +410,18 @@ namespace RtfPipe.Model
         _writer.WriteStartElement("sup");
         endTags++;
       }
+      if (styleList.TryRemoveFirst(out BackgroundColor highlight))
+      {
+        _writer.WriteStartElement("mark");
+        styleList.RemoveWhere(s => s is ForegroundColor);
+        var markCss = new CssString(GetNewStyles(run.Styles.Where(s => s is BackgroundColor || s is ForegroundColor), HtmlTag.Mark), ElementType.Span, run.Styles);
+        if (markCss.Length > 0)
+        {
+          _writer.WriteAttributeString("style", markCss.ToString());
+          stylesWritten = true;
+        }
+        endTags++;
+      }
 
       var css = new CssString(styleList, elementType, run.Styles);
       if (hyperlink != null)
@@ -545,7 +557,8 @@ namespace RtfPipe.Model
         || token is IsDoubleStrike
         || token is SubscriptStart
         || token is SuperscriptStart
-        || token is HyperlinkToken;
+        || token is HyperlinkToken
+        || token is BackgroundColor;
     }
 
     public void Visit(Picture image)

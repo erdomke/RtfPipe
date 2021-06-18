@@ -96,6 +96,14 @@ namespace RtfPipe.Model
     };
     public static HtmlTag Header { get; } = new HtmlTag("header");
     public static HtmlTag Li { get; } = new HtmlTag("li");
+    public static HtmlTag Mark { get; } = new HtmlTag("mark")
+    {
+      Styles =
+      {
+        new BackgroundColor(new ColorValue(255, 255, 0)),
+        new ForegroundColor(new ColorValue(0, 0, 0))
+      }
+    };
     public static HtmlTag Meta { get; } = new HtmlTag("meta");
     public static HtmlTag Ol { get; } = new HtmlTag("ol")
     {

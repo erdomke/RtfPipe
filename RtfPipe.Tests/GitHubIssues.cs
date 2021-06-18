@@ -7,11 +7,12 @@ namespace RtfPipe.Tests
   [TestClass]
   public class GitHubIssues
   {
-    //    //[TestMethod]
-    //    //public void Adhoc()
-    //    //{
-    //    //  File.WriteAllText(@"C:\Users\erdomke\Downloads\OverviewPolicyClaims2.html", Rtf.ToHtml(File.ReadAllText(@"C:\Users\erdomke\Downloads\OverviewPolicyClaims.rtf")));
-    //    //}
+    //[TestMethod]
+    public void Adhoc()
+    {
+      using (var stream = File.OpenRead(@"C:\Users\erdomke\source\GitHub\Message.rtf"))
+        File.WriteAllText(@"C:\Users\erdomke\source\GitHub\Message.html", Rtf.ToHtml(stream));
+    }
 
     [TestMethod]
     public void Issue10()
@@ -43,7 +44,7 @@ This line is font 0 again\line
 This line has a \cf2 red \cf1 word\line
 \highlight3 while this line has a \cf2 red \cf1 word and is highlighted in yellow\highlight0\line
 Finally, back to the default color.\line
-}", "<div style=\"font-size:12pt;font-family:Courier;\"><p style=\"margin:0;\">This line is font 0 which is courier<br><span style=\"font-family:ProFontWindows;\">This line is font 1<br></span>This line is font 0 again<br>This line has a <span style=\"color:#FF0000;\">red </span>word<br><span style=\"background:#FFFF00;\">while this line has a </span><span style=\"background:#FFFF00;color:#FF0000;\">red </span><span style=\"background:#FFFF00;\">word and is highlighted in yellow<br></span>Finally, back to the default color.<br>&nbsp;</p></div>");
+}", "<div style=\"font-size:12pt;font-family:Courier;\"><p style=\"margin:0;\">This line is font 0 which is courier<br><span style=\"font-family:ProFontWindows;\">This line is font 1<br></span>This line is font 0 again<br>This line has a <span style=\"color:#FF0000;\">red </span>word<br><mark>while this line has a </mark><mark style=\"color:#FF0000;\">red </mark><mark>word and is highlighted in yellow<br></mark>Finally, back to the default color.<br>&nbsp;</p></div>");
     }
 
     [TestMethod]
@@ -237,7 +238,7 @@ AC Reference: 12312443423\par \par \par
       TestConvert("RtfPipe.Tests.Files.Issue42");
     }
 
-    [TestMethod]
+    //[TestMethod]
     public void Issue46()
     {
       // Need to figure out how to handle shapes and paragraph numbering
@@ -297,7 +298,33 @@ AC Reference: 12312443423\par \par \par
 {\*\generator Riched20 10.0.18362}\viewkind4\uc1 
 \pard\qc\highlight1\f0\fs24 Red\highlight0 \highlight2 Blue\highlight0 \highlight3 Green\highlight0\par
 }"
-        , "<div style=\"font-size:12pt;font-family:&quot;Microsoft Sans Serif&quot;;\"><p style=\"text-align:center;margin:0;\"><span style=\"background:#FF0000;\">Red</span><span style=\"background:#0000FF;\">Blue</span><span style=\"background:#00FF00;\">Green</span></p></div>");
+        , "<div style=\"font-size:12pt;font-family:&quot;Microsoft Sans Serif&quot;;\"><p style=\"text-align:center;margin:0;\"><mark style=\"background:#FF0000;\">Red</mark><mark style=\"background:#0000FF;\">Blue</mark><mark style=\"background:#00FF00;\">Green</mark></p></div>");
+    }
+
+    [TestMethod]
+    public void Issue59()
+    {
+      TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang2057{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+{\colortbl ;\red255\green255\blue0;}
+{\*\generator Riched20 10.0.18362}\viewkind4\uc1 
+\pard\highlight1\f0\fs17 Background\par
+2nd line\par
+\highlight0\par
+}
+}"
+        , "<div style=\"font-size:12pt;font-family:&quot;Microsoft Sans Serif&quot;;\"><p style=\"font-size:8.5pt;margin:0;\"><mark>Background</mark></p><p style=\"font-size:8.5pt;margin:0;\"><mark>2nd line</mark></p><p style=\"font-size:8.5pt;margin:0;\"><br></p></div>");
+    }
+
+    [TestMethod]
+    public void Issue59b()
+    {
+      TestConvert(@"{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang2057{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}
+{\colortbl ;\red255\green0\blue0;\red0\green0\blue255;\red0\green255\blue0;}
+{\*\generator Riched20 10.0.18362}\viewkind4\uc1 
+\pard\qc\highlight1\f0\fs24 Red Background\highlight0 \highlight2 Bl\par
+ue\highlight0 \highlight3 Green\highlight0\par
+}"
+        , "<div style=\"font-size:12pt;font-family:&quot;Microsoft Sans Serif&quot;;\"><p style=\"text-align:center;margin:0;\"><mark style=\"background:#FF0000;\">Red Background</mark><mark style=\"background:#0000FF;\">Bl</mark></p><p style=\"text-align:center;margin:0;\"><mark style=\"background:#0000FF;\">ue</mark><mark style=\"background:#00FF00;\">Green</mark></p></div>");
     }
 
     private void TestConvert(RtfSource rtf, string html)

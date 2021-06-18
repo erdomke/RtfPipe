@@ -42,4 +42,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net35|AnyCPU'">
     <DocumentationFile></DocumentationFile>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net40|AnyCPU'">
+    <DocumentationFile>C:\Users\erdomke\source\GitHub\RtfPipe\RtfPipe\RtfPipe.xml</DocumentationFile>
+  </PropertyGroup>
 </Project>
