@@ -55,6 +55,12 @@ namespace RtfPipe.Model
         if (document.Metadata.Count > 0)
         {
           _writer.WriteStartElement("head");
+          _writer.WriteAttributeString("lang", "de");
+
+          _writer.WriteStartElement(metaTag.Name);
+          _writer.WriteAttributeString("http-equiv", "content-type");
+          _writer.WriteAttributeString("content", "text/html; charset=utf-8");
+          _writer.WriteEndElement();
 
           var title = document.Metadata.FirstOrDefault(k => k.Key is Title).Value as string;
           if (!string.IsNullOrEmpty(title))
@@ -118,6 +124,8 @@ namespace RtfPipe.Model
 
             _writer.WriteEndElement();
           }
+          Settings?.CustomHeadStyle?.Invoke(_writer);
+
           _writer.WriteEndElement();
         }
         document.Root.Visit(this);
@@ -283,12 +291,12 @@ namespace RtfPipe.Model
         for (var i = 0; i < cells.Count; i++)
         {
           var token = cells[i].Styles.OfType<CellToken>().Single();
-
-          token.Index = startIndex;
           int lastIndex;
           try { lastIndex = indexDict[token.RightBoundary]; }
           catch { lastIndex = startIndex; }
+          token.Index = startIndex;
           token.ColSpan = lastIndex - startIndex + 1;
+
           // Fix widths to be the widths instead of the right boundary when there is a discrepancy
           if (startIndex == lastIndex && token.WidthUnit == CellWidthUnit.Twip)
             widths[startIndex] = new UnitValue(token.Width, UnitType.Twip);
