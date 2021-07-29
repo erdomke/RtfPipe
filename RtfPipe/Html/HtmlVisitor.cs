@@ -44,7 +44,7 @@ namespace RtfPipe.Model
         return !string.IsNullOrEmpty(tag.Name);
       return false;
     }
-    
+
     public void Visit(RtfHtml document)
     {
       DefaultTabWidth = document.DefaultTabWidth;
@@ -137,7 +137,7 @@ namespace RtfPipe.Model
     {
       if (!TryGetElementTag(element.Type, out var tag))
         return;
-      
+
       _writer.WriteStartElement(tag.Name);
       foreach (var attribute in tag.Attributes)
         _writer.WriteAttributeString(attribute.Key, attribute.Value);
@@ -186,7 +186,7 @@ namespace RtfPipe.Model
       }
 
       ProcessLeadingTabs(element, styleList);
-      if (element.Type == ElementType.Section 
+      if (element.Type == ElementType.Section
         && element.Parent != null
         && element.Parent.Elements().First(e => e.Type == ElementType.Section) != element)
       {
@@ -283,10 +283,12 @@ namespace RtfPipe.Model
         for (var i = 0; i < cells.Count; i++)
         {
           var token = cells[i].Styles.OfType<CellToken>().Single();
-          var lastIndex = indexDict[token.RightBoundary];
-          token.Index = startIndex;
-          token.ColSpan = lastIndex - startIndex + 1;
 
+          token.Index = startIndex;
+          int lastIndex;
+          try { lastIndex = indexDict[token.RightBoundary]; }
+          catch { lastIndex = startIndex; }
+          token.ColSpan = lastIndex - startIndex + 1;
           // Fix widths to be the widths instead of the right boundary when there is a discrepancy
           if (startIndex == lastIndex && token.WidthUnit == CellWidthUnit.Twip)
             widths[startIndex] = new UnitValue(token.Width, UnitType.Twip);
@@ -381,7 +383,7 @@ namespace RtfPipe.Model
         _writer.WriteStartElement(italicTag.Name);
         endTags++;
       }
-      if (hyperlink == null 
+      if (hyperlink == null
         && TryGetElementTag(ElementType.Underline, out var underlineTag)
         && styleList.TryRemoveMany(StyleList.IsUnderline, out var underlineStyles))
       {
@@ -449,11 +451,11 @@ namespace RtfPipe.Model
       }
 
       WriteRunText(run, renderWingdings);
-      
+
       for (var j = 0; j < endTags; j++)
         _writer.WriteEndElement();
     }
-    
+
     private void WriteRunText(Run run, bool renderWingdings)
     {
       var i = 0;
@@ -469,7 +471,7 @@ namespace RtfPipe.Model
         while (i < charBuffer.Length && charBuffer[i] == '\t')
           i++;
       }
-      
+
 
       var start = i;
       var inTabList = false;
@@ -589,7 +591,7 @@ namespace RtfPipe.Model
       {
         _writer.WriteStartElement("a");
         _writer.WriteAttributeString("id", anchor.Id);
-        _writer.WriteEndElement();        
+        _writer.WriteEndElement();
       }
     }
 
