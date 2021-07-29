@@ -30,6 +30,8 @@ namespace RtfPipe
     /// </summary>
     public Func<Picture, string> ImageUriGetter { get; set; }
 
+    public Action<XmlWriter> CustomHeadStyle { get; set; }
+
     /// <summary>
     /// Create a new <see cref="RtfHtmlSettings"/> object
     /// </summary>

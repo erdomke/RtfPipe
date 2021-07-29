@@ -2,6 +2,7 @@ namespace RtfPipe.Model
 {
   public enum ElementType
   {
+    Article,
     Container,
     Document,
     Emphasis,

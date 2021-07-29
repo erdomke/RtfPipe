@@ -1,4 +1,5 @@
 using RtfPipe.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -16,6 +17,23 @@ namespace RtfPipe.Model
       Name = name;
     }
 
+    public HtmlTag AddClass(string cssClass)
+    {
+      if (!String.IsNullOrEmpty(cssClass))
+      {
+        string cssClasses;
+        if (Attributes.TryGetValue("class", out cssClasses))
+        {
+          Attributes["class"] = String.Concat(cssClasses, " ", cssClass);
+        }
+        else
+        {
+          Attributes.Add("class", cssClasses);
+        }
+      }
+      return this;
+    }
+
     public static HtmlTag A { get; } = new HtmlTag("a")
     {
       Styles =
@@ -24,6 +42,7 @@ namespace RtfPipe.Model
         new ForegroundColor(new ColorValue(0, 0, 238))
       }
     };
+    public static HtmlTag Article { get; } = new HtmlTag("article");
     public static HtmlTag Body { get; } = new HtmlTag("body");
     public static HtmlTag Div { get; } = new HtmlTag("div");
     public static HtmlTag Em { get; } = new HtmlTag("em")
