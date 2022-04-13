@@ -244,9 +244,18 @@ namespace RtfPipe.Model
 
     private void ProcessColumns(Element table)
     {
-      var boundaries = table.Elements()
-        .SelectMany(e => e.Styles.OfType<CellToken>())
-        .Select(c => c.RightBoundary)
+      // Get all RightBoundary of header,body and all rows
+      var rightBoundaries = new List<UnitValue>();
+      foreach (var mainElement in table.Elements())
+      {
+        rightBoundaries.AddRange(mainElement.Styles.OfType<CellToken>().Select(c => c.RightBoundary));
+        foreach (var row in mainElement.Elements())
+        {
+          rightBoundaries.AddRange(row.Styles.OfType<CellToken>().Select(c => c.RightBoundary));
+        }
+      }
+
+      var boundaries = rightBoundaries
         .Distinct()
         .OrderBy(v => v)
         .Select(v => new CellIndex() { RightBoundary = v })
